@@ -1,0 +1,274 @@
+{% extends "base.html" %} {% block title %}이벤트 - 컨테이너 모니터링{% endblock
+%} {% block breadcrumb %}이벤트{% endblock %} {% block content %}
+<!-- 이벤트 차트 -->
+<div class="row mb-4">
+  <div class="col-lg-8 mb-4">
+    <div class="dashboard-card">
+      <div class="dashboard-card-header">
+        <h5 class="dashboard-card-title">
+          <i class="fas fa-chart-area"></i>
+          이벤트 발생 추이
+        </h5>
+        <p class="dashboard-card-subtitle">최근 24시간 이벤트 발생 패턴</p>
+      </div>
+      <div class="dashboard-card-body">
+        <div class="chart-container">
+          <canvas id="eventTrendChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4 mb-4">
+    <div class="dashboard-card">
+      <div class="dashboard-card-header">
+        <h5 class="dashboard-card-title">
+          <i class="fas fa-chart-pie"></i>
+          이벤트 타입 분포
+        </h5>
+        <p class="dashboard-card-subtitle">이벤트 타입별 분포</p>
+      </div>
+      <div class="dashboard-card-body">
+        <div class="chart-container">
+          <canvas id="eventTypeChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 이벤트 통계 카드 -->
+<div class="row mb-4">
+  <div class="col-lg-3 col-md-6 mb-4">
+    <div class="metric-card">
+      <div class="metric-card-header">
+        <div class="metric-icon success">
+          <i class="fas fa-check-circle"></i>
+        </div>
+      </div>
+      <div class="metric-value">156</div>
+      <div class="metric-label">정상 이벤트</div>
+      <div class="metric-change positive">
+        <i class="fas fa-arrow-up"></i>
+        <span>+12</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-3 col-md-6 mb-4">
+    <div class="metric-card">
+      <div class="metric-card-header">
+        <div class="metric-icon warning">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+      </div>
+      <div class="metric-value">8</div>
+      <div class="metric-label">경고 이벤트</div>
+      <div class="metric-change negative">
+        <i class="fas fa-arrow-up"></i>
+        <span>+2</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-3 col-md-6 mb-4">
+    <div class="metric-card">
+      <div class="metric-card-header">
+        <div class="metric-icon danger">
+          <i class="fas fa-times-circle"></i>
+        </div>
+      </div>
+      <div class="metric-value">3</div>
+      <div class="metric-label">오류 이벤트</div>
+      <div class="metric-change negative">
+        <i class="fas fa-arrow-up"></i>
+        <span>+1</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-3 col-md-6 mb-4">
+    <div class="metric-card">
+      <div class="metric-card-header">
+        <div class="metric-icon info">
+          <i class="fas fa-info-circle"></i>
+        </div>
+      </div>
+      <div class="metric-value">67</div>
+      <div class="metric-label">총 이벤트</div>
+      <div class="metric-change positive">
+        <i class="fas fa-arrow-up"></i>
+        <span>+15</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 이벤트 테이블 -->
+<div class="dashboard-card">
+  <div class="dashboard-card-header">
+    <h5 class="dashboard-card-title">
+      <i class="fas fa-calendar-alt"></i>
+      이벤트 목록
+    </h5>
+    <p class="dashboard-card-subtitle">시스템에서 발생한 모든 이벤트</p>
+  </div>
+  <div class="dashboard-card-body">
+    <div class="table-container">
+      <table class="table table-hover" id="eventsTable">
+        <thead>
+          <tr>
+            <th>시간</th>
+            <th>이벤트 타입</th>
+            <th>이벤트</th>
+            <th>객체</th>
+            <th>메시지</th>
+            <th>원인</th>
+            <th>액션</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>2024-01-15 14:32:15</td>
+            <td><span class="status-badge success">Normal</span></td>
+            <td>Pod Scheduled</td>
+            <td>nginx-web-3</td>
+            <td>Successfully assigned nginx-web-3 to k8s-worker-01</td>
+            <td>Scheduled</td>
+            <td>default-scheduler</td>
+          </tr>
+          <tr>
+            <td>2024-01-15 14:31:45</td>
+            <td><span class="status-badge success">Normal</span></td>
+            <td>Pulling</td>
+            <td>nginx-web-3</td>
+            <td>Pulling image nginx:1.21</td>
+            <td>Pulling</td>
+            <td>kubelet</td>
+          </tr>
+          <tr>
+            <td>2024-01-15 14:31:20</td>
+            <td><span class="status-badge success">Normal</span></td>
+            <td>Created</td>
+            <td>nginx-web-3</td>
+            <td>Created container nginx-web-3</td>
+            <td>Created</td>
+            <td>kubelet</td>
+          </tr>
+          <tr>
+            <td>2024-01-15 14:30:55</td>
+            <td><span class="status-badge warning">Warning</span></td>
+            <td>FailedMount</td>
+            <td>postgres-db-1</td>
+            <td>Unable to mount volume for pod postgres-db-1</td>
+            <td>FailedMount</td>
+            <td>kubelet</td>
+          </tr>
+          <tr>
+            <td>2024-01-15 14:30:30</td>
+            <td><span class="status-badge success">Normal</span></td>
+            <td>Started</td>
+            <td>redis-cache-1</td>
+            <td>Started container redis-cache-1</td>
+            <td>Started</td>
+            <td>kubelet</td>
+          </tr>
+          <tr>
+            <td>2024-01-15 14:30:15</td>
+            <td><span class="status-badge danger">Error</span></td>
+            <td>Failed</td>
+            <td>api-gateway-1</td>
+            <td>Error: container failed to start</td>
+            <td>Failed</td>
+            <td>kubelet</td>
+          </tr>
+          <tr>
+            <td>2024-01-15 14:29:45</td>
+            <td><span class="status-badge success">Normal</span></td>
+            <td>Pulled</td>
+            <td>nginx-web-2</td>
+            <td>Successfully pulled image nginx:1.21</td>
+            <td>Pulled</td>
+            <td>kubelet</td>
+          </tr>
+          <tr>
+            <td>2024-01-15 14:29:20</td>
+            <td><span class="status-badge success">Normal</span></td>
+            <td>Created</td>
+            <td>nginx-web-2</td>
+            <td>Created container nginx-web-2</td>
+            <td>Created</td>
+            <td>kubelet</td>
+          </tr>
+          <tr>
+            <td>2024-01-15 14:28:55</td>
+            <td><span class="status-badge success">Normal</span></td>
+            <td>Started</td>
+            <td>nginx-web-1</td>
+            <td>Started container nginx-web-1</td>
+            <td>Started</td>
+            <td>kubelet</td>
+          </tr>
+          <tr>
+            <td>2024-01-15 14:28:30</td>
+            <td><span class="status-badge warning">Warning</span></td>
+            <td>Unhealthy</td>
+            <td>postgres-db-1</td>
+            <td>
+              Readiness probe failed: Get http://172.17.0.4:5432/health: dial
+              tcp 172.17.0.4:5432: connect: connection refused
+            </td>
+            <td>Unhealthy</td>
+            <td>kubelet</td>
+          </tr>
+          <tr>
+            <td>2024-01-15 14:28:15</td>
+            <td><span class="status-badge success">Normal</span></td>
+            <td>SuccessfulCreate</td>
+            <td>nginx-deployment</td>
+            <td>Created pod: nginx-web-1</td>
+            <td>SuccessfulCreate</td>
+            <td>replicaset-controller</td>
+          </tr>
+          <tr>
+            <td>2024-01-15 14:27:45</td>
+            <td><span class="status-badge success">Normal</span></td>
+            <td>ScalingReplicaSet</td>
+            <td>nginx-deployment</td>
+            <td>Scaled up replica set nginx-rs to 3</td>
+            <td>ScalingReplicaSet</td>
+            <td>deployment-controller</td>
+          </tr>
+          <tr>
+            <td>2024-01-15 14:27:20</td>
+            <td><span class="status-badge success">Normal</span></td>
+            <td>Created</td>
+            <td>nginx-service</td>
+            <td>Created service nginx-service</td>
+            <td>Created</td>
+            <td>service-controller</td>
+          </tr>
+          <tr>
+            <td>2024-01-15 14:26:55</td>
+            <td><span class="status-badge success">Normal</span></td>
+            <td>SuccessfulCreate</td>
+            <td>nginx-deployment</td>
+            <td>Created pod: nginx-web-2</td>
+            <td>SuccessfulCreate</td>
+            <td>replicaset-controller</td>
+          </tr>
+          <tr>
+            <td>2024-01-15 14:26:30</td>
+            <td><span class="status-badge success">Normal</span></td>
+            <td>Pulling</td>
+            <td>nginx-web-1</td>
+            <td>Pulling image nginx:1.21</td>
+            <td>Pulling</td>
+            <td>kubelet</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

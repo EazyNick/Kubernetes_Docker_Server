@@ -1,0 +1,319 @@
+{% extends "base.html" %} {% block title %}노드 - 컨테이너 모니터링{% endblock
+%} {% block breadcrumb %}노드{% endblock %} {% block content %}
+<!-- 노드 차트 섹션 -->
+<div class="row mb-4">
+  <!-- 노드별 CPU 사용률 -->
+  <div class="col-lg-6 mb-4">
+    <div class="dashboard-card">
+      <div class="dashboard-card-header">
+        <h5 class="dashboard-card-title">
+          <i class="fas fa-microchip"></i>
+          노드별 CPU 사용률
+        </h5>
+        <p class="dashboard-card-subtitle">각 노드의 현재 CPU 사용률</p>
+      </div>
+      <div class="dashboard-card-body">
+        <div class="chart-container">
+          <canvas id="nodeCpuChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 노드별 메모리 사용률 -->
+  <div class="col-lg-6 mb-4">
+    <div class="dashboard-card">
+      <div class="dashboard-card-header">
+        <h5 class="dashboard-card-title">
+          <i class="fas fa-memory"></i>
+          노드별 메모리 사용률
+        </h5>
+        <p class="dashboard-card-subtitle">각 노드의 현재 메모리 사용률</p>
+      </div>
+      <div class="dashboard-card-body">
+        <div class="chart-container">
+          <canvas id="nodeMemoryChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 노드 테이블 -->
+<div class="dashboard-card">
+  <div class="dashboard-card-header">
+    <h5 class="dashboard-card-title">
+      <i class="fas fa-server"></i>
+      노드 목록
+    </h5>
+    <p class="dashboard-card-subtitle">
+      클러스터의 모든 노드 상태 및 리소스 정보
+    </p>
+  </div>
+  <div class="dashboard-card-body">
+    <div class="table-container">
+      <table class="table table-hover" id="nodesTable">
+        <thead>
+          <tr>
+            <th>노드명</th>
+            <th>상태</th>
+            <th>역할</th>
+            <th>CPU</th>
+            <th>메모리</th>
+            <th>디스크</th>
+            <th>컨테이너</th>
+            <th>OS</th>
+            <th>작업</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="d-flex align-items-center">
+                <i class="fas fa-server text-primary me-2"></i>
+                <strong>k8s-master-01</strong>
+              </div>
+            </td>
+            <td><span class="status-badge running">정상</span></td>
+            <td><span class="badge bg-primary">Master</span></td>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="progress-modern me-2" style="width: 60px">
+                  <div
+                    class="progress-bar-modern"
+                    style="width: 23%; background: #059669"
+                  ></div>
+                </div>
+                <span>23%</span>
+              </div>
+            </td>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="progress-modern me-2" style="width: 60px">
+                  <div
+                    class="progress-bar-modern"
+                    style="width: 45%; background: #d97706"
+                  ></div>
+                </div>
+                <span>45%</span>
+              </div>
+            </td>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="progress-modern me-2" style="width: 60px">
+                  <div
+                    class="progress-bar-modern"
+                    style="width: 32%; background: #059669"
+                  ></div>
+                </div>
+                <span>32%</span>
+              </div>
+            </td>
+            <td>12</td>
+            <td>Ubuntu 20.04</td>
+            <td>
+              <div class="btn-group-actions">
+                <button
+                  class="btn btn-sm btn-outline-primary"
+                  title="상세 정보"
+                >
+                  <i class="fas fa-info-circle"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-warning" title="재시작">
+                  <i class="fas fa-redo"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" title="유지보수">
+                  <i class="fas fa-tools"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="d-flex align-items-center">
+                <i class="fas fa-server text-success me-2"></i>
+                <strong>k8s-worker-01</strong>
+              </div>
+            </td>
+            <td><span class="status-badge running">정상</span></td>
+            <td><span class="badge bg-success">Worker</span></td>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="progress-modern me-2" style="width: 60px">
+                  <div
+                    class="progress-bar-modern"
+                    style="width: 67%; background: #d97706"
+                  ></div>
+                </div>
+                <span>67%</span>
+              </div>
+            </td>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="progress-modern me-2" style="width: 60px">
+                  <div
+                    class="progress-bar-modern"
+                    style="width: 78%; background: #dc2626"
+                  ></div>
+                </div>
+                <span>78%</span>
+              </div>
+            </td>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="progress-modern me-2" style="width: 60px">
+                  <div
+                    class="progress-bar-modern"
+                    style="width: 45%; background: #d97706"
+                  ></div>
+                </div>
+                <span>45%</span>
+              </div>
+            </td>
+            <td>28</td>
+            <td>Ubuntu 20.04</td>
+            <td>
+              <div class="btn-group-actions">
+                <button
+                  class="btn btn-sm btn-outline-primary"
+                  title="상세 정보"
+                >
+                  <i class="fas fa-info-circle"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-warning" title="재시작">
+                  <i class="fas fa-redo"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" title="유지보수">
+                  <i class="fas fa-tools"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="d-flex align-items-center">
+                <i class="fas fa-server text-warning me-2"></i>
+                <strong>k8s-worker-02</strong>
+              </div>
+            </td>
+            <td><span class="status-badge warning">경고</span></td>
+            <td><span class="badge bg-success">Worker</span></td>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="progress-modern me-2" style="width: 60px">
+                  <div
+                    class="progress-bar-modern"
+                    style="width: 89%; background: #dc2626"
+                  ></div>
+                </div>
+                <span>89%</span>
+              </div>
+            </td>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="progress-modern me-2" style="width: 60px">
+                  <div
+                    class="progress-bar-modern"
+                    style="width: 91%; background: #dc2626"
+                  ></div>
+                </div>
+                <span>91%</span>
+              </div>
+            </td>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="progress-modern me-2" style="width: 60px">
+                  <div
+                    class="progress-bar-modern"
+                    style="width: 67%; background: #d97706"
+                  ></div>
+                </div>
+                <span>67%</span>
+              </div>
+            </td>
+            <td>35</td>
+            <td>Ubuntu 20.04</td>
+            <td>
+              <div class="btn-group-actions">
+                <button
+                  class="btn btn-sm btn-outline-primary"
+                  title="상세 정보"
+                >
+                  <i class="fas fa-info-circle"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-warning" title="재시작">
+                  <i class="fas fa-redo"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" title="유지보수">
+                  <i class="fas fa-tools"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="d-flex align-items-center">
+                <i class="fas fa-server text-info me-2"></i>
+                <strong>docker-host-01</strong>
+              </div>
+            </td>
+            <td><span class="status-badge running">정상</span></td>
+            <td><span class="badge bg-info">Docker</span></td>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="progress-modern me-2" style="width: 60px">
+                  <div
+                    class="progress-bar-modern"
+                    style="width: 34%; background: #059669"
+                  ></div>
+                </div>
+                <span>34%</span>
+              </div>
+            </td>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="progress-modern me-2" style="width: 60px">
+                  <div
+                    class="progress-bar-modern"
+                    style="width: 56%; background: #d97706"
+                  ></div>
+                </div>
+                <span>56%</span>
+              </div>
+            </td>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="progress-modern me-2" style="width: 60px">
+                  <div
+                    class="progress-bar-modern"
+                    style="width: 23%; background: #059669"
+                  ></div>
+                </div>
+                <span>23%</span>
+              </div>
+            </td>
+            <td>18</td>
+            <td>CentOS 8</td>
+            <td>
+              <div class="btn-group-actions">
+                <button
+                  class="btn btn-sm btn-outline-primary"
+                  title="상세 정보"
+                >
+                  <i class="fas fa-info-circle"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-warning" title="재시작">
+                  <i class="fas fa-redo"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" title="유지보수">
+                  <i class="fas fa-tools"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

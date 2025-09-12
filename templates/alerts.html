@@ -1,0 +1,236 @@
+{% extends "base.html" %} {% block title %}알림 - 컨테이너 모니터링{% endblock
+%} {% block breadcrumb %}알림{% endblock %} {% block content %}
+<!-- 알림 차트 -->
+<div class="row mb-4">
+  <div class="col-lg-12">
+    <div class="dashboard-card">
+      <div class="dashboard-card-header">
+        <h5 class="dashboard-card-title">
+          <i class="fas fa-chart-line"></i>
+          알림 발생 추이
+        </h5>
+        <p class="dashboard-card-subtitle">최근 24시간 알림 발생 패턴</p>
+      </div>
+      <div class="dashboard-card-body">
+        <div class="chart-container">
+          <canvas id="alertTrendChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 알림 통계 카드 -->
+<div class="row mb-4">
+  <div class="col-lg-3 col-md-6 mb-4">
+    <div class="metric-card">
+      <div class="metric-card-header">
+        <div class="metric-icon danger">
+          <i class="fas fa-exclamation-circle"></i>
+        </div>
+      </div>
+      <div class="metric-value">3</div>
+      <div class="metric-label">위험 알림</div>
+      <div class="metric-change negative">
+        <i class="fas fa-arrow-up"></i>
+        <span>+1</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-3 col-md-6 mb-4">
+    <div class="metric-card">
+      <div class="metric-card-header">
+        <div class="metric-icon warning">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+      </div>
+      <div class="metric-value">12</div>
+      <div class="metric-label">경고 알림</div>
+      <div class="metric-change positive">
+        <i class="fas fa-arrow-down"></i>
+        <span>-2</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-3 col-md-6 mb-4">
+    <div class="metric-card">
+      <div class="metric-card-header">
+        <div class="metric-icon info">
+          <i class="fas fa-info-circle"></i>
+        </div>
+      </div>
+      <div class="metric-value">8</div>
+      <div class="metric-label">정보 알림</div>
+      <div class="metric-change positive">
+        <i class="fas fa-arrow-down"></i>
+        <span>-1</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-3 col-md-6 mb-4">
+    <div class="metric-card">
+      <div class="metric-card-header">
+        <div class="metric-icon success">
+          <i class="fas fa-check-circle"></i>
+        </div>
+      </div>
+      <div class="metric-value">23</div>
+      <div class="metric-label">해결된 알림</div>
+      <div class="metric-change positive">
+        <i class="fas fa-arrow-up"></i>
+        <span>+5</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 알림 테이블 -->
+<div class="dashboard-card">
+  <div class="dashboard-card-header">
+    <h5 class="dashboard-card-title">
+      <i class="fas fa-bell"></i>
+      알림 목록
+    </h5>
+    <p class="dashboard-card-subtitle">시스템에서 발생한 모든 알림 및 경고</p>
+  </div>
+  <div class="dashboard-card-body">
+    <div class="table-container">
+      <table class="table table-hover" id="alertsTable">
+        <thead>
+          <tr>
+            <th>알림 ID</th>
+            <th>제목</th>
+            <th>심각도</th>
+            <th>상태</th>
+            <th>발생 시간</th>
+            <th>해결 시간</th>
+            <th>작업</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>ALT-001</td>
+            <td>CPU 사용률 높음</td>
+            <td><span class="status-badge warning">경고</span></td>
+            <td><span class="status-badge pending">미해결</span></td>
+            <td>2024-01-15 14:30:15</td>
+            <td>-</td>
+            <td>
+              <div class="btn-group-actions">
+                <button class="btn btn-sm btn-outline-success" title="해결">
+                  <i class="fas fa-check"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-primary" title="상세보기">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-warning" title="무시">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>ALT-002</td>
+            <td>메모리 부족</td>
+            <td><span class="status-badge danger">위험</span></td>
+            <td><span class="status-badge pending">미해결</span></td>
+            <td>2024-01-15 14:25:30</td>
+            <td>-</td>
+            <td>
+              <div class="btn-group-actions">
+                <button class="btn btn-sm btn-outline-success" title="해결">
+                  <i class="fas fa-check"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-primary" title="상세보기">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-warning" title="무시">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>ALT-003</td>
+            <td>디스크 공간 부족</td>
+            <td><span class="status-badge warning">경고</span></td>
+            <td><span class="status-badge running">해결됨</span></td>
+            <td>2024-01-15 13:45:20</td>
+            <td>2024-01-15 14:10:15</td>
+            <td>
+              <div class="btn-group-actions">
+                <button class="btn btn-sm btn-outline-primary" title="상세보기">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" title="재발생">
+                  <i class="fas fa-redo"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>ALT-004</td>
+            <td>네트워크 연결 실패</td>
+            <td><span class="status-badge danger">위험</span></td>
+            <td><span class="status-badge running">해결됨</span></td>
+            <td>2024-01-15 13:20:45</td>
+            <td>2024-01-15 13:35:10</td>
+            <td>
+              <div class="btn-group-actions">
+                <button class="btn btn-sm btn-outline-primary" title="상세보기">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" title="재발생">
+                  <i class="fas fa-redo"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>ALT-005</td>
+            <td>컨테이너 재시작</td>
+            <td><span class="status-badge info">정보</span></td>
+            <td><span class="status-badge running">해결됨</span></td>
+            <td>2024-01-15 12:55:30</td>
+            <td>2024-01-15 12:56:45</td>
+            <td>
+              <div class="btn-group-actions">
+                <button class="btn btn-sm btn-outline-primary" title="상세보기">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" title="재발생">
+                  <i class="fas fa-redo"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>ALT-006</td>
+            <td>SSL 인증서 만료 임박</td>
+            <td><span class="status-badge warning">경고</span></td>
+            <td><span class="status-badge pending">미해결</span></td>
+            <td>2024-01-15 11:30:15</td>
+            <td>-</td>
+            <td>
+              <div class="btn-group-actions">
+                <button class="btn btn-sm btn-outline-success" title="해결">
+                  <i class="fas fa-check"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-primary" title="상세보기">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-warning" title="무시">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
