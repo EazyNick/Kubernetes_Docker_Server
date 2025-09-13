@@ -74,9 +74,27 @@
 
       .feature-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        grid-template-columns: repeat(4, 1fr);
         gap: 1.5rem;
         margin-bottom: 2rem;
+      }
+
+      @media (max-width: 1200px) {
+        .feature-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      @media (max-width: 900px) {
+        .feature-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 600px) {
+        .feature-grid {
+          grid-template-columns: 1fr;
+        }
       }
 
       .feature-card {
@@ -222,56 +240,7 @@
         font-weight: 500;
       }
 
-      .quick-actions {
-        background: white;
-        border: 1px solid var(--gray-200);
-        border-radius: var(--border-radius);
-        padding: 2rem;
-        box-shadow: var(--shadow-sm);
-      }
 
-      .quick-actions-title {
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: var(--gray-900);
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-      }
-
-      .action-buttons {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-      }
-
-      .action-btn {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 1rem 1.5rem;
-        border: 1px solid var(--gray-200);
-        border-radius: 8px;
-        background: white;
-        color: var(--gray-700);
-        text-decoration: none;
-        font-weight: 500;
-        transition: all 0.2s ease;
-      }
-
-      .action-btn:hover {
-        background: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
-        text-decoration: none;
-        transform: translateY(-1px);
-        box-shadow: var(--shadow);
-      }
-
-      .action-btn i {
-        font-size: 1.25rem;
-      }
 
       @media (max-width: 768px) {
         .hero-title {
@@ -451,6 +420,45 @@
                 모니터링 보기 <i class="fas fa-arrow-right"></i>
                 </div>
             </a>
+
+            <a href="/logs" class="feature-card">
+              <div class="feature-icon warning">
+                <i class="fas fa-file-alt"></i>
+              </div>
+              <h3 class="feature-title">로그 확인</h3>
+              <p class="feature-description">
+                실시간 로그 스트림을 통해 시스템 상태와 오류를 추적하세요.
+              </p>
+              <div class="feature-link">
+                로그 보기 <i class="fas fa-arrow-right"></i>
+              </div>
+            </a>
+
+            <a href="/alerts" class="feature-card">
+              <div class="feature-icon danger">
+                <i class="fas fa-bell"></i>
+              </div>
+              <h3 class="feature-title">알림 설정</h3>
+              <p class="feature-description">
+                시스템 알림을 관리하고 중요한 이벤트에 대한 알림을 설정하세요.
+              </p>
+              <div class="feature-link">
+                알림 관리 <i class="fas fa-arrow-right"></i>
+              </div>
+            </a>
+
+            <a href="/events" class="feature-card">
+              <div class="feature-icon success">
+                <i class="fas fa-calendar-alt"></i>
+              </div>
+              <h3 class="feature-title">이벤트 확인</h3>
+              <p class="feature-description">
+                클러스터에서 발생하는 모든 이벤트를 실시간으로 모니터링하세요.
+              </p>
+              <div class="feature-link">
+                이벤트 보기 <i class="fas fa-arrow-right"></i>
+              </div>
+            </a>
             </div>
 
           <!-- Status Overview -->
@@ -481,31 +489,6 @@
               </div>
             </div>
 
-          <!-- Quick Actions -->
-          <div class="quick-actions">
-            <h2 class="quick-actions-title">
-              <i class="fas fa-bolt"></i>
-              빠른 작업
-            </h2>
-            <div class="action-buttons">
-              <a href="/containers" class="action-btn">
-                <i class="fas fa-plus"></i>
-                새 컨테이너 생성
-              </a>
-              <a href="/logs" class="action-btn">
-                <i class="fas fa-file-alt"></i>
-                로그 확인
-              </a>
-              <a href="/alerts" class="action-btn">
-                <i class="fas fa-bell"></i>
-                알림 설정
-              </a>
-              <a href="/monitoring" class="action-btn">
-                      <i class="fas fa-chart-bar"></i>
-                성능 분석
-              </a>
-                    </div>
-                  </div>
                     </div>
       </main>
           </div>
