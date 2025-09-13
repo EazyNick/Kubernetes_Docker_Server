@@ -279,17 +279,33 @@
             </div>
             <div class="dashboard-card-body">
                 <div class="table-container">
-                    <table class="table table-hover">
+                    <table class="table table-hover" id="monitoringTable">
                         <thead>
                             <tr>
-                                <th>순위</th>
-                                <th>컨테이너</th>
-                                <th>노드</th>
-                                <th>CPU 사용률</th>
-                                <th>메모리 사용률</th>
-                                <th>네트워크 I/O</th>
-                                <th>디스크 I/O</th>
-                                <th>상태</th>
+                                <th class="sortable" data-column="rank">
+                                    순위 <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th class="sortable" data-column="container">
+                                    컨테이너 <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th class="sortable" data-column="node">
+                                    노드 <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th class="sortable" data-column="cpu">
+                                    CPU 사용률 <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th class="sortable" data-column="memory">
+                                    메모리 사용률 <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th class="sortable" data-column="network">
+                                    네트워크 I/O <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th class="sortable" data-column="disk">
+                                    디스크 I/O <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th class="sortable" data-column="status">
+                                    상태 <i class="fas fa-sort sort-icon"></i>
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -375,5 +391,96 @@
         </div>
     </div>
 </div>
+
+<!-- 정렬 기능 JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const table = document.getElementById('monitoringTable');
+  const headers = table.querySelectorAll('th.sortable');
+  let currentSort = { column: null, direction: 'asc' };
+
+  headers.forEach(header => {
+    header.addEventListener('click', function() {
+      const column = this.dataset.column;
+      const tbody = table.querySelector('tbody');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+
+      // 정렬 방향 결정
+      if (currentSort.column === column) {
+        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+      } else {
+        currentSort.direction = 'asc';
+      }
+      currentSort.column = column;
+
+      // 정렬 실행
+      rows.sort((a, b) => {
+        const aValue = getCellValue(a, column);
+        const bValue = getCellValue(b, column);
+        
+        if (column === 'cpu' || column === 'memory') {
+          // 숫자 정렬 (퍼센트 값) - 퍼센트 기호 제거 후 숫자로 변환
+          const aNum = parseFloat(aValue.replace('%', '')) || 0;
+          const bNum = parseFloat(bValue.replace('%', '')) || 0;
+          return currentSort.direction === 'asc' ? aNum - bNum : bNum - aNum;
+        } else if (column === 'network' || column === 'disk') {
+          // 숫자 정렬 (I/O 값) - 단위 제거 후 숫자로 변환
+          const aNum = parseFloat(aValue.replace(/[^\d.]/g, '')) || 0;
+          const bNum = parseFloat(bValue.replace(/[^\d.]/g, '')) || 0;
+          return currentSort.direction === 'asc' ? aNum - bNum : bNum - aNum;
+        } else if (column === 'rank') {
+          // 순위 정렬 (숫자)
+          const aNum = parseInt(aValue) || 0;
+          const bNum = parseInt(bValue) || 0;
+          return currentSort.direction === 'asc' ? aNum - bNum : bNum - aNum;
+        } else {
+          // 문자열 정렬
+          return currentSort.direction === 'asc' 
+            ? aValue.localeCompare(bValue)
+            : bValue.localeCompare(aValue);
+        }
+      });
+
+      // 테이블 업데이트
+      rows.forEach(row => tbody.appendChild(row));
+
+      // 정렬 아이콘 업데이트
+      updateSortIcons();
+    });
+  });
+
+  function getCellValue(row, column) {
+    const cellIndex = Array.from(headers).findIndex(h => h.dataset.column === column);
+    const cell = row.cells[cellIndex];
+    
+    if (column === 'container') {
+      return cell.querySelector('strong').textContent;
+    } else if (column === 'status') {
+      return cell.querySelector('.status-badge').textContent;
+    } else if (column === 'cpu' || column === 'memory') {
+      // 퍼센트 값 추출
+      const span = cell.querySelector('span');
+      return span ? span.textContent.trim() : cell.textContent.trim();
+    } else if (column === 'rank') {
+      return cell.querySelector('.badge').textContent;
+    } else {
+      return cell.textContent.trim();
+    }
+  }
+
+  function updateSortIcons() {
+    headers.forEach(header => {
+      const icon = header.querySelector('.sort-icon');
+      icon.className = 'fas fa-sort sort-icon';
+      
+      if (header.dataset.column === currentSort.column) {
+        icon.className = currentSort.direction === 'asc' 
+          ? 'fas fa-sort-up sort-icon' 
+          : 'fas fa-sort-down sort-icon';
+      }
+    });
+  }
+});
+</script>
 
 {% endblock %}

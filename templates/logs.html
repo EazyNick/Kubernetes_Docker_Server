@@ -115,6 +115,17 @@
       실시간 로그 스트림
     </h5>
     <p class="dashboard-card-subtitle">실시간으로 업데이트되는 로그</p>
+    <div class="d-flex gap-2 mt-2">
+      <button class="btn btn-sm btn-outline-primary" id="sortByTime">
+        <i class="fas fa-sort"></i> 시간순
+      </button>
+      <button class="btn btn-sm btn-outline-primary" id="sortByLevel">
+        <i class="fas fa-sort"></i> 레벨순
+      </button>
+      <button class="btn btn-sm btn-outline-primary" id="sortByMessage">
+        <i class="fas fa-sort"></i> 메시지순
+      </button>
+    </div>
   </div>
   <div class="dashboard-card-body">
     <div class="log-container" id="logContainer">
@@ -224,4 +235,90 @@
     </div>
   </div>
 </div>
+
+<!-- 로그 정렬 기능 JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const logContainer = document.getElementById('logContainer');
+  const sortByTimeBtn = document.getElementById('sortByTime');
+  const sortByLevelBtn = document.getElementById('sortByLevel');
+  const sortByMessageBtn = document.getElementById('sortByMessage');
+  
+  let currentSort = { type: null, direction: 'asc' };
+
+  // 시간순 정렬
+  sortByTimeBtn.addEventListener('click', function() {
+    toggleSort('time', this);
+    sortLogs('time');
+  });
+
+  // 레벨순 정렬
+  sortByLevelBtn.addEventListener('click', function() {
+    toggleSort('level', this);
+    sortLogs('level');
+  });
+
+  // 메시지순 정렬
+  sortByMessageBtn.addEventListener('click', function() {
+    toggleSort('message', this);
+    sortLogs('message');
+  });
+
+  function toggleSort(type, button) {
+    if (currentSort.type === type) {
+      currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+    } else {
+      currentSort.direction = 'asc';
+      currentSort.type = type;
+    }
+    
+    // 모든 버튼 초기화
+    [sortByTimeBtn, sortByLevelBtn, sortByMessageBtn].forEach(btn => {
+      btn.innerHTML = btn.innerHTML.replace(/fa-sort-(up|down)/, 'fa-sort');
+    });
+    
+    // 현재 버튼 아이콘 업데이트
+    const icon = button.querySelector('i');
+    icon.className = currentSort.direction === 'asc' 
+      ? 'fas fa-sort-up' 
+      : 'fas fa-sort-down';
+  }
+
+  function sortLogs(sortType) {
+    const logEntries = Array.from(logContainer.querySelectorAll('.log-entry'));
+    
+    logEntries.sort((a, b) => {
+      let aValue, bValue;
+      
+      if (sortType === 'time') {
+        aValue = a.querySelector('.log-timestamp').textContent;
+        bValue = b.querySelector('.log-timestamp').textContent;
+        return currentSort.direction === 'asc' 
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
+      } else if (sortType === 'level') {
+        aValue = a.querySelector('.log-level').textContent;
+        bValue = b.querySelector('.log-level').textContent;
+        // 레벨 우선순위: ERROR > WARN > INFO > DEBUG
+        const levelOrder = { 'ERROR': 4, 'WARN': 3, 'INFO': 2, 'DEBUG': 1 };
+        const aOrder = levelOrder[aValue] || 0;
+        const bOrder = levelOrder[bValue] || 0;
+        return currentSort.direction === 'asc' 
+          ? aOrder - bOrder
+          : bOrder - aOrder;
+      } else if (sortType === 'message') {
+        aValue = a.querySelector('.log-message').textContent;
+        bValue = b.querySelector('.log-message').textContent;
+        return currentSort.direction === 'asc' 
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
+      }
+    });
+
+    // 정렬된 로그 엔트리들을 컨테이너에 다시 추가
+    logEntries.forEach(entry => logContainer.appendChild(entry));
+  }
+});
+</script>
+
 {% endblock %}
