@@ -586,6 +586,21 @@ body {
   margin-bottom: 0.75rem;
 }
 
+.alert-item.success {
+  border-left-color: var(--success-color);
+  background: rgba(5, 150, 105, 0.05);
+}
+
+.alert-item.warning {
+  border-left-color: var(--warning-color);
+  background: rgba(217, 119, 6, 0.05);
+}
+
+.alert-item.danger {
+  border-left-color: var(--danger-color);
+  background: rgba(220, 38, 38, 0.05);
+}
+
 .alert-item.critical {
   border-left-color: var(--danger-color);
   background: rgba(220, 38, 38, 0.05);
