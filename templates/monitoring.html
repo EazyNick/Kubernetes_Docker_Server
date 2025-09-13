@@ -1,200 +1,379 @@
-{% extends "base.html" %} {% block title %}모니터링 - 컨테이너 모니터링{%
-endblock %} {% block breadcrumb %}모니터링{% endblock %} {% block content %}
-<!-- 네트워크 및 성능 모니터링 -->
+<!-- 고급 모니터링 페이지 - 시스템 성능 지표와 상세한 모니터링 차트를 제공하는 페이지 -->
+{% extends "base.html" %}
+{% block title %}모니터링 - 컨테이너 모니터링{% endblock %}
+{% block breadcrumb %}모니터링{% endblock %}
+{% block content %}
+
+<!-- 실시간 성능 메트릭 헤더 -->
 <div class="row mb-4">
-  <!-- 네트워크 트래픽 -->
-  <div class="col-lg-6 mb-4">
-    <div class="dashboard-card">
-      <div class="dashboard-card-header">
-        <h5 class="dashboard-card-title">
-          <i class="fas fa-network-wired"></i>
-          네트워크 트래픽
-        </h5>
-        <p class="dashboard-card-subtitle">
-          인바운드/아웃바운드 네트워크 트래픽
-        </p>
-      </div>
-      <div class="dashboard-card-body">
-        <div class="chart-container">
-          <canvas id="networkTrafficChart"></canvas>
+    <div class="col-12">
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <div class="dashboard-card-title">
+                    <i class="fas fa-tachometer-alt"></i>
+                    실시간 성능 메트릭
+                </div>
+                <div class="dashboard-card-subtitle">클러스터 전체 성능 지표</div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
-
-  <!-- 디스크 I/O -->
-  <div class="col-lg-6 mb-4">
-    <div class="dashboard-card">
-      <div class="dashboard-card-header">
-        <h5 class="dashboard-card-title">
-          <i class="fas fa-hdd"></i>
-          디스크 I/O
-        </h5>
-        <p class="dashboard-card-subtitle">디스크 읽기/쓰기 성능</p>
-      </div>
-      <div class="dashboard-card-body">
-        <div class="chart-container">
-          <canvas id="diskIoChart"></canvas>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
-<!-- 응답 시간 및 요청 상태 -->
-<div class="row mb-4">
-  <!-- 응답 시간 -->
-  <div class="col-lg-8 mb-4">
+<!-- 네트워크 및 스토리지 차트 섹션 -->
+<div class="resource-grid">
     <div class="dashboard-card">
-      <div class="dashboard-card-header">
-        <h5 class="dashboard-card-title">
-          <i class="fas fa-clock"></i>
-          응답 시간
-        </h5>
-        <p class="dashboard-card-subtitle">서비스별 평균 응답 시간</p>
-      </div>
-      <div class="dashboard-card-body">
-        <div class="chart-container">
-          <canvas id="responseTimeChart"></canvas>
+        <div class="dashboard-card-header">
+            <div class="dashboard-card-title">
+                <i class="fas fa-network-wired"></i>
+                네트워크 트래픽
+            </div>
+            <div class="dashboard-card-subtitle">실시간 네트워크 I/O</div>
         </div>
-      </div>
+        <div class="dashboard-card-body">
+            <div class="chart-container">
+                <canvas id="networkTrafficChart"></canvas>
+            </div>
+        </div>
     </div>
-  </div>
-
-  <!-- 요청 상태 분포 -->
-  <div class="col-lg-4 mb-4">
     <div class="dashboard-card">
-      <div class="dashboard-card-header">
-        <h5 class="dashboard-card-title">
-          <i class="fas fa-chart-pie"></i>
-          요청 상태 분포
-        </h5>
-        <p class="dashboard-card-subtitle">HTTP 응답 코드별 분포</p>
-      </div>
-      <div class="dashboard-card-body">
-        <div class="chart-container">
-          <canvas id="requestStatusChart"></canvas>
+        <div class="dashboard-card-header">
+            <div class="dashboard-card-title">
+                <i class="fas fa-hdd"></i>
+                디스크 I/O
+            </div>
+            <div class="dashboard-card-subtitle">읽기/쓰기 처리량</div>
         </div>
-      </div>
+        <div class="dashboard-card-body">
+            <div class="chart-container">
+                <canvas id="diskIoChart"></canvas>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
-<!-- 실시간 메트릭 카드 -->
-<div class="row mb-4">
-  <div class="col-lg-3 col-md-6 mb-4">
-    <div class="metric-card">
-      <div class="metric-card-header">
-        <div class="metric-icon primary">
-          <i class="fas fa-globe"></i>
+<!-- 애플리케이션 성능 섹션 -->
+<div class="row">
+    <div class="col-lg-8">
+        <div class="dashboard-card h-100">
+            <div class="dashboard-card-header">
+                <div class="dashboard-card-title">
+                    <i class="fas fa-stopwatch"></i>
+                    응답 시간 분석
+                </div>
+                <div class="dashboard-card-subtitle">서비스별 평균 응답시간 (ms)</div>
+            </div>
+            <div class="dashboard-card-body">
+                <div class="chart-container">
+                    <canvas id="responseTimeChart"></canvas>
+                </div>
+            </div>
         </div>
-      </div>
-      <div class="metric-value">1,247</div>
-      <div class="metric-label">초당 요청 수</div>
-      <div class="metric-change positive">
-        <i class="fas fa-arrow-up"></i>
-        <span>+12.3%</span>
-      </div>
     </div>
-  </div>
-
-  <div class="col-lg-3 col-md-6 mb-4">
-    <div class="metric-card">
-      <div class="metric-card-header">
-        <div class="metric-icon success">
-          <i class="fas fa-check-circle"></i>
+    <div class="col-lg-4">
+        <div class="dashboard-card h-100">
+            <div class="dashboard-card-header">
+                <div class="dashboard-card-title">
+                    <i class="fas fa-chart-pie"></i>
+                    요청 상태 분포
+                </div>
+                <div class="dashboard-card-subtitle">HTTP 상태 코드별</div>
+            </div>
+            <div class="dashboard-card-body d-flex align-items-center">
+                <div class="chart-container w-100">
+                    <canvas id="requestStatusChart"></canvas>
+                </div>
+            </div>
         </div>
-      </div>
-      <div class="metric-value">99.8%</div>
-      <div class="metric-label">가용성</div>
-      <div class="metric-change positive">
-        <i class="fas fa-arrow-up"></i>
-        <span>+0.1%</span>
-      </div>
     </div>
-  </div>
-
-  <div class="col-lg-3 col-md-6 mb-4">
-    <div class="metric-card">
-      <div class="metric-card-header">
-        <div class="metric-icon warning">
-          <i class="fas fa-clock"></i>
-        </div>
-      </div>
-      <div class="metric-value">156ms</div>
-      <div class="metric-label">평균 응답시간</div>
-      <div class="metric-change negative">
-        <i class="fas fa-arrow-up"></i>
-        <span>+8ms</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-lg-3 col-md-6 mb-4">
-    <div class="metric-card">
-      <div class="metric-card-header">
-        <div class="metric-icon info">
-          <i class="fas fa-exclamation-triangle"></i>
-        </div>
-      </div>
-      <div class="metric-value">3</div>
-      <div class="metric-label">활성 알림</div>
-      <div class="metric-change negative">
-        <i class="fas fa-arrow-up"></i>
-        <span>+1</span>
-      </div>
-    </div>
-  </div>
 </div>
 
-<!-- 시스템 리소스 모니터링 -->
-<div class="dashboard-card">
-  <div class="dashboard-card-header">
-    <h5 class="dashboard-card-title">
-      <i class="fas fa-chart-line"></i>
-      시스템 리소스 모니터링
-    </h5>
-    <p class="dashboard-card-subtitle">실시간 시스템 리소스 사용량</p>
-  </div>
-  <div class="dashboard-card-body">
-    <div class="row">
-      <div class="col-lg-4 mb-3">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="fw-bold">CPU 사용률</span>
-          <span class="text-primary fw-bold">34.7%</span>
+<!-- 리소스 사용률 히트맵 섹션 -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <div class="dashboard-card-title">
+                    <i class="fas fa-fire"></i>
+                    리소스 사용률 히트맵
+                </div>
+                <div class="dashboard-card-subtitle">노드별 실시간 리소스 사용 현황</div>
+            </div>
+            <div class="dashboard-card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <div class="metric-card">
+                            <div style="padding: 1rem;">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="mb-0">k8s-master-01</h6>
+                                    <span class="status-badge running">
+                                        <span class="status-indicator"></span>
+                                        Normal
+                                    </span>
+                                </div>
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <small>CPU</small>
+                                        <small>23%</small>
+                                    </div>
+                                    <div class="progress-modern">
+                                        <div class="progress-bar-modern" style="width: 23%; background: var(--success-color);"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <small>Memory</small>
+                                        <small>45%</small>
+                                    </div>
+                                    <div class="progress-modern">
+                                        <div class="progress-bar-modern" style="width: 45%; background: var(--warning-color);"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="d-flex justify-content-between">
+                                        <small>Disk</small>
+                                        <small>67%</small>
+                                    </div>
+                                    <div class="progress-modern">
+                                        <div class="progress-bar-modern" style="width: 67%; background: var(--info-color);"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="metric-card">
+                            <div style="padding: 1rem;">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="mb-0">k8s-worker-01</h6>
+                                    <span class="status-badge warning">
+                                        <span class="status-indicator"></span>
+                                        High&nbsp;Load
+                                    </span>
+                                </div>
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <small>CPU</small>
+                                        <small>67%</small>
+                                    </div>
+                                    <div class="progress-modern">
+                                        <div class="progress-bar-modern" style="width: 67%; background: var(--warning-color);"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <small>Memory</small>
+                                        <small>78%</small>
+                                    </div>
+                                    <div class="progress-modern">
+                                        <div class="progress-bar-modern" style="width: 78%; background: var(--danger-color);"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="d-flex justify-content-between">
+                                        <small>Disk</small>
+                                        <small>45%</small>
+                                    </div>
+                                    <div class="progress-modern">
+                                        <div class="progress-bar-modern" style="width: 45%; background: var(--success-color);"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="metric-card">
+                            <div style="padding: 1rem;">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="mb-0">k8s-worker-02</h6>
+                                    <span class="status-badge stopped">
+                                        <span class="status-indicator"></span>
+                                        Critical
+                                    </span>
+                                </div>
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <small>CPU</small>
+                                        <small>89%</small>
+                                    </div>
+                                    <div class="progress-modern">
+                                        <div class="progress-bar-modern" style="width: 89%; background: var(--danger-color);"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <small>Memory</small>
+                                        <small>91%</small>
+                                    </div>
+                                    <div class="progress-modern">
+                                        <div class="progress-bar-modern" style="width: 91%; background: var(--danger-color);"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="d-flex justify-content-between">
+                                        <small>Disk</small>
+                                        <small>23%</small>
+                                    </div>
+                                    <div class="progress-modern">
+                                        <div class="progress-bar-modern" style="width: 23%; background: var(--success-color);"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="metric-card">
+                            <div style="padding: 1rem;">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="mb-0">docker-host-01</h6>
+                                    <span class="status-badge running">
+                                        <span class="status-indicator"></span>
+                                        Normal
+                                    </span>
+                                </div>
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <small>CPU</small>
+                                        <small>34%</small>
+                                    </div>
+                                    <div class="progress-modern">
+                                        <div class="progress-bar-modern" style="width: 34%; background: var(--success-color);"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <small>Memory</small>
+                                        <small>56%</small>
+                                    </div>
+                                    <div class="progress-modern">
+                                        <div class="progress-bar-modern" style="width: 56%; background: var(--warning-color);"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="d-flex justify-content-between">
+                                        <small>Disk</small>
+                                        <small>78%</small>
+                                    </div>
+                                    <div class="progress-modern">
+                                        <div class="progress-bar-modern" style="width: 78%; background: var(--info-color);"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="progress-modern">
-          <div
-            class="progress-bar-modern"
-            style="width: 34.7%; background: #2563eb"
-          ></div>
-        </div>
-      </div>
-      <div class="col-lg-4 mb-3">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="fw-bold">메모리 사용률</span>
-          <span class="text-warning fw-bold">68.2%</span>
-        </div>
-        <div class="progress-modern">
-          <div
-            class="progress-bar-modern"
-            style="width: 68.2%; background: #d97706"
-          ></div>
-        </div>
-      </div>
-      <div class="col-lg-4 mb-3">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="fw-bold">디스크 사용률</span>
-          <span class="text-success fw-bold">45.8%</span>
-        </div>
-        <div class="progress-modern">
-          <div
-            class="progress-bar-modern"
-            style="width: 45.8%; background: #059669"
-          ></div>
-        </div>
-      </div>
     </div>
-  </div>
 </div>
+
+<!-- Top 리소스 사용 컨테이너 섹션 -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <div class="dashboard-card-title">
+                    <i class="fas fa-list-ol"></i>
+                    Top 리소스 사용 컨테이너
+                </div>
+                <div class="dashboard-card-subtitle">CPU 및 메모리 사용량 상위 컨테이너</div>
+            </div>
+            <div class="dashboard-card-body">
+                <div class="table-container">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>순위</th>
+                                <th>컨테이너</th>
+                                <th>노드</th>
+                                <th>CPU 사용률</th>
+                                <th>메모리 사용률</th>
+                                <th>네트워크 I/O</th>
+                                <th>디스크 I/O</th>
+                                <th>상태</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge bg-danger">1</span></td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-cube me-2 text-primary"></i>
+                                        <strong>elasticsearch-master</strong>
+                                    </div>
+                                </td>
+                                <td>k8s-worker-02</td>
+                                <td>
+                                    <div class="progress-modern mb-1">
+                                        <div class="progress-bar-modern" style="width: 89%; background: var(--danger-color);"></div>
+                                    </div>
+                                    <small>89.2%</small>
+                                </td>
+                                <td>
+                                    <div class="progress-modern mb-1">
+                                        <div class="progress-bar-modern" style="width: 76%; background: var(--danger-color);"></div>
+                                    </div>
+                                    <small>2.4 GB</small>
+                                </td>
+                                <td><small>1.2 MB/s</small></td>
+                                <td><small>450 KB/s</small></td>
+                                <td><span class="status-badge running"><span class="status-indicator"></span>Running</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-warning">2</span></td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fab fa-docker me-2 text-info"></i>
+                                        <strong>postgres-primary</strong>
+                                    </div>
+                                </td>
+                                <td>docker-host-01</td>
+                                <td>
+                                    <div class="progress-modern mb-1">
+                                        <div class="progress-bar-modern" style="width: 67%; background: var(--warning-color);"></div>
+                                    </div>
+                                    <small>67.4%</small>
+                                </td>
+                                <td>
+                                    <div class="progress-modern mb-1">
+                                        <div class="progress-bar-modern" style="width: 54%; background: var(--warning-color);"></div>
+                                    </div>
+                                    <small>1.7 GB</small>
+                                </td>
+                                <td><small>890 KB/s</small></td>
+                                <td><small>2.1 MB/s</small></td>
+                                <td><span class="status-badge running"><span class="status-indicator"></span>Running</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-info">3</span></td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-cube me-2 text-success"></i>
+                                        <strong>api-gateway</strong>
+                                    </div>
+                                </td>
+                                <td>k8s-worker-01</td>
+                                <td>
+                                    <div class="progress-modern mb-1">
+                                        <div class="progress-bar-modern" style="width: 45%; background: var(--warning-color);"></div>
+                                    </div>
+                                    <small>45.1%</small>
+                                </td>
+                                <td>
+                                    <div class="progress-modern mb-1">
+                                        <div class="progress-bar-modern" style="width: 32%; background: var(--success-color);"></div>
+                                    </div>
+                                    <small>512 MB</small>
+                                </td>
+                                <td><small>2.4 MB/s</small></td>
+                                <td><small>120 KB/s</small></td>
+                                <td><span class="status-badge running"><span class="status-indicator"></span>Running</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

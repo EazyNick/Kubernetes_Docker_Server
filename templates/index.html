@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>컨테이너 모니터링 대시보드 - Docker & Kubernetes</title>
+    <title>Container Monitor - 모니터링 홈</title>
 
     <!-- Bootstrap CSS -->
     <link
@@ -17,52 +17,323 @@
     />
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- DataTables -->
-    <link
-      href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css"
-      rel="stylesheet"
-    />
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
     <!-- Custom CSS -->
     <link href="/static/css/style.css" rel="stylesheet" />
+
+    <style>
+      .hero-section {
+        background: linear-gradient(
+          135deg,
+          rgba(37, 99, 235, 0.1) 0%,
+          rgba(8, 145, 178, 0.1) 100%
+        );
+        border-radius: var(--border-radius);
+        padding: 3rem 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+        border: 1px solid rgba(37, 99, 235, 0.2);
+      }
+
+      .hero-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--gray-900);
+        margin-bottom: 1rem;
+      }
+
+      .hero-subtitle {
+        font-size: 1.125rem;
+        color: var(--gray-600);
+        margin-bottom: 2rem;
+      }
+
+      .hero-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+      }
+
+      .hero-stat {
+        text-align: center;
+      }
+
+      .hero-stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+      }
+
+      .hero-stat-label {
+        color: var(--gray-600);
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .feature-card {
+        background: white;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        transition: all 0.2s ease;
+        box-shadow: var(--shadow-sm);
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .feature-card:hover {
+        box-shadow: var(--shadow-lg);
+        border-color: var(--primary-color);
+        text-decoration: none;
+        color: inherit;
+        transform: translateY(-2px);
+      }
+
+      .feature-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .feature-icon.primary {
+        background: rgba(37, 99, 235, 0.1);
+        color: var(--primary-color);
+      }
+
+      .feature-icon.success {
+        background: rgba(5, 150, 105, 0.1);
+        color: var(--success-color);
+      }
+
+      .feature-icon.warning {
+        background: rgba(217, 119, 6, 0.1);
+        color: var(--warning-color);
+      }
+
+      .feature-icon.info {
+        background: rgba(8, 145, 178, 0.1);
+        color: var(--info-color);
+      }
+
+      .feature-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--gray-900);
+        margin-bottom: 0.75rem;
+      }
+
+      .feature-description {
+        color: var(--gray-600);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+      }
+
+      .feature-link {
+        color: var(--primary-color);
+        font-weight: 500;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .status-overview {
+        background: white;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-sm);
+      }
+
+      .status-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--gray-900);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .status-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .status-item {
+        text-align: center;
+        padding: 1.5rem;
+        border-radius: 8px;
+        background: var(--gray-50);
+      }
+
+      .status-item.healthy {
+        background: rgba(5, 150, 105, 0.05);
+        border: 1px solid rgba(5, 150, 105, 0.2);
+      }
+
+      .status-item.warning {
+        background: rgba(217, 119, 6, 0.05);
+        border: 1px solid rgba(217, 119, 6, 0.2);
+      }
+
+      .status-item.danger {
+        background: rgba(220, 38, 38, 0.05);
+        border: 1px solid rgba(220, 38, 38, 0.2);
+      }
+
+      .status-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .status-value.healthy {
+        color: var(--success-color);
+      }
+
+      .status-value.warning {
+        color: var(--warning-color);
+      }
+
+      .status-value.danger {
+        color: var(--danger-color);
+      }
+
+      .status-label {
+        color: var(--gray-600);
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+
+      .quick-actions {
+        background: white;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        box-shadow: var(--shadow-sm);
+      }
+
+      .quick-actions-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--gray-900);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .action-buttons {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+      }
+
+      .action-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 1.5rem;
+        border: 1px solid var(--gray-200);
+        border-radius: 8px;
+        background: white;
+        color: var(--gray-700);
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s ease;
+      }
+
+      .action-btn:hover {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+        text-decoration: none;
+        transform: translateY(-1px);
+        box-shadow: var(--shadow);
+      }
+
+      .action-btn i {
+        font-size: 1.25rem;
+      }
+
+      @media (max-width: 768px) {
+        .hero-title {
+          font-size: 2rem;
+        }
+
+        .hero-stats {
+          grid-template-columns: 1fr;
+        }
+
+        .feature-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .status-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .action-buttons {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
   </head>
   <body>
     <div class="main-container">
       <!-- Sidebar Navigation -->
       <aside class="sidebar" id="sidebar">
-        <div class="sidebar-brand">
+        <a href="/" class="sidebar-brand">
           <i class="fas fa-server"></i>
           Container Monitor
-        </div>
+        </a>
         <nav class="sidebar-nav">
-          <a href="#" class="sidebar-nav-item active" data-tab="overview">
+          <a href="/" class="sidebar-nav-item active">
+            <i class="fas fa-home"></i>
+            홈
+          </a>
+          <a href="/dashboard" class="sidebar-nav-item">
             <i class="fas fa-tachometer-alt"></i>
             대시보드
           </a>
-          <a href="#" class="sidebar-nav-item" data-tab="containers">
+          <a href="/containers" class="sidebar-nav-item">
             <i class="fas fa-cubes"></i>
             컨테이너
           </a>
-          <a href="#" class="sidebar-nav-item" data-tab="nodes">
+          <a href="/nodes" class="sidebar-nav-item">
             <i class="fas fa-server"></i>
             노드
           </a>
-          <a href="#" class="sidebar-nav-item" data-tab="monitoring">
+          <a href="/monitoring" class="sidebar-nav-item">
             <i class="fas fa-chart-line"></i>
             모니터링
           </a>
-          <a href="#" class="sidebar-nav-item" data-tab="logs">
+          <a href="/logs" class="sidebar-nav-item">
             <i class="fas fa-file-alt"></i>
             로그
           </a>
-          <a href="#" class="sidebar-nav-item" data-tab="alerts">
+          <a href="/alerts" class="sidebar-nav-item">
             <i class="fas fa-exclamation-triangle"></i>
             알림
           </a>
-          <a href="#" class="sidebar-nav-item" data-tab="events">
+          <a href="/events" class="sidebar-nav-item">
             <i class="fas fa-calendar-alt"></i>
             이벤트
           </a>
@@ -78,9 +349,7 @@
               <i class="fas fa-bars"></i>
             </button>
             <div class="breadcrumb">
-              <span>모니터링</span>
-              <i class="fas fa-chevron-right"></i>
-              <span class="breadcrumb-current">대시보드</span>
+              <span class="breadcrumb-current">모니터링</span>
             </div>
           </div>
           <div class="topbar-right">
@@ -94,2430 +363,225 @@
           </div>
         </header>
 
-        <!-- Dashboard Content -->
+        <!-- Page Content -->
         <div class="container-fluid p-4">
-          <!-- Tab Content: Overview -->
-          <div id="overview-content" class="tab-content active">
-            <!-- Cluster Health Status -->
-            <div class="row mb-4">
-              <div class="col-12">
-                <div class="dashboard-card">
-                  <div class="dashboard-card-header">
-                    <div class="dashboard-card-title">
-                      <i class="fas fa-heartbeat"></i>
-                      클러스터 상태
-                    </div>
-                    <div class="dashboard-card-subtitle">
-                      실시간 인프라 건강성 모니터링
-                    </div>
+          <!-- Hero Section -->
+          <div class="hero-section">
+            <h1 class="hero-title">
+              <i class="fas fa-server me-3"></i>
+              Container Monitor
+            </h1>
+            <p class="hero-subtitle">
+              Docker와 Kubernetes 클러스터를 실시간으로 모니터링하고 관리하세요
+            </p>
+
+            <div class="hero-stats">
+              <div class="hero-stat">
+                <div class="hero-stat-value" id="totalContainers">147</div>
+                <div class="hero-stat-label">전체 컨테이너</div>
                   </div>
+              <div class="hero-stat">
+                <div class="hero-stat-value" id="activeNodes">12</div>
+                <div class="hero-stat-label">활성 노드</div>
+                </div>
+              <div class="hero-stat">
+                <div class="hero-stat-value" id="systemHealth">98%</div>
+                <div class="hero-stat-label">시스템 상태</div>
+                </div>
+              <div class="hero-stat">
+                <div class="hero-stat-value" id="uptime">99.9%</div>
+                <div class="hero-stat-label">가동률</div>
                 </div>
               </div>
             </div>
 
-            <!-- Key Metrics Grid -->
-            <div class="metric-grid">
-              <div class="metric-card">
-                <div class="metric-card-header">
-                  <div class="metric-icon primary">
-                    <i class="fas fa-cubes"></i>
+          <!-- Feature Grid -->
+          <div class="feature-grid">
+            <a href="/dashboard" class="feature-card">
+              <div class="feature-icon primary">
+                <i class="fas fa-tachometer-alt"></i>
                   </div>
+              <h3 class="feature-title">실시간 대시보드</h3>
+              <p class="feature-description">
+                클러스터의 전체 상태를 한눈에 확인하고 실시간 메트릭을
+                모니터링하세요.
+              </p>
+              <div class="feature-link">
+                대시보드 보기 <i class="fas fa-arrow-right"></i>
                 </div>
-                <div class="metric-value" id="totalContainers">148</div>
-                <div class="metric-label">전체 컨테이너</div>
-                <div class="metric-change positive">
-                  <i class="fas fa-arrow-up"></i>
-                  +12 (지난 1시간)
-                </div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-card-header">
-                  <div class="metric-icon success">
-                    <i class="fas fa-play-circle"></i>
-                  </div>
-                </div>
-                <div class="metric-value" id="runningContainers">135</div>
-                <div class="metric-label">실행 중</div>
-                <div class="metric-change positive">
-                  <i class="fas fa-arrow-up"></i>
-                  91.2%
-                </div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-card-header">
-                  <div class="metric-icon warning">
-                    <i class="fas fa-pause-circle"></i>
-                  </div>
-                </div>
-                <div class="metric-value" id="stoppedContainers">6</div>
-                <div class="metric-label">중지됨</div>
-                <div class="metric-change negative">
-                  <i class="fas fa-arrow-down"></i>
-                  5.4%
-                </div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-card-header">
-                  <div class="metric-icon danger">
-                    <i class="fas fa-exclamation-circle"></i>
-                  </div>
-                </div>
-                <div class="metric-value" id="failedContainers">5</div>
-                <div class="metric-label">실패</div>
-                <div class="metric-change positive">
-                  <i class="fas fa-arrow-down"></i>
-                  3.4%
-                </div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-card-header">
-                  <div class="metric-icon primary">
-                    <i class="fas fa-server"></i>
-                  </div>
-                </div>
-                <div class="metric-value" id="totalNodes">12</div>
-                <div class="metric-label">활성 노드</div>
-                <div class="metric-change">
-                  <i class="fas fa-minus"></i>
-                  변화 없음
-                </div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-card-header">
-                  <div class="metric-icon success">
-                    <i class="fas fa-microchip"></i>
-                  </div>
-                </div>
-                <div class="metric-value" id="avgCpu">32.5%</div>
-                <div class="metric-label">평균 CPU 사용률</div>
-                <div class="metric-change negative">
-                  <i class="fas fa-arrow-up"></i>
-                  +2.3%
-                </div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-card-header">
-                  <div class="metric-icon info">
-                    <i class="fas fa-memory"></i>
-                  </div>
-                </div>
-                <div class="metric-value" id="avgMemory">68.2%</div>
-                <div class="metric-label">평균 메모리 사용률</div>
-                <div class="metric-change positive">
-                  <i class="fas fa-arrow-down"></i>
-                  -1.5%
-                </div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-card-header">
-                  <div class="metric-icon warning">
-                    <i class="fas fa-network-wired"></i>
-                  </div>
-                </div>
-                <div class="metric-value" id="networkTraffic">142</div>
-                <div class="metric-label">네트워크 트래픽 (MB/s)</div>
-                <div class="metric-change positive">
-                  <i class="fas fa-arrow-up"></i>
-                  +18.7%
-                </div>
-              </div>
-            </div>
+            </a>
 
-            <!-- Resource Usage Charts -->
-            <div class="resource-grid">
-              <div class="dashboard-card">
-                <div class="dashboard-card-header">
-                  <div class="dashboard-card-title">
-                    <i class="fas fa-chart-area"></i>
-                    CPU 사용률 추이
-                  </div>
-                  <div class="dashboard-card-subtitle">최근 2시간</div>
-                </div>
-                <div class="dashboard-card-body">
-                  <div class="chart-container">
-                    <canvas id="cpuTrendChart"></canvas>
-                  </div>
-                </div>
-              </div>
-              <div class="dashboard-card">
-                <div class="dashboard-card-header">
-                  <div class="dashboard-card-title">
-                    <i class="fas fa-memory"></i>
-                    메모리 사용률 추이
-                  </div>
-                  <div class="dashboard-card-subtitle">최근 2시간</div>
-                </div>
-                <div class="dashboard-card-body">
-                  <div class="chart-container">
-                    <canvas id="memoryTrendChart"></canvas>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Distribution Charts -->
-            <div class="row">
-              <div class="col-lg-6 mb-4">
-                <div class="dashboard-card">
-                  <div class="dashboard-card-header">
-                    <div class="dashboard-card-title">
-                      <i class="fas fa-chart-pie"></i>
-                      노드별 컨테이너 분포
-                    </div>
-                  </div>
-                  <div class="dashboard-card-body">
-                    <div class="chart-container chart-container-small">
-                      <canvas id="nodeDistributionChart"></canvas>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg-6 mb-4">
-                <div class="dashboard-card">
-                  <div class="dashboard-card-header">
-                    <div class="dashboard-card-title">
-                      <i class="fas fa-chart-doughnut"></i>
-                      엔진별 분포
-                    </div>
-                  </div>
-                  <div class="dashboard-card-body">
-                    <div class="chart-container chart-container-small">
-                      <canvas id="engineChart"></canvas>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Active Alerts -->
-            <div class="row">
-              <div class="col-12">
-                <div class="dashboard-card">
-                  <div class="dashboard-card-header">
-                    <div class="dashboard-card-title">
-                      <i class="fas fa-bell"></i>
-                      활성 알림
-                    </div>
-                    <div class="dashboard-card-subtitle">
-                      현재 주의가 필요한 항목들
-                    </div>
-                  </div>
-                  <div class="dashboard-card-body">
-                    <div class="alert-item critical">
-                      <div
-                        class="d-flex justify-content-between align-items-start"
-                      >
-                        <div>
-                          <strong>높은 메모리 사용률</strong>
-                          <div class="text-muted small">
-                            k8s-node-03에서 메모리 사용률이 85%를 초과했습니다.
-                          </div>
-                        </div>
-                        <span class="badge bg-danger">Critical</span>
-                      </div>
-                    </div>
-                    <div class="alert-item">
-                      <div
-                        class="d-flex justify-content-between align-items-start"
-                      >
-                        <div>
-                          <strong>컨테이너 재시작 감지</strong>
-                          <div class="text-muted small">
-                            nginx-web-deployment-abc123이 5분 전에
-                            재시작되었습니다.
-                          </div>
-                        </div>
-                        <span class="badge bg-warning">Warning</span>
-                      </div>
-                    </div>
-                    <div class="alert-item info">
-                      <div
-                        class="d-flex justify-content-between align-items-start"
-                      >
-                        <div>
-                          <strong>스케일링 이벤트</strong>
-                          <div class="text-muted small">
-                            backend-service가 3개에서 5개 인스턴스로
-                            확장되었습니다.
-                          </div>
-                        </div>
-                        <span class="badge bg-info">Info</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Tab Content: Containers -->
-          <div id="containers-content" class="tab-content">
-            <div class="row">
-              <div class="col-12">
-                <div class="dashboard-card">
-                  <div class="dashboard-card-header">
-                    <div class="dashboard-card-title">
+            <a href="/containers" class="feature-card">
+              <div class="feature-icon success">
                       <i class="fas fa-cubes"></i>
-                      컨테이너 목록
                     </div>
-                    <div class="dashboard-card-subtitle">
-                      모든 컨테이너의 상세 정보
+              <h3 class="feature-title">컨테이너 관리</h3>
+              <p class="feature-description">
+                모든 컨테이너의 상태를 확인하고 시작, 중지, 재시작 등의 작업을
+                수행하세요.
+              </p>
+              <div class="feature-link">
+                컨테이너 관리 <i class="fas fa-arrow-right"></i>
                     </div>
-                  </div>
-                  <div class="dashboard-card-body">
-                    <div class="table-container">
-                      <table id="containersTable" class="table table-hover">
-                        <thead>
-                          <tr>
-                            <th>이름</th>
-                            <th>상태</th>
-                            <th>이미지</th>
-                            <th>노드</th>
-                            <th>CPU</th>
-                            <th>메모리</th>
-                            <th>업타임</th>
-                            <th>액션</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>
-                              <div class="d-flex align-items-center">
-                                <i class="fab fa-docker me-2 text-primary"></i>
-                                nginx-web-01
-                              </div>
-                            </td>
-                            <td>
-                              <span class="status-badge running"
-                                ><span class="status-indicator"></span
-                                >Running</span
-                              >
-                            </td>
-                            <td><code>nginx:1.21</code></td>
-                            <td>k8s-node-01</td>
-                            <td>2.3%</td>
-                            <td>64 MB</td>
-                            <td>2d 14h</td>
-                            <td>
-                              <div class="btn-group-actions">
-                                <button class="btn btn-sm btn-outline-primary">
-                                  <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger">
-                                  <i class="fas fa-stop"></i>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <div class="d-flex align-items-center">
-                                <i class="fas fa-cube me-2 text-success"></i>
-                                backend-api-02
-                              </div>
-                            </td>
-                            <td>
-                              <span class="status-badge running"
-                                ><span class="status-indicator"></span
-                                >Running</span
-                              >
-                            </td>
-                            <td><code>node:16-alpine</code></td>
-                            <td>k8s-node-02</td>
-                            <td>15.7%</td>
-                            <td>256 MB</td>
-                            <td>1d 8h</td>
-                            <td>
-                              <div class="btn-group-actions">
-                                <button class="btn btn-sm btn-outline-primary">
-                                  <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger">
-                                  <i class="fas fa-stop"></i>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <div class="d-flex align-items-center">
-                                <i class="fab fa-docker me-2 text-danger"></i>
-                                redis-cache
-                              </div>
-                            </td>
-                            <td>
-                              <span class="status-badge stopped"
-                                ><span class="status-indicator"></span
-                                >Stopped</span
-                              >
-                            </td>
-                            <td><code>redis:7-alpine</code></td>
-                            <td>k8s-node-01</td>
-                            <td>0%</td>
-                            <td>0 MB</td>
-                            <td>-</td>
-                            <td>
-                              <div class="btn-group-actions">
-                                <button class="btn btn-sm btn-outline-success">
-                                  <i class="fas fa-play"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-primary">
-                                  <i class="fas fa-eye"></i>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+            </a>
 
-          <!-- Tab Content: Logs -->
-          <div id="logs-content" class="tab-content">
-            <div class="row">
-              <div class="col-12">
-                <div class="dashboard-card">
-                  <div class="dashboard-card-header">
-                    <div class="dashboard-card-title">
-                      <i class="fas fa-file-alt"></i>
-                      실시간 로그
+            <a href="/nodes" class="feature-card">
+              <div class="feature-icon warning">
+                <i class="fas fa-server"></i>
                     </div>
-                    <div class="dashboard-card-subtitle">
-                      클러스터 전체 로그 스트림
+              <h3 class="feature-title">노드 모니터링</h3>
+              <p class="feature-description">
+                클러스터 노드들의 리소스 사용률과 상태를 실시간으로
+                모니터링하세요.
+              </p>
+              <div class="feature-link">
+                노드 보기 <i class="fas fa-arrow-right"></i>
                     </div>
-                  </div>
-                  <div class="dashboard-card-body">
-                    <div class="log-container" id="logContainer">
-                      <div class="log-entry">
-                        <span class="log-timestamp">14:32:45</span>
-                        <span class="log-level info">INFO</span>
-                        <span class="log-message"
-                          >nginx-web-01: Started HTTP server on port 80</span
-                        >
-                      </div>
-                      <div class="log-entry">
-                        <span class="log-timestamp">14:32:42</span>
-                        <span class="log-level warn">WARN</span>
-                        <span class="log-message"
-                          >backend-api-02: High memory usage detected: 78%</span
-                        >
-                      </div>
-                      <div class="log-entry">
-                        <span class="log-timestamp">14:32:40</span>
-                        <span class="log-level error">ERROR</span>
-                        <span class="log-message"
-                          >redis-cache: Connection refused by server</span
-                        >
-                      </div>
-                      <div class="log-entry">
-                        <span class="log-timestamp">14:32:38</span>
-                        <span class="log-level info">INFO</span>
-                        <span class="log-message"
-                          >k8s-node-03: Pod scheduling successful</span
-                        >
-                      </div>
-                      <div class="log-entry">
-                        <span class="log-timestamp">14:32:35</span>
-                        <span class="log-level info">INFO</span>
-                        <span class="log-message"
-                          >backend-api-03: Database connection established</span
-                        >
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+            </a>
 
-          <!-- Tab Content: Nodes -->
-          <div id="nodes-content" class="tab-content">
-            <!-- Node Overview Cards -->
-            <div class="metric-grid mb-4">
-              <div class="metric-card">
-                <div class="metric-card-header">
-                  <div class="metric-icon success">
-                    <i class="fas fa-server"></i>
+            <a href="/monitoring" class="feature-card">
+              <div class="feature-icon info">
+                <i class="fas fa-chart-line"></i>
                   </div>
+              <h3 class="feature-title">고급 모니터링</h3>
+              <p class="feature-description">
+                상세한 성능 메트릭과 차트를 통해 시스템을 깊이 있게 분석하세요.
+              </p>
+              <div class="feature-link">
+                모니터링 보기 <i class="fas fa-arrow-right"></i>
                 </div>
-                <div class="metric-value" id="healthyNodes">11</div>
-                <div class="metric-label">정상 노드</div>
-                <div class="metric-change positive">
-                  <i class="fas fa-arrow-up"></i>
-                  91.7%
-                </div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-card-header">
-                  <div class="metric-icon warning">
-                    <i class="fas fa-exclamation-triangle"></i>
+            </a>
+            </div>
+
+          <!-- Status Overview -->
+          <div class="status-overview">
+            <h2 class="status-title">
+              <i class="fas fa-heartbeat"></i>
+              시스템 상태 개요
+            </h2>
+            <div class="status-grid">
+              <div class="status-item healthy">
+                <div class="status-value healthy" id="runningContainers">
+                  134
+                    </div>
+                <div class="status-label">실행 중인 컨테이너</div>
+                    </div>
+              <div class="status-item healthy">
+                <div class="status-value healthy" id="healthyNodes">11</div>
+                <div class="status-label">정상 노드</div>
                   </div>
-                </div>
-                <div class="metric-value" id="warningNodes">1</div>
-                <div class="metric-label">주의 노드</div>
-                <div class="metric-change negative">
-                  <i class="fas fa-arrow-up"></i>
-                  8.3%
-                </div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-card-header">
-                  <div class="metric-icon primary">
-                    <i class="fas fa-microchip"></i>
-                  </div>
-                </div>
-                <div class="metric-value" id="totalCores">96</div>
-                <div class="metric-label">총 CPU 코어</div>
-                <div class="metric-change">
-                  <i class="fas fa-minus"></i>
-                  변화 없음
-                </div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-card-header">
-                  <div class="metric-icon info">
-                    <i class="fas fa-memory"></i>
-                  </div>
-                </div>
-                <div class="metric-value" id="totalMemory">384GB</div>
-                <div class="metric-label">총 메모리</div>
-                <div class="metric-change">
-                  <i class="fas fa-minus"></i>
-                  변화 없음
-                </div>
+              <div class="status-item warning">
+                <div class="status-value warning" id="warningAlerts">3</div>
+                <div class="status-label">경고 알림</div>
+                                </div>
+              <div class="status-item danger">
+                <div class="status-value danger" id="criticalAlerts">1</div>
+                <div class="status-label">위험 알림</div>
+                              </div>
               </div>
             </div>
 
-            <!-- Nodes Table -->
-            <div class="row">
-              <div class="col-12">
-                <div class="dashboard-card">
-                  <div class="dashboard-card-header">
-                    <div class="dashboard-card-title">
-                      <i class="fas fa-server"></i>
-                      클러스터 노드 목록
-                    </div>
-                    <div class="dashboard-card-subtitle">
-                      모든 노드의 상세 정보 및 상태
-                    </div>
-                  </div>
-                  <div class="dashboard-card-body">
-                    <div class="table-container">
-                      <table id="nodesTable" class="table table-hover">
-                        <thead>
-                          <tr>
-                            <th>노드명</th>
-                            <th>상태</th>
-                            <th>역할</th>
-                            <th>CPU</th>
-                            <th>메모리</th>
-                            <th>디스크</th>
-                            <th>컨테이너 수</th>
-                            <th>업타임</th>
-                            <th>액션</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>
-                              <div class="d-flex align-items-center">
-                                <i class="fas fa-crown me-2 text-warning"></i>
-                                <div>
-                                  <strong>k8s-master-01</strong>
-                                  <div class="small text-muted">10.0.1.10</div>
-                                </div>
-                              </div>
-                            </td>
-                            <td>
-                              <span class="status-badge running"
-                                ><span class="status-indicator"></span
-                                >Ready</span
-                              >
-                            </td>
-                            <td>
-                              <span class="badge bg-primary">Master</span>
-                            </td>
-                            <td>
-                              <div class="small">4 cores</div>
-                              <div class="progress-modern mb-1">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 23%;
-                                    background: var(--success-color);
-                                  "
-                                ></div>
-                              </div>
-                              <div class="small text-muted">23%</div>
-                            </td>
-                            <td>
-                              <div class="small">16 GB</div>
-                              <div class="progress-modern mb-1">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 45%;
-                                    background: var(--warning-color);
-                                  "
-                                ></div>
-                              </div>
-                              <div class="small text-muted">7.2 GB</div>
-                            </td>
-                            <td>
-                              <div class="small">100 GB</div>
-                              <div class="progress-modern mb-1">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 67%;
-                                    background: var(--info-color);
-                                  "
-                                ></div>
-                              </div>
-                              <div class="small text-muted">67 GB</div>
-                            </td>
-                            <td>15</td>
-                            <td>27d 14h</td>
-                            <td>
-                              <div class="btn-group-actions">
-                                <button
-                                  class="btn btn-sm btn-outline-primary"
-                                  title="노드 상세"
-                                >
-                                  <i class="fas fa-eye"></i>
-                                </button>
-                                <button
-                                  class="btn btn-sm btn-outline-secondary"
-                                  title="SSH 접속"
-                                >
-                                  <i class="fas fa-terminal"></i>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <div class="d-flex align-items-center">
-                                <i class="fas fa-server me-2 text-primary"></i>
-                                <div>
-                                  <strong>k8s-worker-01</strong>
-                                  <div class="small text-muted">10.0.1.11</div>
-                                </div>
-                              </div>
-                            </td>
-                            <td>
-                              <span class="status-badge running"
-                                ><span class="status-indicator"></span
-                                >Ready</span
-                              >
-                            </td>
-                            <td><span class="badge bg-info">Worker</span></td>
-                            <td>
-                              <div class="small">8 cores</div>
-                              <div class="progress-modern mb-1">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 67%;
-                                    background: var(--warning-color);
-                                  "
-                                ></div>
-                              </div>
-                              <div class="small text-muted">67%</div>
-                            </td>
-                            <td>
-                              <div class="small">32 GB</div>
-                              <div class="progress-modern mb-1">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 78%;
-                                    background: var(--danger-color);
-                                  "
-                                ></div>
-                              </div>
-                              <div class="small text-muted">25 GB</div>
-                            </td>
-                            <td>
-                              <div class="small">200 GB</div>
-                              <div class="progress-modern mb-1">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 45%;
-                                    background: var(--success-color);
-                                  "
-                                ></div>
-                              </div>
-                              <div class="small text-muted">90 GB</div>
-                            </td>
-                            <td>42</td>
-                            <td>25d 8h</td>
-                            <td>
-                              <div class="btn-group-actions">
-                                <button
-                                  class="btn btn-sm btn-outline-primary"
-                                  title="노드 상세"
-                                >
-                                  <i class="fas fa-eye"></i>
-                                </button>
-                                <button
-                                  class="btn btn-sm btn-outline-secondary"
-                                  title="SSH 접속"
-                                >
-                                  <i class="fas fa-terminal"></i>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <div class="d-flex align-items-center">
-                                <i class="fas fa-server me-2 text-primary"></i>
-                                <div>
-                                  <strong>k8s-worker-02</strong>
-                                  <div class="small text-muted">10.0.1.12</div>
-                                </div>
-                              </div>
-                            </td>
-                            <td>
-                              <span class="status-badge warning"
-                                ><span class="status-indicator"></span
-                                >Warning</span
-                              >
-                            </td>
-                            <td><span class="badge bg-info">Worker</span></td>
-                            <td>
-                              <div class="small">8 cores</div>
-                              <div class="progress-modern mb-1">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 89%;
-                                    background: var(--danger-color);
-                                  "
-                                ></div>
-                              </div>
-                              <div class="small text-muted">89%</div>
-                            </td>
-                            <td>
-                              <div class="small">32 GB</div>
-                              <div class="progress-modern mb-1">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 91%;
-                                    background: var(--danger-color);
-                                  "
-                                ></div>
-                              </div>
-                              <div class="small text-muted">29.1 GB</div>
-                            </td>
-                            <td>
-                              <div class="small">200 GB</div>
-                              <div class="progress-modern mb-1">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 23%;
-                                    background: var(--success-color);
-                                  "
-                                ></div>
-                              </div>
-                              <div class="small text-muted">46 GB</div>
-                            </td>
-                            <td>38</td>
-                            <td>20d 3h</td>
-                            <td>
-                              <div class="btn-group-actions">
-                                <button
-                                  class="btn btn-sm btn-outline-primary"
-                                  title="노드 상세"
-                                >
-                                  <i class="fas fa-eye"></i>
-                                </button>
-                                <button
-                                  class="btn btn-sm btn-outline-secondary"
-                                  title="SSH 접속"
-                                >
-                                  <i class="fas fa-terminal"></i>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <div class="d-flex align-items-center">
-                                <i class="fab fa-docker me-2 text-info"></i>
-                                <div>
-                                  <strong>docker-host-01</strong>
-                                  <div class="small text-muted">10.0.2.10</div>
-                                </div>
-                              </div>
-                            </td>
-                            <td>
-                              <span class="status-badge running"
-                                ><span class="status-indicator"></span
-                                >Ready</span
-                              >
-                            </td>
-                            <td>
-                              <span class="badge bg-secondary">Docker</span>
-                            </td>
-                            <td>
-                              <div class="small">16 cores</div>
-                              <div class="progress-modern mb-1">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 34%;
-                                    background: var(--success-color);
-                                  "
-                                ></div>
-                              </div>
-                              <div class="small text-muted">34%</div>
-                            </td>
-                            <td>
-                              <div class="small">64 GB</div>
-                              <div class="progress-modern mb-1">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 56%;
-                                    background: var(--warning-color);
-                                  "
-                                ></div>
-                              </div>
-                              <div class="small text-muted">35.8 GB</div>
-                            </td>
-                            <td>
-                              <div class="small">500 GB</div>
-                              <div class="progress-modern mb-1">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 78%;
-                                    background: var(--info-color);
-                                  "
-                                ></div>
-                              </div>
-                              <div class="small text-muted">390 GB</div>
-                            </td>
-                            <td>52</td>
-                            <td>45d 12h</td>
-                            <td>
-                              <div class="btn-group-actions">
-                                <button
-                                  class="btn btn-sm btn-outline-primary"
-                                  title="노드 상세"
-                                >
-                                  <i class="fas fa-eye"></i>
-                                </button>
-                                <button
-                                  class="btn btn-sm btn-outline-secondary"
-                                  title="SSH 접속"
-                                >
-                                  <i class="fas fa-terminal"></i>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Node Resource Charts -->
-            <div class="row mt-4">
-              <div class="col-lg-6">
-                <div class="dashboard-card">
-                  <div class="dashboard-card-header">
-                    <div class="dashboard-card-title">
+          <!-- Quick Actions -->
+          <div class="quick-actions">
+            <h2 class="quick-actions-title">
+              <i class="fas fa-bolt"></i>
+              빠른 작업
+            </h2>
+            <div class="action-buttons">
+              <a href="/containers" class="action-btn">
+                <i class="fas fa-plus"></i>
+                새 컨테이너 생성
+              </a>
+              <a href="/logs" class="action-btn">
+                <i class="fas fa-file-alt"></i>
+                로그 확인
+              </a>
+              <a href="/alerts" class="action-btn">
+                <i class="fas fa-bell"></i>
+                알림 설정
+              </a>
+              <a href="/monitoring" class="action-btn">
                       <i class="fas fa-chart-bar"></i>
-                      노드별 CPU 사용률
+                성능 분석
+              </a>
                     </div>
                   </div>
-                  <div class="dashboard-card-body">
-                    <div class="chart-container chart-container-small">
-                      <canvas id="nodeCpuChart"></canvas>
                     </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg-6">
-                <div class="dashboard-card">
-                  <div class="dashboard-card-header">
-                    <div class="dashboard-card-title">
-                      <i class="fas fa-chart-bar"></i>
-                      노드별 메모리 사용률
-                    </div>
-                  </div>
-                  <div class="dashboard-card-body">
-                    <div class="chart-container chart-container-small">
-                      <canvas id="nodeMemoryChart"></canvas>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Tab Content: Advanced Monitoring -->
-          <div id="monitoring-content" class="tab-content">
-            <!-- Performance Metrics Grid -->
-            <div class="row mb-4">
-              <div class="col-12">
-                <div class="dashboard-card">
-                  <div class="dashboard-card-header">
-                    <div class="dashboard-card-title">
-                      <i class="fas fa-tachometer-alt"></i>
-                      실시간 성능 메트릭
-                    </div>
-                    <div class="dashboard-card-subtitle">
-                      클러스터 전체 성능 지표
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Network & Storage Charts -->
-            <div class="resource-grid">
-              <div class="dashboard-card">
-                <div class="dashboard-card-header">
-                  <div class="dashboard-card-title">
-                    <i class="fas fa-network-wired"></i>
-                    네트워크 트래픽
-                  </div>
-                  <div class="dashboard-card-subtitle">실시간 네트워크 I/O</div>
-                </div>
-                <div class="dashboard-card-body">
-                  <div class="chart-container">
-                    <canvas id="networkTrafficChart"></canvas>
-                  </div>
-                </div>
-              </div>
-              <div class="dashboard-card">
-                <div class="dashboard-card-header">
-                  <div class="dashboard-card-title">
-                    <i class="fas fa-hdd"></i>
-                    디스크 I/O
-                  </div>
-                  <div class="dashboard-card-subtitle">읽기/쓰기 처리량</div>
-                </div>
-                <div class="dashboard-card-body">
-                  <div class="chart-container">
-                    <canvas id="diskIoChart"></canvas>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Application Performance -->
-            <div class="row">
-              <div class="col-lg-8">
-                <div class="dashboard-card h-100">
-                  <div class="dashboard-card-header">
-                    <div class="dashboard-card-title">
-                      <i class="fas fa-stopwatch"></i>
-                      응답 시간 분석
-                    </div>
-                    <div class="dashboard-card-subtitle">
-                      서비스별 평균 응답시간 (ms)
-                    </div>
-                  </div>
-                  <div class="dashboard-card-body">
-                    <div class="chart-container">
-                      <canvas id="responseTimeChart"></canvas>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg-4">
-                <div class="dashboard-card h-100">
-                  <div class="dashboard-card-header">
-                    <div class="dashboard-card-title">
-                      <i class="fas fa-chart-pie"></i>
-                      요청 상태 분포
-                    </div>
-                    <div class="dashboard-card-subtitle">HTTP 상태 코드별</div>
-                  </div>
-                  <div class="dashboard-card-body d-flex align-items-center">
-                    <div class="chart-container w-100">
-                      <canvas id="requestStatusChart"></canvas>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Resource Utilization Heatmap -->
-            <div class="row mt-4">
-              <div class="col-12">
-                <div class="dashboard-card">
-                  <div class="dashboard-card-header">
-                    <div class="dashboard-card-title">
-                      <i class="fas fa-fire"></i>
-                      리소스 사용률 히트맵
-                    </div>
-                    <div class="dashboard-card-subtitle">
-                      노드별 실시간 리소스 사용 현황
-                    </div>
-                  </div>
-                  <div class="dashboard-card-body">
-                    <div class="row">
-                      <div class="col-md-3 mb-3">
-                        <div class="metric-card">
-                          <div style="padding: 1rem">
-                            <div
-                              class="d-flex justify-content-between align-items-center mb-2"
-                            >
-                              <h6 class="mb-0">k8s-master-01</h6>
-                              <span class="status-badge running">
-                                <span class="status-indicator"></span>
-                                Normal
-                              </span>
-                            </div>
-                            <div class="mb-2">
-                              <div class="d-flex justify-content-between">
-                                <small>CPU</small>
-                                <small>23%</small>
-                              </div>
-                              <div class="progress-modern">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 23%;
-                                    background: var(--success-color);
-                                  "
-                                ></div>
-                              </div>
-                            </div>
-                            <div class="mb-2">
-                              <div class="d-flex justify-content-between">
-                                <small>Memory</small>
-                                <small>45%</small>
-                              </div>
-                              <div class="progress-modern">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 45%;
-                                    background: var(--warning-color);
-                                  "
-                                ></div>
-                              </div>
-                            </div>
-                            <div>
-                              <div class="d-flex justify-content-between">
-                                <small>Disk</small>
-                                <small>67%</small>
-                              </div>
-                              <div class="progress-modern">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 67%;
-                                    background: var(--info-color);
-                                  "
-                                ></div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-md-3 mb-3">
-                        <div class="metric-card">
-                          <div style="padding: 1rem">
-                            <div
-                              class="d-flex justify-content-between align-items-start mb-2"
-                            >
-                              <h6 class="mb-0">k8s-worker-01</h6>
-                              <span class="status-badge warning">
-                                <span class="status-indicator"></span>
-                                High&nbsp;Load
-                              </span>
-                            </div>
-                            <div class="mb-2">
-                              <div class="d-flex justify-content-between">
-                                <small>CPU</small>
-                                <small>67%</small>
-                              </div>
-                              <div class="progress-modern">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 67%;
-                                    background: var(--warning-color);
-                                  "
-                                ></div>
-                              </div>
-                            </div>
-                            <div class="mb-2">
-                              <div class="d-flex justify-content-between">
-                                <small>Memory</small>
-                                <small>78%</small>
-                              </div>
-                              <div class="progress-modern">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 78%;
-                                    background: var(--danger-color);
-                                  "
-                                ></div>
-                              </div>
-                            </div>
-                            <div>
-                              <div class="d-flex justify-content-between">
-                                <small>Disk</small>
-                                <small>45%</small>
-                              </div>
-                              <div class="progress-modern">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 45%;
-                                    background: var(--success-color);
-                                  "
-                                ></div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-md-3 mb-3">
-                        <div class="metric-card">
-                          <div style="padding: 1rem">
-                            <div
-                              class="d-flex justify-content-between align-items-center mb-2"
-                            >
-                              <h6 class="mb-0">k8s-worker-02</h6>
-                              <span class="status-badge stopped">
-                                <span class="status-indicator"></span>
-                                Critical
-                              </span>
-                            </div>
-                            <div class="mb-2">
-                              <div class="d-flex justify-content-between">
-                                <small>CPU</small>
-                                <small>89%</small>
-                              </div>
-                              <div class="progress-modern">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 89%;
-                                    background: var(--danger-color);
-                                  "
-                                ></div>
-                              </div>
-                            </div>
-                            <div class="mb-2">
-                              <div class="d-flex justify-content-between">
-                                <small>Memory</small>
-                                <small>91%</small>
-                              </div>
-                              <div class="progress-modern">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 91%;
-                                    background: var(--danger-color);
-                                  "
-                                ></div>
-                              </div>
-                            </div>
-                            <div>
-                              <div class="d-flex justify-content-between">
-                                <small>Disk</small>
-                                <small>23%</small>
-                              </div>
-                              <div class="progress-modern">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 23%;
-                                    background: var(--success-color);
-                                  "
-                                ></div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-md-3 mb-3">
-                        <div class="metric-card">
-                          <div style="padding: 1rem">
-                            <div
-                              class="d-flex justify-content-between align-items-center mb-2"
-                            >
-                              <h6 class="mb-0">docker-host-01</h6>
-                              <span class="status-badge running">
-                                <span class="status-indicator"></span>
-                                Normal
-                              </span>
-                            </div>
-                            <div class="mb-2">
-                              <div class="d-flex justify-content-between">
-                                <small>CPU</small>
-                                <small>34%</small>
-                              </div>
-                              <div class="progress-modern">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 34%;
-                                    background: var(--success-color);
-                                  "
-                                ></div>
-                              </div>
-                            </div>
-                            <div class="mb-2">
-                              <div class="d-flex justify-content-between">
-                                <small>Memory</small>
-                                <small>56%</small>
-                              </div>
-                              <div class="progress-modern">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 56%;
-                                    background: var(--warning-color);
-                                  "
-                                ></div>
-                              </div>
-                            </div>
-                            <div>
-                              <div class="d-flex justify-content-between">
-                                <small>Disk</small>
-                                <small>78%</small>
-                              </div>
-                              <div class="progress-modern">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 78%;
-                                    background: var(--info-color);
-                                  "
-                                ></div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Top Processes -->
-            <div class="row mt-4">
-              <div class="col-12">
-                <div class="dashboard-card">
-                  <div class="dashboard-card-header">
-                    <div class="dashboard-card-title">
-                      <i class="fas fa-list-ol"></i>
-                      Top 리소스 사용 컨테이너
-                    </div>
-                    <div class="dashboard-card-subtitle">
-                      CPU 및 메모리 사용량 상위 컨테이너
-                    </div>
-                  </div>
-                  <div class="dashboard-card-body">
-                    <div class="table-container">
-                      <table class="table table-hover">
-                        <thead>
-                          <tr>
-                            <th>순위</th>
-                            <th>컨테이너</th>
-                            <th>노드</th>
-                            <th>CPU 사용률</th>
-                            <th>메모리 사용률</th>
-                            <th>네트워크 I/O</th>
-                            <th>디스크 I/O</th>
-                            <th>상태</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td><span class="badge bg-danger">1</span></td>
-                            <td>
-                              <div class="d-flex align-items-center">
-                                <i class="fas fa-cube me-2 text-primary"></i>
-                                <strong>elasticsearch-master</strong>
-                              </div>
-                            </td>
-                            <td>k8s-worker-02</td>
-                            <td>
-                              <div class="progress-modern mb-1">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 89%;
-                                    background: var(--danger-color);
-                                  "
-                                ></div>
-                              </div>
-                              <small>89.2%</small>
-                            </td>
-                            <td>
-                              <div class="progress-modern mb-1">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 76%;
-                                    background: var(--danger-color);
-                                  "
-                                ></div>
-                              </div>
-                              <small>2.4 GB</small>
-                            </td>
-                            <td><small>1.2 MB/s</small></td>
-                            <td><small>450 KB/s</small></td>
-                            <td>
-                              <span class="status-badge running"
-                                ><span class="status-indicator"></span
-                                >Running</span
-                              >
-                            </td>
-                          </tr>
-                          <tr>
-                            <td><span class="badge bg-warning">2</span></td>
-                            <td>
-                              <div class="d-flex align-items-center">
-                                <i class="fab fa-docker me-2 text-info"></i>
-                                <strong>postgres-primary</strong>
-                              </div>
-                            </td>
-                            <td>docker-host-01</td>
-                            <td>
-                              <div class="progress-modern mb-1">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 67%;
-                                    background: var(--warning-color);
-                                  "
-                                ></div>
-                              </div>
-                              <small>67.4%</small>
-                            </td>
-                            <td>
-                              <div class="progress-modern mb-1">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 54%;
-                                    background: var(--warning-color);
-                                  "
-                                ></div>
-                              </div>
-                              <small>1.7 GB</small>
-                            </td>
-                            <td><small>890 KB/s</small></td>
-                            <td><small>2.1 MB/s</small></td>
-                            <td>
-                              <span class="status-badge running"
-                                ><span class="status-indicator"></span
-                                >Running</span
-                              >
-                            </td>
-                          </tr>
-                          <tr>
-                            <td><span class="badge bg-info">3</span></td>
-                            <td>
-                              <div class="d-flex align-items-center">
-                                <i class="fas fa-cube me-2 text-success"></i>
-                                <strong>api-gateway</strong>
-                              </div>
-                            </td>
-                            <td>k8s-worker-01</td>
-                            <td>
-                              <div class="progress-modern mb-1">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 45%;
-                                    background: var(--warning-color);
-                                  "
-                                ></div>
-                              </div>
-                              <small>45.1%</small>
-                            </td>
-                            <td>
-                              <div class="progress-modern mb-1">
-                                <div
-                                  class="progress-bar-modern"
-                                  style="
-                                    width: 32%;
-                                    background: var(--success-color);
-                                  "
-                                ></div>
-                              </div>
-                              <small>512 MB</small>
-                            </td>
-                            <td><small>2.4 MB/s</small></td>
-                            <td><small>120 KB/s</small></td>
-                            <td>
-                              <span class="status-badge running"
-                                ><span class="status-indicator"></span
-                                >Running</span
-                              >
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Tab Content: Alerts Management -->
-          <div id="alerts-content" class="tab-content">
-            <!-- Alert Statistics -->
-            <div class="metric-grid mb-4">
-              <div class="metric-card">
-                <div class="metric-card-header">
-                  <div class="metric-icon danger">
-                    <i class="fas fa-exclamation-circle"></i>
-                  </div>
-                </div>
-                <div class="metric-value" id="criticalAlerts">3</div>
-                <div class="metric-label">Critical 알림</div>
-                <div class="metric-change negative">
-                  <i class="fas fa-arrow-up"></i>
-                  +1 (지난 1시간)
-                </div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-card-header">
-                  <div class="metric-icon warning">
-                    <i class="fas fa-exclamation-triangle"></i>
-                  </div>
-                </div>
-                <div class="metric-value" id="warningAlerts">12</div>
-                <div class="metric-label">Warning 알림</div>
-                <div class="metric-change positive">
-                  <i class="fas fa-arrow-down"></i>
-                  -3 (지난 1시간)
-                </div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-card-header">
-                  <div class="metric-icon info">
-                    <i class="fas fa-info-circle"></i>
-                  </div>
-                </div>
-                <div class="metric-value" id="infoAlerts">8</div>
-                <div class="metric-label">Info 알림</div>
-                <div class="metric-change">
-                  <i class="fas fa-minus"></i>
-                  변화 없음
-                </div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-card-header">
-                  <div class="metric-icon success">
-                    <i class="fas fa-check-circle"></i>
-                  </div>
-                </div>
-                <div class="metric-value" id="resolvedAlerts">45</div>
-                <div class="metric-label">해결된 알림</div>
-                <div class="metric-change positive">
-                  <i class="fas fa-arrow-up"></i>
-                  +8 (지난 24시간)
-                </div>
-              </div>
-            </div>
-
-            <!-- Active Alerts -->
-            <div class="row mb-4">
-              <div class="col-12">
-                <div class="dashboard-card">
-                  <div class="dashboard-card-header">
-                    <div class="dashboard-card-title">
-                      <i class="fas fa-bell"></i>
-                      활성 알림
-                    </div>
-                    <div class="dashboard-card-subtitle">
-                      현재 처리가 필요한 알림 목록
-                    </div>
-                  </div>
-                  <div class="dashboard-card-body">
-                    <div class="table-container">
-                      <table id="alertsTable" class="table table-hover">
-                        <thead>
-                          <tr>
-                            <th>상태</th>
-                            <th>알림명</th>
-                            <th>대상</th>
-                            <th>메시지</th>
-                            <th>발생 시간</th>
-                            <th>지속 시간</th>
-                            <th>액션</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr class="table-danger">
-                            <td>
-                              <span class="status-badge stopped">
-                                <span class="status-indicator"></span>
-                                Critical
-                              </span>
-                            </td>
-                            <td><strong>High Memory Usage</strong></td>
-                            <td>k8s-worker-02</td>
-                            <td>메모리 사용률이 90%를 초과했습니다 (91.2%)</td>
-                            <td>2025-08-21 14:25:33</td>
-                            <td>25분</td>
-                            <td>
-                              <div class="btn-group-actions">
-                                <button
-                                  class="btn btn-sm btn-outline-success"
-                                  title="해결됨으로 표시"
-                                >
-                                  <i class="fas fa-check"></i>
-                                </button>
-                                <button
-                                  class="btn btn-sm btn-outline-warning"
-                                  title="알림 음소거"
-                                >
-                                  <i class="fas fa-volume-mute"></i>
-                                </button>
-                                <button
-                                  class="btn btn-sm btn-outline-info"
-                                  title="상세 보기"
-                                >
-                                  <i class="fas fa-eye"></i>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                          <tr class="table-danger">
-                            <td>
-                              <span class="status-badge stopped">
-                                <span class="status-indicator"></span>
-                                Critical
-                              </span>
-                            </td>
-                            <td><strong>High CPU Usage</strong></td>
-                            <td>k8s-worker-02</td>
-                            <td>CPU 사용률이 85%를 초과했습니다 (89.1%)</td>
-                            <td>2025-08-21 14:20:15</td>
-                            <td>30분</td>
-                            <td>
-                              <div class="btn-group-actions">
-                                <button
-                                  class="btn btn-sm btn-outline-success"
-                                  title="해결됨으로 표시"
-                                >
-                                  <i class="fas fa-check"></i>
-                                </button>
-                                <button
-                                  class="btn btn-sm btn-outline-warning"
-                                  title="알림 음소거"
-                                >
-                                  <i class="fas fa-volume-mute"></i>
-                                </button>
-                                <button
-                                  class="btn btn-sm btn-outline-info"
-                                  title="상세 보기"
-                                >
-                                  <i class="fas fa-eye"></i>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                          <tr class="table-danger">
-                            <td>
-                              <span class="status-badge stopped">
-                                <span class="status-indicator"></span>
-                                Critical
-                              </span>
-                            </td>
-                            <td><strong>Container Restart Loop</strong></td>
-                            <td>elasticsearch-master</td>
-                            <td>컨테이너가 5분 내에 3회 재시작되었습니다</td>
-                            <td>2025-08-21 14:15:22</td>
-                            <td>35분</td>
-                            <td>
-                              <div class="btn-group-actions">
-                                <button
-                                  class="btn btn-sm btn-outline-success"
-                                  title="해결됨으로 표시"
-                                >
-                                  <i class="fas fa-check"></i>
-                                </button>
-                                <button
-                                  class="btn btn-sm btn-outline-warning"
-                                  title="알림 음소거"
-                                >
-                                  <i class="fas fa-volume-mute"></i>
-                                </button>
-                                <button
-                                  class="btn btn-sm btn-outline-info"
-                                  title="상세 보기"
-                                >
-                                  <i class="fas fa-eye"></i>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                          <tr class="table-warning">
-                            <td>
-                              <span class="status-badge warning">
-                                <span class="status-indicator"></span>
-                                Warning
-                              </span>
-                            </td>
-                            <td><strong>Disk Space Low</strong></td>
-                            <td>docker-host-01</td>
-                            <td>디스크 사용률이 80%를 초과했습니다 (78%)</td>
-                            <td>2025-08-21 13:45:10</td>
-                            <td>1시간 5분</td>
-                            <td>
-                              <div class="btn-group-actions">
-                                <button
-                                  class="btn btn-sm btn-outline-success"
-                                  title="해결됨으로 표시"
-                                >
-                                  <i class="fas fa-check"></i>
-                                </button>
-                                <button
-                                  class="btn btn-sm btn-outline-warning"
-                                  title="알림 음소거"
-                                >
-                                  <i class="fas fa-volume-mute"></i>
-                                </button>
-                                <button
-                                  class="btn btn-sm btn-outline-info"
-                                  title="상세 보기"
-                                >
-                                  <i class="fas fa-eye"></i>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                          <tr class="table-warning">
-                            <td>
-                              <span class="status-badge warning">
-                                <span class="status-indicator"></span>
-                                Warning
-                              </span>
-                            </td>
-                            <td><strong>High Network Traffic</strong></td>
-                            <td>api-gateway</td>
-                            <td>
-                              네트워크 트래픽이 평균의 150%를 초과했습니다
-                            </td>
-                            <td>2025-08-21 14:30:45</td>
-                            <td>20분</td>
-                            <td>
-                              <div class="btn-group-actions">
-                                <button
-                                  class="btn btn-sm btn-outline-success"
-                                  title="해결됨으로 표시"
-                                >
-                                  <i class="fas fa-check"></i>
-                                </button>
-                                <button
-                                  class="btn btn-sm btn-outline-warning"
-                                  title="알림 음소거"
-                                >
-                                  <i class="fas fa-volume-mute"></i>
-                                </button>
-                                <button
-                                  class="btn btn-sm btn-outline-info"
-                                  title="상세 보기"
-                                >
-                                  <i class="fas fa-eye"></i>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <span class="status-badge pending">
-                                <span class="status-indicator"></span>
-                                Info
-                              </span>
-                            </td>
-                            <td><strong>Pod Scheduled</strong></td>
-                            <td>backend-service-new</td>
-                            <td>
-                              새로운 Pod이 k8s-worker-01에 스케줄되었습니다
-                            </td>
-                            <td>2025-08-21 14:40:12</td>
-                            <td>10분</td>
-                            <td>
-                              <div class="btn-group-actions">
-                                <button
-                                  class="btn btn-sm btn-outline-success"
-                                  title="해결됨으로 표시"
-                                >
-                                  <i class="fas fa-check"></i>
-                                </button>
-                                <button
-                                  class="btn btn-sm btn-outline-warning"
-                                  title="알림 음소거"
-                                >
-                                  <i class="fas fa-volume-mute"></i>
-                                </button>
-                                <button
-                                  class="btn btn-sm btn-outline-info"
-                                  title="상세 보기"
-                                >
-                                  <i class="fas fa-eye"></i>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Alert Rules Management -->
-            <div class="row">
-              <div class="col-lg-8">
-                <div class="dashboard-card">
-                  <div class="dashboard-card-header">
-                    <div class="dashboard-card-title">
-                      <i class="fas fa-cogs"></i>
-                      알림 규칙 관리
-                    </div>
-                    <div class="dashboard-card-subtitle">
-                      자동 알림을 위한 임계값 설정
-                    </div>
-                  </div>
-                  <div class="dashboard-card-body">
-                    <div class="table-container">
-                      <table class="table table-hover">
-                        <thead>
-                          <tr>
-                            <th>규칙명</th>
-                            <th>대상</th>
-                            <th>조건</th>
-                            <th>심각도</th>
-                            <th>상태</th>
-                            <th>액션</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td><strong>High CPU Usage</strong></td>
-                            <td>모든 노드</td>
-                            <td>CPU > 85% for 5min</td>
-                            <td>
-                              <span class="badge bg-danger">Critical</span>
-                            </td>
-                            <td>
-                              <span class="status-badge running"
-                                ><span class="status-indicator"></span
-                                >활성</span
-                              >
-                            </td>
-                            <td>
-                              <div class="btn-group-actions">
-                                <button class="btn btn-sm btn-outline-primary">
-                                  <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger">
-                                  <i class="fas fa-pause"></i>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td><strong>High Memory Usage</strong></td>
-                            <td>모든 노드</td>
-                            <td>Memory > 90% for 3min</td>
-                            <td>
-                              <span class="badge bg-danger">Critical</span>
-                            </td>
-                            <td>
-                              <span class="status-badge running"
-                                ><span class="status-indicator"></span
-                                >활성</span
-                              >
-                            </td>
-                            <td>
-                              <div class="btn-group-actions">
-                                <button class="btn btn-sm btn-outline-primary">
-                                  <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger">
-                                  <i class="fas fa-pause"></i>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td><strong>Container Restart</strong></td>
-                            <td>모든 컨테이너</td>
-                            <td>Restart count > 3 in 10min</td>
-                            <td>
-                              <span class="badge bg-danger">Critical</span>
-                            </td>
-                            <td>
-                              <span class="status-badge running"
-                                ><span class="status-indicator"></span
-                                >활성</span
-                              >
-                            </td>
-                            <td>
-                              <div class="btn-group-actions">
-                                <button class="btn btn-sm btn-outline-primary">
-                                  <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger">
-                                  <i class="fas fa-pause"></i>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td><strong>Disk Space Warning</strong></td>
-                            <td>모든 노드</td>
-                            <td>Disk usage > 80%</td>
-                            <td>
-                              <span class="badge bg-warning">Warning</span>
-                            </td>
-                            <td>
-                              <span class="status-badge running"
-                                ><span class="status-indicator"></span
-                                >활성</span
-                              >
-                            </td>
-                            <td>
-                              <div class="btn-group-actions">
-                                <button class="btn btn-sm btn-outline-primary">
-                                  <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger">
-                                  <i class="fas fa-pause"></i>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td><strong>Pod Scheduling</strong></td>
-                            <td>Kubernetes 클러스터</td>
-                            <td>Pod state changes</td>
-                            <td><span class="badge bg-info">Info</span></td>
-                            <td>
-                              <span class="status-badge stopped"
-                                ><span class="status-indicator"></span
-                                >비활성</span
-                              >
-                            </td>
-                            <td>
-                              <div class="btn-group-actions">
-                                <button class="btn btn-sm btn-outline-primary">
-                                  <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-success">
-                                  <i class="fas fa-play"></i>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg-4">
-                <div class="dashboard-card">
-                  <div class="dashboard-card-header">
-                    <div class="dashboard-card-title">
-                      <i class="fas fa-chart-line"></i>
-                      알림 발생 추이
-                    </div>
-                  </div>
-                  <div class="dashboard-card-body">
-                    <div class="chart-container chart-container-small">
-                      <canvas id="alertTrendChart"></canvas>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Notification Settings -->
-                <div class="dashboard-card mt-4">
-                  <div class="dashboard-card-header">
-                    <div class="dashboard-card-title">
-                      <i class="fas fa-bell"></i>
-                      알림 설정
-                    </div>
-                  </div>
-                  <div class="dashboard-card-body">
-                    <div class="mb-3">
-                      <div
-                        class="d-flex justify-content-between align-items-center mb-2"
-                      >
-                        <label class="form-label">이메일 알림</label>
-                        <div class="form-check form-switch">
-                          <input
-                            class="form-check-input"
-                            type="checkbox"
-                            checked
-                          />
-                        </div>
-                      </div>
-                      <div
-                        class="d-flex justify-content-between align-items-center mb-2"
-                      >
-                        <label class="form-label">Slack 알림</label>
-                        <div class="form-check form-switch">
-                          <input
-                            class="form-check-input"
-                            type="checkbox"
-                            checked
-                          />
-                        </div>
-                      </div>
-                      <div
-                        class="d-flex justify-content-between align-items-center mb-2"
-                      >
-                        <label class="form-label">SMS 알림</label>
-                        <div class="form-check form-switch">
-                          <input class="form-check-input" type="checkbox" />
-                        </div>
-                      </div>
-                      <div
-                        class="d-flex justify-content-between align-items-center"
-                      >
-                        <label class="form-label">웹훅 알림</label>
-                        <div class="form-check form-switch">
-                          <input
-                            class="form-check-input"
-                            type="checkbox"
-                            checked
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <button class="btn btn-primary btn-sm w-100">
-                      <i class="fas fa-save me-2"></i>
-                      설정 저장
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Tab Content: Events -->
-          <div id="events-content" class="tab-content">
-            <!-- Event Summary Cards -->
-            <div class="row mb-4">
-              <div class="col-lg-3 col-md-6">
-                <div class="metric-card">
-                  <div class="metric-card-header">
-                    <div class="metric-icon primary">
-                      <i class="fas fa-calendar-day"></i>
-                    </div>
-                  </div>
-                  <div class="metric-value" id="todayEvents">48</div>
-                  <div class="metric-label">오늘 이벤트</div>
-                  <div class="metric-change positive">
-                    <i class="fas fa-arrow-up"></i>
-                    +12 vs 어제
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg-3 col-md-6">
-                <div class="metric-card">
-                  <div class="metric-card-header">
-                    <div class="metric-icon warning">
-                      <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                  </div>
-                  <div class="metric-value" id="warningEvents">7</div>
-                  <div class="metric-label">경고 이벤트</div>
-                  <div class="metric-change negative">
-                    <i class="fas fa-arrow-up"></i>
-                    +3 (지난 1시간)
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg-3 col-md-6">
-                <div class="metric-card">
-                  <div class="metric-card-header">
-                    <div class="metric-icon success">
-                      <i class="fas fa-check-circle"></i>
-                    </div>
-                  </div>
-                  <div class="metric-value" id="normalEvents">35</div>
-                  <div class="metric-label">정상 이벤트</div>
-                  <div class="metric-change positive">
-                    <i class="fas fa-arrow-up"></i>
-                    +9 (지난 1시간)
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg-3 col-md-6">
-                <div class="metric-card">
-                  <div class="metric-card-header">
-                    <div class="metric-icon info">
-                      <i class="fas fa-sync-alt"></i>
-                    </div>
-                  </div>
-                  <div class="metric-value" id="systemEvents">6</div>
-                  <div class="metric-label">시스템 이벤트</div>
-                  <div class="metric-change">
-                    <i class="fas fa-minus"></i>
-                    변화 없음
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Event Filters -->
-            <div class="row mb-4">
-              <div class="col-12">
-                <div class="dashboard-card">
-                  <div class="dashboard-card-header">
-                    <div class="dashboard-card-title">
-                      <i class="fas fa-filter"></i>
-                      이벤트 필터
-                    </div>
-                  </div>
-                  <div class="dashboard-card-body">
-                    <div class="row">
-                      <div class="col-md-3">
-                        <select class="form-select form-select-sm">
-                          <option>모든 타입</option>
-                          <option>Pod Events</option>
-                          <option>Node Events</option>
-                          <option>Deployment Events</option>
-                          <option>Service Events</option>
-                        </select>
-                      </div>
-                      <div class="col-md-3">
-                        <select class="form-select form-select-sm">
-                          <option>모든 네임스페이스</option>
-                          <option>default</option>
-                          <option>kube-system</option>
-                          <option>monitoring</option>
-                          <option>ingress-nginx</option>
-                        </select>
-                      </div>
-                      <div class="col-md-3">
-                        <select class="form-select form-select-sm">
-                          <option>최근 1시간</option>
-                          <option>최근 6시간</option>
-                          <option>최근 24시간</option>
-                          <option>최근 7일</option>
-                        </select>
-                      </div>
-                      <div class="col-md-3">
-                        <input
-                          type="search"
-                          class="form-control form-control-sm"
-                          placeholder="이벤트 검색..."
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Event Timeline -->
-            <div class="row">
-              <div class="col-12">
-                <div class="dashboard-card">
-                  <div class="dashboard-card-header">
-                    <div class="dashboard-card-title">
-                      <i class="fas fa-history"></i>
-                      이벤트 타임라인
-                    </div>
-                    <div class="dashboard-card-subtitle">
-                      실시간 클러스터 이벤트 스트림
-                    </div>
-                  </div>
-                  <div class="dashboard-card-body">
-                    <div class="table-container">
-                      <table id="eventsTable" class="table table-hover">
-                        <thead>
-                          <tr>
-                            <th>시간</th>
-                            <th>타입</th>
-                            <th>오브젝트</th>
-                            <th>네임스페이스</th>
-                            <th>이유</th>
-                            <th>메시지</th>
-                            <th>소스</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>
-                              <small class="text-muted">17:45:32</small>
-                              <div class="small">2분 전</div>
-                            </td>
-                            <td>
-                              <span class="status-badge running">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Normal
-                              </span>
-                            </td>
-                            <td>
-                              <div class="d-flex align-items-center">
-                                <i class="fas fa-cube me-2 text-primary"></i>
-                                <div>
-                                  <strong>backend-api-78d4f</strong>
-                                  <div class="small text-muted">Pod</div>
-                                </div>
-                              </div>
-                            </td>
-                            <td><code>default</code></td>
-                            <td>
-                              <span class="badge bg-success">Started</span>
-                            </td>
-                            <td>Started container backend-api</td>
-                            <td>kubelet</td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <small class="text-muted">17:44:15</small>
-                              <div class="small">3분 전</div>
-                            </td>
-                            <td>
-                              <span class="status-badge running">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Normal
-                              </span>
-                            </td>
-                            <td>
-                              <div class="d-flex align-items-center">
-                                <i class="fas fa-cube me-2 text-primary"></i>
-                                <div>
-                                  <strong>backend-api-78d4f</strong>
-                                  <div class="small text-muted">Pod</div>
-                                </div>
-                              </div>
-                            </td>
-                            <td><code>default</code></td>
-                            <td><span class="badge bg-info">Pulling</span></td>
-                            <td>
-                              Successfully pulled image "backend-api:v1.2.3"
-                            </td>
-                            <td>kubelet</td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <small class="text-muted">17:43:01</small>
-                              <div class="small">5분 전</div>
-                            </td>
-                            <td>
-                              <span class="status-badge running">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Normal
-                              </span>
-                            </td>
-                            <td>
-                              <div class="d-flex align-items-center">
-                                <i
-                                  class="fas fa-layer-group me-2 text-success"
-                                ></i>
-                                <div>
-                                  <strong>backend-deployment</strong>
-                                  <div class="small text-muted">Deployment</div>
-                                </div>
-                              </div>
-                            </td>
-                            <td><code>default</code></td>
-                            <td>
-                              <span class="badge bg-success"
-                                >ScalingReplicaSet</span
-                              >
-                            </td>
-                            <td>
-                              Scaled up replica set backend-deployment-78d4f to
-                              3
-                            </td>
-                            <td>deployment-controller</td>
-                          </tr>
-                          <tr class="table-warning">
-                            <td>
-                              <small class="text-muted">17:41:22</small>
-                              <div class="small">6분 전</div>
-                            </td>
-                            <td>
-                              <span class="status-badge warning">
-                                <i class="fas fa-exclamation-triangle me-1"></i>
-                                Warning
-                              </span>
-                            </td>
-                            <td>
-                              <div class="d-flex align-items-center">
-                                <i class="fas fa-cube me-2 text-warning"></i>
-                                <div>
-                                  <strong>elasticsearch-0</strong>
-                                  <div class="small text-muted">Pod</div>
-                                </div>
-                              </div>
-                            </td>
-                            <td><code>monitoring</code></td>
-                            <td>
-                              <span class="badge bg-warning">BackOff</span>
-                            </td>
-                            <td>Back-off restarting failed container</td>
-                            <td>kubelet</td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <small class="text-muted">17:40:55</small>
-                              <div class="small">7분 전</div>
-                            </td>
-                            <td>
-                              <span class="status-badge running">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Normal
-                              </span>
-                            </td>
-                            <td>
-                              <div class="d-flex align-items-center">
-                                <i class="fas fa-server me-2 text-info"></i>
-                                <div>
-                                  <strong>k8s-worker-01</strong>
-                                  <div class="small text-muted">Node</div>
-                                </div>
-                              </div>
-                            </td>
-                            <td><code>-</code></td>
-                            <td>
-                              <span class="badge bg-success">NodeReady</span>
-                            </td>
-                            <td>Node k8s-worker-01 status is now: NodeReady</td>
-                            <td>node-controller</td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <small class="text-muted">17:38:33</small>
-                              <div class="small">9분 전</div>
-                            </td>
-                            <td>
-                              <span class="status-badge running">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Normal
-                              </span>
-                            </td>
-                            <td>
-                              <div class="d-flex align-items-center">
-                                <i
-                                  class="fas fa-network-wired me-2 text-primary"
-                                ></i>
-                                <div>
-                                  <strong>nginx-service</strong>
-                                  <div class="small text-muted">Service</div>
-                                </div>
-                              </div>
-                            </td>
-                            <td><code>default</code></td>
-                            <td>
-                              <span class="badge bg-info"
-                                >UpdatedLoadBalancer</span
-                              >
-                            </td>
-                            <td>Updated load balancer with new endpoints</td>
-                            <td>service-controller</td>
-                          </tr>
-                          <tr class="table-danger">
-                            <td>
-                              <small class="text-muted">17:35:11</small>
-                              <div class="small">12분 전</div>
-                            </td>
-                            <td>
-                              <span class="status-badge stopped">
-                                <i class="fas fa-times-circle me-1"></i>
-                                Warning
-                              </span>
-                            </td>
-                            <td>
-                              <div class="d-flex align-items-center">
-                                <i class="fas fa-cube me-2 text-danger"></i>
-                                <div>
-                                  <strong>redis-master-0</strong>
-                                  <div class="small text-muted">Pod</div>
-                                </div>
-                              </div>
-                            </td>
-                            <td><code>default</code></td>
-                            <td>
-                              <span class="badge bg-danger">FailedMount</span>
-                            </td>
-                            <td>
-                              Unable to attach or mount volumes: unmounted
-                              volumes=[redis-data]
-                            </td>
-                            <td>kubelet</td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <small class="text-muted">17:32:44</small>
-                              <div class="small">15분 전</div>
-                            </td>
-                            <td>
-                              <span class="status-badge running">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Normal
-                              </span>
-                            </td>
-                            <td>
-                              <div class="d-flex align-items-center">
-                                <i
-                                  class="fas fa-shield-alt me-2 text-success"
-                                ></i>
-                                <div>
-                                  <strong>monitoring-sa</strong>
-                                  <div class="small text-muted">
-                                    ServiceAccount
-                                  </div>
-                                </div>
-                              </div>
-                            </td>
-                            <td><code>monitoring</code></td>
-                            <td>
-                              <span class="badge bg-success"
-                                >TokenRequested</span
-                              >
-                            </td>
-                            <td>
-                              Created token for service account monitoring-sa
-                            </td>
-                            <td>serviceaccount-controller</td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <small class="text-muted">17:30:15</small>
-                              <div class="small">17분 전</div>
-                            </td>
-                            <td>
-                              <span class="status-badge running">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Normal
-                              </span>
-                            </td>
-                            <td>
-                              <div class="d-flex align-items-center">
-                                <i class="fas fa-cube me-2 text-primary"></i>
-                                <div>
-                                  <strong>frontend-web-abc12</strong>
-                                  <div class="small text-muted">Pod</div>
-                                </div>
-                              </div>
-                            </td>
-                            <td><code>default</code></td>
-                            <td>
-                              <span class="badge bg-success">Scheduled</span>
-                            </td>
-                            <td>
-                              Successfully assigned default/frontend-web-abc12
-                              to k8s-worker-02
-                            </td>
-                            <td>default-scheduler</td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <small class="text-muted">17:28:50</small>
-                              <div class="small">19분 전</div>
-                            </td>
-                            <td>
-                              <span class="status-badge running">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Normal
-                              </span>
-                            </td>
-                            <td>
-                              <div class="d-flex align-items-center">
-                                <i class="fas fa-hdd me-2 text-info"></i>
-                                <div>
-                                  <strong>web-storage-pvc</strong>
-                                  <div class="small text-muted">
-                                    PersistentVolumeClaim
-                                  </div>
-                                </div>
-                              </div>
-                            </td>
-                            <td><code>default</code></td>
-                            <td>
-                              <span class="badge bg-success"
-                                >ProvisioningSucceeded</span
-                              >
-                            </td>
-                            <td>
-                              Successfully provisioned volume pvc-abc123def456
-                            </td>
-                            <td>persistentvolume-controller</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Event Statistics Chart -->
-            <div class="row mt-4">
-              <div class="col-lg-8">
-                <div class="dashboard-card">
-                  <div class="dashboard-card-header">
-                    <div class="dashboard-card-title">
-                      <i class="fas fa-chart-area"></i>
-                      이벤트 발생 추이 (최근 24시간)
-                    </div>
-                  </div>
-                  <div class="dashboard-card-body">
-                    <div class="chart-container">
-                      <canvas id="eventTrendChart"></canvas>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg-4">
-                <div class="dashboard-card">
-                  <div class="dashboard-card-header">
-                    <div class="dashboard-card-title">
-                      <i class="fas fa-chart-doughnut"></i>
-                      이벤트 타입 분포
-                    </div>
-                  </div>
-                  <div class="dashboard-card-body">
-                    <div class="chart-container chart-container-small">
-                      <canvas id="eventTypeChart"></canvas>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </main>
-    </div>
+          </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Custom JavaScript -->
-    <script src="/static/js/app.js"></script>
+    <script>
+      // 사이드바 토글 기능
+      const sidebarToggle = document.getElementById("sidebarToggle");
+      const sidebar = document.getElementById("sidebar");
+      const mainContent = document.getElementById("mainContent");
+
+      sidebarToggle.addEventListener("click", function () {
+        sidebar.classList.toggle("sidebar-collapsed");
+        mainContent.classList.toggle("content-expanded");
+      });
+
+      // 실시간 데이터 업데이트
+      function updateRealTimeData() {
+        // 메트릭 카드 업데이트
+        const metrics = {
+          totalContainers: { min: 140, max: 155, current: 147 },
+          activeNodes: { min: 12, max: 12, current: 12 },
+          systemHealth: { min: 95, max: 100, current: 98 },
+          uptime: { min: 99.5, max: 100, current: 99.9 },
+          runningContainers: { min: 125, max: 145, current: 134 },
+          healthyNodes: { min: 10, max: 12, current: 11 },
+          warningAlerts: { min: 0, max: 5, current: 3 },
+          criticalAlerts: { min: 0, max: 3, current: 1 },
+        };
+
+        Object.keys(metrics).forEach((key) => {
+          const element = document.getElementById(key);
+          if (element) {
+            const metric = metrics[key];
+            const change = (Math.random() - 0.5) * 2;
+            let newValue = metric.current + change;
+            newValue = Math.max(metric.min, Math.min(metric.max, newValue));
+
+            if (key === "systemHealth" || key === "uptime") {
+              element.textContent = newValue.toFixed(1) + "%";
+            } else {
+              element.textContent = Math.round(newValue);
+            }
+            metrics[key].current = newValue;
+          }
+        });
+
+        // 마지막 업데이트 시간 갱신
+        document.getElementById("lastUpdate").textContent =
+          new Date().toLocaleTimeString("ko-KR");
+      }
+
+      // 초기화
+      document.addEventListener("DOMContentLoaded", function () {
+        // 실시간 업데이트 시작
+        setInterval(updateRealTimeData, 5000);
+
+        // 초기 데이터 업데이트
+        updateRealTimeData();
+      });
+
+      // 반응형 처리
+      function handleResize() {
+        if (window.innerWidth <= 768) {
+          sidebar.classList.add("sidebar-collapsed");
+          mainContent.classList.add("content-expanded");
+        } else {
+          sidebar.classList.remove("sidebar-collapsed");
+          mainContent.classList.remove("content-expanded");
+        }
+      }
+
+      window.addEventListener("resize", handleResize);
+      handleResize(); // 초기 호출
+    </script>
   </body>
 </html>

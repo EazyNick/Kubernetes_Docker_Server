@@ -1,6 +1,8 @@
+<!-- 컨테이너 관리 페이지 - Docker 컨테이너의 상태를 모니터링하고 관리하는 페이지 -->
 {% extends "base.html" %} {% block title %}컨테이너 - 컨테이너 모니터링{%
 endblock %} {% block breadcrumb %}컨테이너{% endblock %} {% block content %}
-<!-- 컨테이너 테이블 -->
+
+<!-- 컨테이너 목록 테이블 섹션 -->
 <div class="dashboard-card">
   <div class="dashboard-card-header">
     <h5 class="dashboard-card-title">
@@ -13,6 +15,7 @@ endblock %} {% block breadcrumb %}컨테이너{% endblock %} {% block content %}
   </div>
   <div class="dashboard-card-body">
     <div class="table-container">
+      <!-- 컨테이너 데이터 테이블 -->
       <table class="table table-hover" id="containersTable">
         <thead>
           <tr>
@@ -27,6 +30,7 @@ endblock %} {% block breadcrumb %}컨테이너{% endblock %} {% block content %}
           </tr>
         </thead>
         <tbody>
+          <!-- nginx 웹 서버 컨테이너 -->
           <tr>
             <td>
               <div class="d-flex align-items-center">
@@ -36,6 +40,7 @@ endblock %} {% block breadcrumb %}컨테이너{% endblock %} {% block content %}
             </td>
             <td>nginx:1.21</td>
             <td><span class="status-badge running">실행 중</span></td>
+            <!-- CPU 사용률 표시 -->
             <td>
               <div class="d-flex align-items-center">
                 <div class="progress-modern me-2" style="width: 60px">
@@ -47,6 +52,7 @@ endblock %} {% block breadcrumb %}컨테이너{% endblock %} {% block content %}
                 <span>23%</span>
               </div>
             </td>
+            <!-- 메모리 사용률 표시 -->
             <td>
               <div class="d-flex align-items-center">
                 <div class="progress-modern me-2" style="width: 60px">

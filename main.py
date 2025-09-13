@@ -4,17 +4,21 @@ from fastapi.responses import FileResponse
 from fastapi.templating import Jinja2Templates
 import os
 
+# uvicorn main:app --reload --port  8000
+
 app = FastAPI()
 
 # Static 파일 서빙 설정
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# 템플릿 엔진 설정
+# 템플릿 엔진 설정 - 캐시 비활성화
 templates = Jinja2Templates(directory="templates")
+# templates.env.auto_reload = True
+# templates.env.cache = None
 
 @app.get("/")
 def read_root(request: Request):
-    return templates.TemplateResponse("dashboard.html", {"request": request})
+    return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get("/dashboard")
 def dashboard(request: Request):

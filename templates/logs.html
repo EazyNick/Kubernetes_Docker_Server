@@ -1,6 +1,8 @@
+<!-- 로그 관리 페이지 - 시스템 및 애플리케이션 로그를 검색하고 분석하는 페이지 -->
 {% extends "base.html" %} {% block title %}로그 - 컨테이너 모니터링{% endblock
 %} {% block breadcrumb %}로그{% endblock %} {% block content %}
-<!-- 로그 필터 및 검색 -->
+
+<!-- 로그 필터 및 검색 섹션 -->
 <div class="row mb-4">
   <div class="col-lg-8">
     <div class="dashboard-card">
@@ -13,6 +15,7 @@
       </div>
       <div class="dashboard-card-body">
         <div class="row">
+          <!-- 컨테이너 선택 필터 -->
           <div class="col-md-3 mb-3">
             <label class="form-label">컨테이너</label>
             <select class="form-select">
@@ -24,6 +27,7 @@
               <option value="api-gateway-1">api-gateway-1</option>
             </select>
           </div>
+          <!-- 로그 레벨 필터 -->
           <div class="col-md-3 mb-3">
             <label class="form-label">로그 레벨</label>
             <select class="form-select">
@@ -34,6 +38,7 @@
               <option value="debug">DEBUG</option>
             </select>
           </div>
+          <!-- 시간 범위 필터 -->
           <div class="col-md-3 mb-3">
             <label class="form-label">시간 범위</label>
             <select class="form-select">
@@ -43,6 +48,7 @@
               <option value="7d">최근 7일</option>
             </select>
           </div>
+          <!-- 검색어 입력 필터 -->
           <div class="col-md-3 mb-3">
             <label class="form-label">검색어</label>
             <input

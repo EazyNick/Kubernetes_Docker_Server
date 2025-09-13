@@ -1,274 +1,436 @@
-{% extends "base.html" %} {% block title %}이벤트 - 컨테이너 모니터링{% endblock
-%} {% block breadcrumb %}이벤트{% endblock %} {% block content %}
-<!-- 이벤트 차트 -->
+<!-- 이벤트 관리 페이지 - 시스템 이벤트를 모니터링하고 분석하는 페이지 -->
+{% extends "base.html" %}
+{% block title %}이벤트 - 컨테이너 모니터링{% endblock %}
+{% block breadcrumb %}이벤트{% endblock %}
+{% block content %}
+
+<!-- 이벤트 요약 카드 섹션 -->
 <div class="row mb-4">
-  <div class="col-lg-8 mb-4">
-    <div class="dashboard-card">
-      <div class="dashboard-card-header">
-        <h5 class="dashboard-card-title">
-          <i class="fas fa-chart-area"></i>
-          이벤트 발생 추이
-        </h5>
-        <p class="dashboard-card-subtitle">최근 24시간 이벤트 발생 패턴</p>
-      </div>
-      <div class="dashboard-card-body">
-        <div class="chart-container">
-          <canvas id="eventTrendChart"></canvas>
+    <div class="col-lg-3 col-md-6">
+        <div class="metric-card">
+            <div class="metric-card-header">
+                <div class="metric-icon primary">
+                    <i class="fas fa-calendar-day"></i>
+                </div>
+            </div>
+            <div class="metric-value" id="todayEvents">48</div>
+            <div class="metric-label">오늘 이벤트</div>
+            <div class="metric-change positive">
+                <i class="fas fa-arrow-up"></i>
+                +12 vs 어제
+            </div>
         </div>
-      </div>
     </div>
-  </div>
-
-  <div class="col-lg-4 mb-4">
-    <div class="dashboard-card">
-      <div class="dashboard-card-header">
-        <h5 class="dashboard-card-title">
-          <i class="fas fa-chart-pie"></i>
-          이벤트 타입 분포
-        </h5>
-        <p class="dashboard-card-subtitle">이벤트 타입별 분포</p>
-      </div>
-      <div class="dashboard-card-body">
-        <div class="chart-container">
-          <canvas id="eventTypeChart"></canvas>
+    <div class="col-lg-3 col-md-6">
+        <div class="metric-card">
+            <div class="metric-card-header">
+                <div class="metric-icon warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+            </div>
+            <div class="metric-value" id="warningEvents">7</div>
+            <div class="metric-label">경고 이벤트</div>
+            <div class="metric-change negative">
+                <i class="fas fa-arrow-up"></i>
+                +3 (지난 1시간)
+            </div>
         </div>
-      </div>
     </div>
-  </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="metric-card">
+            <div class="metric-card-header">
+                <div class="metric-icon success">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+            </div>
+            <div class="metric-value" id="normalEvents">35</div>
+            <div class="metric-label">정상 이벤트</div>
+            <div class="metric-change positive">
+                <i class="fas fa-arrow-up"></i>
+                +9 (지난 1시간)
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="metric-card">
+            <div class="metric-card-header">
+                <div class="metric-icon info">
+                    <i class="fas fa-sync-alt"></i>
+                </div>
+            </div>
+            <div class="metric-value" id="systemEvents">6</div>
+            <div class="metric-label">시스템 이벤트</div>
+            <div class="metric-change">
+                <i class="fas fa-minus"></i>
+                변화 없음
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- 이벤트 통계 카드 -->
+<!-- 이벤트 필터 섹션 -->
 <div class="row mb-4">
-  <div class="col-lg-3 col-md-6 mb-4">
-    <div class="metric-card">
-      <div class="metric-card-header">
-        <div class="metric-icon success">
-          <i class="fas fa-check-circle"></i>
+    <div class="col-12">
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <div class="dashboard-card-title">
+                    <i class="fas fa-filter"></i>
+                    이벤트 필터
+                </div>
+            </div>
+            <div class="dashboard-card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <select class="form-select form-select-sm">
+                            <option>모든 타입</option>
+                            <option>Pod Events</option>
+                            <option>Node Events</option>
+                            <option>Deployment Events</option>
+                            <option>Service Events</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select form-select-sm">
+                            <option>모든 네임스페이스</option>
+                            <option>default</option>
+                            <option>kube-system</option>
+                            <option>monitoring</option>
+                            <option>ingress-nginx</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select form-select-sm">
+                            <option>최근 1시간</option>
+                            <option>최근 6시간</option>
+                            <option>최근 24시간</option>
+                            <option>최근 7일</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="search" class="form-control form-control-sm" placeholder="이벤트 검색...">
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-      <div class="metric-value">156</div>
-      <div class="metric-label">정상 이벤트</div>
-      <div class="metric-change positive">
-        <i class="fas fa-arrow-up"></i>
-        <span>+12</span>
-      </div>
     </div>
-  </div>
-
-  <div class="col-lg-3 col-md-6 mb-4">
-    <div class="metric-card">
-      <div class="metric-card-header">
-        <div class="metric-icon warning">
-          <i class="fas fa-exclamation-triangle"></i>
-        </div>
-      </div>
-      <div class="metric-value">8</div>
-      <div class="metric-label">경고 이벤트</div>
-      <div class="metric-change negative">
-        <i class="fas fa-arrow-up"></i>
-        <span>+2</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-lg-3 col-md-6 mb-4">
-    <div class="metric-card">
-      <div class="metric-card-header">
-        <div class="metric-icon danger">
-          <i class="fas fa-times-circle"></i>
-        </div>
-      </div>
-      <div class="metric-value">3</div>
-      <div class="metric-label">오류 이벤트</div>
-      <div class="metric-change negative">
-        <i class="fas fa-arrow-up"></i>
-        <span>+1</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-lg-3 col-md-6 mb-4">
-    <div class="metric-card">
-      <div class="metric-card-header">
-        <div class="metric-icon info">
-          <i class="fas fa-info-circle"></i>
-        </div>
-      </div>
-      <div class="metric-value">67</div>
-      <div class="metric-label">총 이벤트</div>
-      <div class="metric-change positive">
-        <i class="fas fa-arrow-up"></i>
-        <span>+15</span>
-      </div>
-    </div>
-  </div>
 </div>
 
-<!-- 이벤트 테이블 -->
-<div class="dashboard-card">
-  <div class="dashboard-card-header">
-    <h5 class="dashboard-card-title">
-      <i class="fas fa-calendar-alt"></i>
-      이벤트 목록
-    </h5>
-    <p class="dashboard-card-subtitle">시스템에서 발생한 모든 이벤트</p>
-  </div>
-  <div class="dashboard-card-body">
-    <div class="table-container">
-      <table class="table table-hover" id="eventsTable">
-        <thead>
-          <tr>
-            <th>시간</th>
-            <th>이벤트 타입</th>
-            <th>이벤트</th>
-            <th>객체</th>
-            <th>메시지</th>
-            <th>원인</th>
-            <th>액션</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>2024-01-15 14:32:15</td>
-            <td><span class="status-badge success">Normal</span></td>
-            <td>Pod Scheduled</td>
-            <td>nginx-web-3</td>
-            <td>Successfully assigned nginx-web-3 to k8s-worker-01</td>
-            <td>Scheduled</td>
-            <td>default-scheduler</td>
-          </tr>
-          <tr>
-            <td>2024-01-15 14:31:45</td>
-            <td><span class="status-badge success">Normal</span></td>
-            <td>Pulling</td>
-            <td>nginx-web-3</td>
-            <td>Pulling image nginx:1.21</td>
-            <td>Pulling</td>
-            <td>kubelet</td>
-          </tr>
-          <tr>
-            <td>2024-01-15 14:31:20</td>
-            <td><span class="status-badge success">Normal</span></td>
-            <td>Created</td>
-            <td>nginx-web-3</td>
-            <td>Created container nginx-web-3</td>
-            <td>Created</td>
-            <td>kubelet</td>
-          </tr>
-          <tr>
-            <td>2024-01-15 14:30:55</td>
-            <td><span class="status-badge warning">Warning</span></td>
-            <td>FailedMount</td>
-            <td>postgres-db-1</td>
-            <td>Unable to mount volume for pod postgres-db-1</td>
-            <td>FailedMount</td>
-            <td>kubelet</td>
-          </tr>
-          <tr>
-            <td>2024-01-15 14:30:30</td>
-            <td><span class="status-badge success">Normal</span></td>
-            <td>Started</td>
-            <td>redis-cache-1</td>
-            <td>Started container redis-cache-1</td>
-            <td>Started</td>
-            <td>kubelet</td>
-          </tr>
-          <tr>
-            <td>2024-01-15 14:30:15</td>
-            <td><span class="status-badge danger">Error</span></td>
-            <td>Failed</td>
-            <td>api-gateway-1</td>
-            <td>Error: container failed to start</td>
-            <td>Failed</td>
-            <td>kubelet</td>
-          </tr>
-          <tr>
-            <td>2024-01-15 14:29:45</td>
-            <td><span class="status-badge success">Normal</span></td>
-            <td>Pulled</td>
-            <td>nginx-web-2</td>
-            <td>Successfully pulled image nginx:1.21</td>
-            <td>Pulled</td>
-            <td>kubelet</td>
-          </tr>
-          <tr>
-            <td>2024-01-15 14:29:20</td>
-            <td><span class="status-badge success">Normal</span></td>
-            <td>Created</td>
-            <td>nginx-web-2</td>
-            <td>Created container nginx-web-2</td>
-            <td>Created</td>
-            <td>kubelet</td>
-          </tr>
-          <tr>
-            <td>2024-01-15 14:28:55</td>
-            <td><span class="status-badge success">Normal</span></td>
-            <td>Started</td>
-            <td>nginx-web-1</td>
-            <td>Started container nginx-web-1</td>
-            <td>Started</td>
-            <td>kubelet</td>
-          </tr>
-          <tr>
-            <td>2024-01-15 14:28:30</td>
-            <td><span class="status-badge warning">Warning</span></td>
-            <td>Unhealthy</td>
-            <td>postgres-db-1</td>
-            <td>
-              Readiness probe failed: Get http://172.17.0.4:5432/health: dial
-              tcp 172.17.0.4:5432: connect: connection refused
-            </td>
-            <td>Unhealthy</td>
-            <td>kubelet</td>
-          </tr>
-          <tr>
-            <td>2024-01-15 14:28:15</td>
-            <td><span class="status-badge success">Normal</span></td>
-            <td>SuccessfulCreate</td>
-            <td>nginx-deployment</td>
-            <td>Created pod: nginx-web-1</td>
-            <td>SuccessfulCreate</td>
-            <td>replicaset-controller</td>
-          </tr>
-          <tr>
-            <td>2024-01-15 14:27:45</td>
-            <td><span class="status-badge success">Normal</span></td>
-            <td>ScalingReplicaSet</td>
-            <td>nginx-deployment</td>
-            <td>Scaled up replica set nginx-rs to 3</td>
-            <td>ScalingReplicaSet</td>
-            <td>deployment-controller</td>
-          </tr>
-          <tr>
-            <td>2024-01-15 14:27:20</td>
-            <td><span class="status-badge success">Normal</span></td>
-            <td>Created</td>
-            <td>nginx-service</td>
-            <td>Created service nginx-service</td>
-            <td>Created</td>
-            <td>service-controller</td>
-          </tr>
-          <tr>
-            <td>2024-01-15 14:26:55</td>
-            <td><span class="status-badge success">Normal</span></td>
-            <td>SuccessfulCreate</td>
-            <td>nginx-deployment</td>
-            <td>Created pod: nginx-web-2</td>
-            <td>SuccessfulCreate</td>
-            <td>replicaset-controller</td>
-          </tr>
-          <tr>
-            <td>2024-01-15 14:26:30</td>
-            <td><span class="status-badge success">Normal</span></td>
-            <td>Pulling</td>
-            <td>nginx-web-1</td>
-            <td>Pulling image nginx:1.21</td>
-            <td>Pulling</td>
-            <td>kubelet</td>
-          </tr>
-        </tbody>
-      </table>
+<!-- 이벤트 타임라인 섹션 -->
+<div class="row">
+    <div class="col-12">
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <div class="dashboard-card-title">
+                    <i class="fas fa-history"></i>
+                    이벤트 타임라인
+                </div>
+                <div class="dashboard-card-subtitle">실시간 클러스터 이벤트 스트림</div>
+            </div>
+            <div class="dashboard-card-body">
+                <div class="table-container">
+                    <table id="eventsTable" class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>시간</th>
+                                <th>타입</th>
+                                <th>오브젝트</th>
+                                <th>네임스페이스</th>
+                                <th>이유</th>
+                                <th>메시지</th>
+                                <th>소스</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <small class="text-muted">17:45:32</small>
+                                    <div class="small">2분 전</div>
+                                </td>
+                                <td>
+                                    <span class="status-badge running">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Normal
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-cube me-2 text-primary"></i>
+                                        <div>
+                                            <strong>backend-api-78d4f</strong>
+                                            <div class="small text-muted">Pod</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><code>default</code></td>
+                                <td><span class="badge bg-success">Started</span></td>
+                                <td>Started container backend-api</td>
+                                <td>kubelet</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <small class="text-muted">17:44:15</small>
+                                    <div class="small">3분 전</div>
+                                </td>
+                                <td>
+                                    <span class="status-badge running">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Normal
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-cube me-2 text-primary"></i>
+                                        <div>
+                                            <strong>backend-api-78d4f</strong>
+                                            <div class="small text-muted">Pod</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><code>default</code></td>
+                                <td><span class="badge bg-info">Pulling</span></td>
+                                <td>Successfully pulled image "backend-api:v1.2.3"</td>
+                                <td>kubelet</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <small class="text-muted">17:43:01</small>
+                                    <div class="small">5분 전</div>
+                                </td>
+                                <td>
+                                    <span class="status-badge running">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Normal
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-layer-group me-2 text-success"></i>
+                                        <div>
+                                            <strong>backend-deployment</strong>
+                                            <div class="small text-muted">Deployment</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><code>default</code></td>
+                                <td><span class="badge bg-success">ScalingReplicaSet</span></td>
+                                <td>Scaled up replica set backend-deployment-78d4f to 3</td>
+                                <td>deployment-controller</td>
+                            </tr>
+                            <tr class="table-warning">
+                                <td>
+                                    <small class="text-muted">17:41:22</small>
+                                    <div class="small">6분 전</div>
+                                </td>
+                                <td>
+                                    <span class="status-badge warning">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        Warning
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-cube me-2 text-warning"></i>
+                                        <div>
+                                            <strong>elasticsearch-0</strong>
+                                            <div class="small text-muted">Pod</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><code>monitoring</code></td>
+                                <td><span class="badge bg-warning">BackOff</span></td>
+                                <td>Back-off restarting failed container</td>
+                                <td>kubelet</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <small class="text-muted">17:40:55</small>
+                                    <div class="small">7분 전</div>
+                                </td>
+                                <td>
+                                    <span class="status-badge running">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Normal
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-server me-2 text-info"></i>
+                                        <div>
+                                            <strong>k8s-worker-01</strong>
+                                            <div class="small text-muted">Node</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><code>-</code></td>
+                                <td><span class="badge bg-success">NodeReady</span></td>
+                                <td>Node k8s-worker-01 status is now: NodeReady</td>
+                                <td>node-controller</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <small class="text-muted">17:38:33</small>
+                                    <div class="small">9분 전</div>
+                                </td>
+                                <td>
+                                    <span class="status-badge running">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Normal
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-network-wired me-2 text-primary"></i>
+                                        <div>
+                                            <strong>nginx-service</strong>
+                                            <div class="small text-muted">Service</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><code>default</code></td>
+                                <td><span class="badge bg-info">UpdatedLoadBalancer</span></td>
+                                <td>Updated load balancer with new endpoints</td>
+                                <td>service-controller</td>
+                            </tr>
+                            <tr class="table-danger">
+                                <td>
+                                    <small class="text-muted">17:35:11</small>
+                                    <div class="small">12분 전</div>
+                                </td>
+                                <td>
+                                    <span class="status-badge stopped">
+                                        <i class="fas fa-times-circle me-1"></i>
+                                        Warning
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-cube me-2 text-danger"></i>
+                                        <div>
+                                            <strong>redis-master-0</strong>
+                                            <div class="small text-muted">Pod</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><code>default</code></td>
+                                <td><span class="badge bg-danger">FailedMount</span></td>
+                                <td>Unable to attach or mount volumes: unmounted volumes=[redis-data]</td>
+                                <td>kubelet</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <small class="text-muted">17:32:44</small>
+                                    <div class="small">15분 전</div>
+                                </td>
+                                <td>
+                                    <span class="status-badge running">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Normal
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-shield-alt me-2 text-success"></i>
+                                        <div>
+                                            <strong>monitoring-sa</strong>
+                                            <div class="small text-muted">ServiceAccount</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><code>monitoring</code></td>
+                                <td><span class="badge bg-success">TokenRequested</span></td>
+                                <td>Created token for service account monitoring-sa</td>
+                                <td>serviceaccount-controller</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <small class="text-muted">17:30:15</small>
+                                    <div class="small">17분 전</div>
+                                </td>
+                                <td>
+                                    <span class="status-badge running">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Normal
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-cube me-2 text-primary"></i>
+                                        <div>
+                                            <strong>frontend-web-abc12</strong>
+                                            <div class="small text-muted">Pod</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><code>default</code></td>
+                                <td><span class="badge bg-success">Scheduled</span></td>
+                                <td>Successfully assigned default/frontend-web-abc12 to k8s-worker-02</td>
+                                <td>default-scheduler</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <small class="text-muted">17:28:50</small>
+                                    <div class="small">19분 전</div>
+                                </td>
+                                <td>
+                                    <span class="status-badge running">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Normal
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-hdd me-2 text-info"></i>
+                                        <div>
+                                            <strong>web-storage-pvc</strong>
+                                            <div class="small text-muted">PersistentVolumeClaim</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><code>default</code></td>
+                                <td><span class="badge bg-success">ProvisioningSucceeded</span></td>
+                                <td>Successfully provisioned volume pvc-abc123def456</td>
+                                <td>persistentvolume-controller</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
+
+<!-- 이벤트 통계 차트 섹션 -->
+<div class="row mt-4">
+    <div class="col-lg-8">
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <div class="dashboard-card-title">
+                    <i class="fas fa-chart-area"></i>
+                    이벤트 발생 추이 (최근 24시간)
+                </div>
+            </div>
+            <div class="dashboard-card-body">
+                <div class="chart-container">
+                    <canvas id="eventTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <div class="dashboard-card-title">
+                    <i class="fas fa-chart-doughnut"></i>
+                    이벤트 타입 분포
+                </div>
+            </div>
+            <div class="dashboard-card-body">
+                <div class="chart-container chart-container-small">
+                    <canvas id="eventTypeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
