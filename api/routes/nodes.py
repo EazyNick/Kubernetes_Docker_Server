@@ -7,6 +7,8 @@ from models import (
     BaseResponse,
     Node,
     NodeList
+    NodeList,
+    NodePageStats
 )
 from models.node import ResourceUsage, MemoryInfo, DiskInfo
 import random
@@ -28,6 +30,10 @@ def get_nodes():
                 ip=f"10.0.1.{10+i}",
                 role=node_type.title(),
                 status=random.choice(["Ready", "Warning"]),
+                status=random.choices(
+                    ["Ready", "NotReady", "Unknown", "Warning"], 
+                    weights=[75, 15, 5, 5]  # Ready가 대부분, 나머지는 적은 비율
+                )[0],
                 cpu=ResourceUsage(
                     cores=random.randint(4, 16),
                     usage=round(random.uniform(20, 90), 1)
