@@ -8,6 +8,9 @@ from models import (
     Alert,
     AlertList,
     AlertSummary
+    AlertSummary,
+    AlertRule,
+    AlertRuleList
 )
 import random
 from datetime import datetime, timedelta
@@ -99,6 +102,57 @@ def resolve_alert(alert_id: str):
     except Exception as e:
         return BaseResponse.error_response(
             message="Failed to resolve alert",
+            error_code="DATABASE_ERROR",
+            details=str(e)
+        )
+
+@router.get("/alert-rules", response_model=BaseResponse)
+def get_alert_rules():
+    """알림 규칙 목록 조회"""
+    try:
+        # TODO: 백엔드 개발자 구현 필요
+        # 1. 데이터베이스에서 알림 규칙 목록 조회 (alert_rules 테이블)
+        # 2. 데이터베이스에서 규칙 상태 관리 (alert_rules 테이블)
+        # 3. 데이터베이스에서 규칙별 임계값 조회 (alert_rules 테이블)
+        # 4. 데이터베이스에서 규칙별 대상 노드/컨테이너 조회 (alert_rules 테이블)
+        
+        # 현재는 랜덤 데이터로 시뮬레이션
+        rules = []
+        rule_names = [
+            "High CPU Usage", "High Memory Usage", "Container Restart Loop", 
+            "Disk Space Warning", "Network Latency", "Pod CrashLoopBackOff",
+            "Node Not Ready", "Service Unavailable", "High Disk I/O"
+        ]
+        targets = ["모든 노드", "모든 컨테이너", "Kubernetes 클러스터", "특정 네임스페이스"]
+        conditions = [
+            "CPU > 85% for 5min", "Memory > 90% for 3min", "Restart count > 3 in 10min",
+            "Disk usage > 80%", "Latency > 100ms", "Pod restart > 5 in 5min",
+            "Node status != Ready", "Service endpoints = 0", "Disk I/O > 100MB/s"
+        ]
+        severities = ["Critical", "Warning", "Info"]
+        statuses = ["Active", "Inactive", "Testing"]
+        
+        for i in range(8):
+            rule_name = random.choice(rule_names)
+            rules.append(AlertRule(
+                id=f"RULE-{i+1:03d}",
+                name=rule_name,
+                target=random.choice(targets),
+                condition=random.choice(conditions),
+                severity=random.choice(severities),
+                status=random.choice(statuses),
+                created_at=(datetime.now() - timedelta(days=random.randint(1, 30))).isoformat() + "Z"
+            ))
+        
+        rule_list = AlertRuleList(rules=rules)
+        
+        return BaseResponse.success_response(
+            data=rule_list.dict(),
+            message="Alert rules retrieved successfully"
+        )
+    except Exception as e:
+        return BaseResponse.error_response(
+            message="Failed to retrieve alert rules",
             error_code="DATABASE_ERROR",
             details=str(e)
         )

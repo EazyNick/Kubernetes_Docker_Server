@@ -28,7 +28,7 @@ class Node(BaseModel):
     name: str
     ip: str
     role: str  # "Master", "Worker", "Docker"
-    status: str  # "Ready", "Warning", "NotReady"
+    status: str  # "Ready", "NotReady", "Unknown", "Warning"
     cpu: ResourceUsage
     memory: MemoryInfo
     disk: DiskInfo

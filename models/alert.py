@@ -70,3 +70,49 @@ class AlertList(BaseModel):
                 }
             }
         }
+
+
+class AlertRule(BaseModel):
+    """알림 규칙 정보"""
+    id: str  # 규칙 고유 식별자
+    name: str  # 규칙명 (예: "High CPU Usage", "Memory Warning")
+    target: str  # 규칙 대상 (예: "모든 노드", "특정 컨테이너")
+    condition: str  # 규칙 조건 (예: "CPU > 85% for 5min")
+    severity: str  # 규칙 심각도 ("Critical", "Warning", "Info")
+    status: str  # 규칙 상태 ("Active", "Inactive", "Testing")
+    created_at: str  # 규칙 생성 시간 (ISO 8601 형식)
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "id": "RULE-001",
+                "name": "High CPU Usage",
+                "target": "모든 노드",
+                "condition": "CPU > 85% for 5min",
+                "severity": "Critical",
+                "status": "Active",
+                "created_at": "2024-01-15T09:30:00Z"
+            }
+        }
+
+
+class AlertRuleList(BaseModel):
+    """알림 규칙 목록"""
+    rules: List[AlertRule]
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "rules": [
+                    {
+                        "id": "RULE-001",
+                        "name": "High CPU Usage",
+                        "target": "모든 노드",
+                        "condition": "CPU > 85% for 5min",
+                        "severity": "Critical",
+                        "status": "Active",
+                        "created_at": "2024-01-15T09:30:00Z"
+                    }
+                ]
+            }
+        }

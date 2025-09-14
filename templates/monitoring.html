@@ -99,165 +99,11 @@
                 <div class="dashboard-card-subtitle">노드별 실시간 리소스 사용 현황</div>
             </div>
             <div class="dashboard-card-body">
-                <div class="row">
-                    <div class="col-md-3 mb-3">
-                        <div class="metric-card">
-                            <div style="padding: 1rem;">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <h6 class="mb-0">k8s-master-01</h6>
-                                    <span class="status-badge running">
-                                        <span class="status-indicator"></span>
-                                        Normal
-                                    </span>
-                                </div>
-                                <div class="mb-2">
-                                    <div class="d-flex justify-content-between">
-                                        <small>CPU</small>
-                                        <small>23%</small>
-                                    </div>
-                                    <div class="progress-modern">
-                                        <div class="progress-bar-modern" style="width: 23%; background: var(--success-color);"></div>
-                                    </div>
-                                </div>
-                                <div class="mb-2">
-                                    <div class="d-flex justify-content-between">
-                                        <small>Memory</small>
-                                        <small>45%</small>
-                                    </div>
-                                    <div class="progress-modern">
-                                        <div class="progress-bar-modern" style="width: 45%; background: var(--warning-color);"></div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="d-flex justify-content-between">
-                                        <small>Disk</small>
-                                        <small>67%</small>
-                                    </div>
-                                    <div class="progress-modern">
-                                        <div class="progress-bar-modern" style="width: 67%; background: var(--info-color);"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <div class="metric-card">
-                            <div style="padding: 1rem;">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <h6 class="mb-0">k8s-worker-01</h6>
-                                    <span class="status-badge warning">
-                                        <span class="status-indicator"></span>
-                                        High&nbsp;Load
-                                    </span>
-                                </div>
-                                <div class="mb-2">
-                                    <div class="d-flex justify-content-between">
-                                        <small>CPU</small>
-                                        <small>67%</small>
-                                    </div>
-                                    <div class="progress-modern">
-                                        <div class="progress-bar-modern" style="width: 67%; background: var(--warning-color);"></div>
-                                    </div>
-                                </div>
-                                <div class="mb-2">
-                                    <div class="d-flex justify-content-between">
-                                        <small>Memory</small>
-                                        <small>78%</small>
-                                    </div>
-                                    <div class="progress-modern">
-                                        <div class="progress-bar-modern" style="width: 78%; background: var(--danger-color);"></div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="d-flex justify-content-between">
-                                        <small>Disk</small>
-                                        <small>45%</small>
-                                    </div>
-                                    <div class="progress-modern">
-                                        <div class="progress-bar-modern" style="width: 45%; background: var(--success-color);"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <div class="metric-card">
-                            <div style="padding: 1rem;">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <h6 class="mb-0">k8s-worker-02</h6>
-                                    <span class="status-badge stopped">
-                                        <span class="status-indicator"></span>
-                                        Critical
-                                    </span>
-                                </div>
-                                <div class="mb-2">
-                                    <div class="d-flex justify-content-between">
-                                        <small>CPU</small>
-                                        <small>89%</small>
-                                    </div>
-                                    <div class="progress-modern">
-                                        <div class="progress-bar-modern" style="width: 89%; background: var(--danger-color);"></div>
-                                    </div>
-                                </div>
-                                <div class="mb-2">
-                                    <div class="d-flex justify-content-between">
-                                        <small>Memory</small>
-                                        <small>91%</small>
-                                    </div>
-                                    <div class="progress-modern">
-                                        <div class="progress-bar-modern" style="width: 91%; background: var(--danger-color);"></div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="d-flex justify-content-between">
-                                        <small>Disk</small>
-                                        <small>23%</small>
-                                    </div>
-                                    <div class="progress-modern">
-                                        <div class="progress-bar-modern" style="width: 23%; background: var(--success-color);"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <div class="metric-card">
-                            <div style="padding: 1rem;">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <h6 class="mb-0">docker-host-01</h6>
-                                    <span class="status-badge running">
-                                        <span class="status-indicator"></span>
-                                        Normal
-                                    </span>
-                                </div>
-                                <div class="mb-2">
-                                    <div class="d-flex justify-content-between">
-                                        <small>CPU</small>
-                                        <small>34%</small>
-                                    </div>
-                                    <div class="progress-modern">
-                                        <div class="progress-bar-modern" style="width: 34%; background: var(--success-color);"></div>
-                                    </div>
-                                </div>
-                                <div class="mb-2">
-                                    <div class="d-flex justify-content-between">
-                                        <small>Memory</small>
-                                        <small>56%</small>
-                                    </div>
-                                    <div class="progress-modern">
-                                        <div class="progress-bar-modern" style="width: 56%; background: var(--warning-color);"></div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="d-flex justify-content-between">
-                                        <small>Disk</small>
-                                        <small>78%</small>
-                                    </div>
-                                    <div class="progress-modern">
-                                        <div class="progress-bar-modern" style="width: 78%; background: var(--info-color);"></div>
-                                    </div>
-                                </div>
-                            </div>
+                <div class="row" id="monitoringNodesContainer">
+                    <!-- 노드 데이터가 여기에 동적으로 로드됩니다 -->
+                    <div class="col-12 text-center py-4">
+                        <i class="fas fa-spinner fa-spin me-2"></i>
+                        노드 데이터를 불러오는 중...
                         </div>
                     </div>
                 </div>
@@ -308,81 +154,13 @@
                                 </th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="monitoringTableBody">
+                            <!-- 컨테이너 데이터가 여기에 동적으로 로드됩니다 -->
                             <tr>
-                                <td><span class="badge bg-danger">1</span></td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-cube me-2 text-primary"></i>
-                                        <strong>elasticsearch-master</strong>
-                                    </div>
+                                <td colspan="8" class="text-center text-muted py-4">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>
+                                    컨테이너 데이터를 불러오는 중...
                                 </td>
-                                <td>k8s-worker-02</td>
-                                <td>
-                                    <div class="progress-modern mb-1">
-                                        <div class="progress-bar-modern" style="width: 89%; background: var(--danger-color);"></div>
-                                    </div>
-                                    <small>89.2%</small>
-                                </td>
-                                <td>
-                                    <div class="progress-modern mb-1">
-                                        <div class="progress-bar-modern" style="width: 76%; background: var(--danger-color);"></div>
-                                    </div>
-                                    <small>2.4 GB</small>
-                                </td>
-                                <td><small>1.2 MB/s</small></td>
-                                <td><small>450 KB/s</small></td>
-                                <td><span class="status-badge running"><span class="status-indicator"></span>Running</span></td>
-                            </tr>
-                            <tr>
-                                <td><span class="badge bg-warning">2</span></td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fab fa-docker me-2 text-info"></i>
-                                        <strong>postgres-primary</strong>
-                                    </div>
-                                </td>
-                                <td>docker-host-01</td>
-                                <td>
-                                    <div class="progress-modern mb-1">
-                                        <div class="progress-bar-modern" style="width: 67%; background: var(--warning-color);"></div>
-                                    </div>
-                                    <small>67.4%</small>
-                                </td>
-                                <td>
-                                    <div class="progress-modern mb-1">
-                                        <div class="progress-bar-modern" style="width: 54%; background: var(--warning-color);"></div>
-                                    </div>
-                                    <small>1.7 GB</small>
-                                </td>
-                                <td><small>890 KB/s</small></td>
-                                <td><small>2.1 MB/s</small></td>
-                                <td><span class="status-badge running"><span class="status-indicator"></span>Running</span></td>
-                            </tr>
-                            <tr>
-                                <td><span class="badge bg-info">3</span></td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-cube me-2 text-success"></i>
-                                        <strong>api-gateway</strong>
-                                    </div>
-                                </td>
-                                <td>k8s-worker-01</td>
-                                <td>
-                                    <div class="progress-modern mb-1">
-                                        <div class="progress-bar-modern" style="width: 45%; background: var(--warning-color);"></div>
-                                    </div>
-                                    <small>45.1%</small>
-                                </td>
-                                <td>
-                                    <div class="progress-modern mb-1">
-                                        <div class="progress-bar-modern" style="width: 32%; background: var(--success-color);"></div>
-                                    </div>
-                                    <small>512 MB</small>
-                                </td>
-                                <td><small>2.4 MB/s</small></td>
-                                <td><small>120 KB/s</small></td>
-                                <td><span class="status-badge running"><span class="status-indicator"></span>Running</span></td>
                             </tr>
                         </tbody>
                     </table>
@@ -391,6 +169,9 @@
         </div>
     </div>
 </div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <!-- 정렬 기능 JavaScript -->
 <script>
@@ -480,6 +261,268 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
+});
+
+// Bytes/s를 적절한 단위로 변환하는 함수
+function formatBytesPerSecond(bytesPerSecond) {
+  if (bytesPerSecond >= 1024 * 1024) {
+    return `${(bytesPerSecond / (1024 * 1024)).toFixed(1)} MB/s`;
+  } else if (bytesPerSecond >= 1024) {
+    return `${(bytesPerSecond / 1024).toFixed(1)} KB/s`;
+  } else {
+    return `${bytesPerSecond} B/s`;
+  }
+}
+
+// 노드 상태별 매핑 함수
+function getNodeStatusInfo(status) {
+  const statusMap = {
+    "Ready": {
+      class: "running",
+      text: "정상",
+      icon: "fa-check-circle",
+      color: "var(--success-color)"
+    },
+    "NotReady": {
+      class: "stopped", 
+      text: "준비 안됨",
+      icon: "fa-times-circle",
+      color: "var(--danger-color)"
+    },
+    "Unknown": {
+      class: "warning",
+      text: "알 수 없음", 
+      icon: "fa-question-circle",
+      color: "var(--warning-color)"
+    },
+    "Warning": {
+      class: "warning",
+      text: "경고",
+      icon: "fa-exclamation-triangle",
+      color: "var(--warning-color)"
+    }
+  };
+  
+  return statusMap[status] || {
+    class: "warning",
+    text: status,
+    icon: "fa-question-circle",
+    color: "var(--warning-color)"
+  };
+}
+
+// 모니터링 페이지 데이터 로딩
+async function loadMonitoringData() {
+  if (!window.NodesAPI) {
+    console.error("NodesAPI not available");
+    return;
+  }
+
+  try {
+    const response = await window.NodesAPI.getNodes();
+    if (response && response.success) {
+      const nodes = response.data.nodes;
+      const container = document.getElementById("monitoringNodesContainer");
+
+      if (container) {
+        if (nodes.length === 0) {
+          container.innerHTML = `
+            <div class="col-12 text-center py-4">
+              <i class="fas fa-info-circle me-2"></i>
+              노드가 없습니다.
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = nodes.map(node => {
+          const statusInfo = getNodeStatusInfo(node.status);
+          
+          const cpuColor = node.cpu.usage < 30 ? "var(--success-color)" : 
+                          node.cpu.usage < 70 ? "var(--warning-color)" : "var(--danger-color)";
+          const memoryColor = node.memory.usage < 30 ? "var(--success-color)" : 
+                             node.memory.usage < 70 ? "var(--warning-color)" : "var(--danger-color)";
+          const diskColor = node.disk.usage < 30 ? "var(--success-color)" : 
+                           node.disk.usage < 70 ? "var(--info-color)" : "var(--warning-color)";
+
+          return `
+            <div class="col-md-3 mb-3">
+              <div class="metric-card">
+                <div style="padding: 1rem;">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0">${node.name}</h6>
+                    <span class="status-badge ${statusInfo.class}">
+                      <i class="fas ${statusInfo.icon} me-1"></i>
+                      <span class="status-indicator"></span>
+                      ${statusInfo.text}
+                    </span>
+                  </div>
+                  <div class="mb-2">
+                    <div class="d-flex justify-content-between">
+                      <small>CPU</small>
+                      <small>${node.cpu.usage}%</small>
+                    </div>
+                    <div class="progress-modern">
+                      <div class="progress-bar-modern" style="width: ${node.cpu.usage}%; background: ${cpuColor};"></div>
+                    </div>
+                  </div>
+                  <div class="mb-2">
+                    <div class="d-flex justify-content-between">
+                      <small>Memory</small>
+                      <small>${node.memory.usage}%</small>
+                    </div>
+                    <div class="progress-modern">
+                      <div class="progress-bar-modern" style="width: ${node.memory.usage}%; background: ${memoryColor};"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="d-flex justify-content-between">
+                      <small>Disk</small>
+                      <small>${node.disk.usage}%</small>
+                    </div>
+                    <div class="progress-modern">
+                      <div class="progress-bar-modern" style="width: ${node.disk.usage}%; background: ${diskColor};"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join("");
+      }
+    }
+  } catch (error) {
+    console.error("Error loading monitoring data:", error);
+    const container = document.getElementById("monitoringNodesContainer");
+    if (container) {
+      container.innerHTML = `
+        <div class="col-12 text-center py-4">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          모니터링 데이터를 불러오는데 실패했습니다.
+        </div>
+      `;
+    }
+  }
+}
+
+// 컨테이너 데이터 로딩
+async function loadContainerData() {
+  const tableBody = document.getElementById("monitoringTableBody");
+  
+  try {
+    if (!window.ContainersAPI) {
+      console.error("ContainersAPI not available");
+      return;
+    }
+
+    const response = await window.ContainersAPI.getContainers();
+    
+    if (response && response.success && response.data && response.data.containers) {
+      const containers = response.data.containers;
+      
+      if (containers.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="8" class="text-center text-muted py-4">
+              <i class="fas fa-info-circle me-2"></i>
+              컨테이너가 없습니다.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      // 상위 컨테이너들을 CPU 사용률 기준으로 정렬
+      const sortedContainers = containers
+        .sort((a, b) => parseFloat(b.cpu) - parseFloat(a.cpu))
+        .slice(0, 10); // 상위 10개만 표시
+
+      tableBody.innerHTML = sortedContainers.map((container, index) => {
+        const cpuUsage = parseFloat(container.cpu);
+        const memoryUsage = parseFloat(container.memory.usage);
+        
+        const cpuColor = cpuUsage < 30 ? "var(--success-color)" : 
+                        cpuUsage < 70 ? "var(--warning-color)" : "var(--danger-color)";
+        const memoryColor = memoryUsage < 30 ? "var(--success-color)" : 
+                           memoryUsage < 70 ? "var(--warning-color)" : "var(--danger-color)";
+        
+        const badgeClass = index === 0 ? "bg-danger" : 
+                          index === 1 ? "bg-warning" : 
+                          index === 2 ? "bg-info" : "bg-secondary";
+        
+        const iconClass = container.image.includes('elasticsearch') ? 'fas fa-cube text-primary' :
+                         container.image.includes('postgres') ? 'fab fa-docker text-info' :
+                         container.image.includes('api') ? 'fas fa-cube text-success' :
+                         'fas fa-cube text-secondary';
+
+        return `
+          <tr>
+            <td><span class="badge ${badgeClass}">${index + 1}</span></td>
+            <td>
+              <div class="d-flex align-items-center">
+                <i class="${iconClass} me-2"></i>
+                <strong>${container.name}</strong>
+              </div>
+            </td>
+            <td>${container.node || 'Unknown'}</td>
+            <td>
+              <div class="progress-modern mb-1">
+                <div class="progress-bar-modern" style="width: ${cpuUsage}%; background: ${cpuColor};"></div>
+              </div>
+              <small>${cpuUsage.toFixed(1)}%</small>
+            </td>
+            <td>
+              <div class="progress-modern mb-1">
+                <div class="progress-bar-modern" style="width: ${memoryUsage}%; background: ${memoryColor};"></div>
+              </div>
+              <small>${memoryUsage}%</small>
+            </td>
+            <td><small>${container.network ? formatBytesPerSecond(container.network.rx) : '0 B/s'}</small></td>
+            <td><small>${container.network ? formatBytesPerSecond(container.network.tx) : '0 B/s'}</small></td>
+            <td><span class="status-badge ${container.status.toLowerCase()}"><span class="status-indicator"></span>${container.status}</span></td>
+          </tr>
+        `;
+      }).join("");
+    } else {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="8" class="text-center text-muted py-4">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            컨테이너 데이터를 불러올 수 없습니다.
+          </td>
+        </tr>
+      `;
+    }
+  } catch (error) {
+    console.error("Error loading container data:", error);
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="8" class="text-center text-muted py-4">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          컨테이너 데이터를 불러오는데 실패했습니다.
+        </td>
+      </tr>
+    `;
+  }
+}
+
+// 페이지 로드 시 데이터 로딩
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(() => {
+    function waitForAPI() {
+      if (window.NodesAPI && typeof window.NodesAPI.getNodes === 'function' &&
+          window.ContainersAPI && typeof window.ContainersAPI.getContainers === 'function' &&
+          window.MonitoringCharts && typeof window.MonitoringCharts.initAllCharts === 'function') {
+        loadMonitoringData();
+        loadContainerData();
+        // 차트 초기화
+        window.MonitoringCharts.initAllCharts();
+      } else {
+        setTimeout(waitForAPI, 100);
+      }
+    }
+    waitForAPI();
+  }, 100);
 });
 </script>
 

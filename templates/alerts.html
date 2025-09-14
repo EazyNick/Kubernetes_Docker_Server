@@ -12,11 +12,11 @@
           <i class="fas fa-exclamation-circle"></i>
         </div>
       </div>
-        <div class="metric-value" id="criticalAlerts">3</div>
+        <div class="metric-value" id="criticalAlerts">-</div>
         <div class="metric-label">Critical 알림</div>
       <div class="metric-change negative">
         <i class="fas fa-arrow-up"></i>
-            +1 (지난 1시간)
+            <span id="criticalAlertsChange">-</span>
       </div>
     </div>
     <div class="metric-card">
@@ -25,11 +25,11 @@
           <i class="fas fa-exclamation-triangle"></i>
         </div>
       </div>
-        <div class="metric-value" id="warningAlerts">12</div>
+        <div class="metric-value" id="warningAlerts">-</div>
         <div class="metric-label">Warning 알림</div>
       <div class="metric-change positive">
         <i class="fas fa-arrow-down"></i>
-            -3 (지난 1시간)
+            <span id="warningAlertsChange">-</span>
       </div>
     </div>
     <div class="metric-card">
@@ -38,11 +38,11 @@
           <i class="fas fa-info-circle"></i>
         </div>
       </div>
-        <div class="metric-value" id="infoAlerts">8</div>
+        <div class="metric-value" id="infoAlerts">-</div>
         <div class="metric-label">Info 알림</div>
         <div class="metric-change">
             <i class="fas fa-minus"></i>
-            변화 없음
+            <span id="infoAlertsChange">-</span>
       </div>
     </div>
     <div class="metric-card">
@@ -51,11 +51,11 @@
           <i class="fas fa-check-circle"></i>
         </div>
       </div>
-        <div class="metric-value" id="resolvedAlerts">45</div>
+        <div class="metric-value" id="resolvedAlerts">-</div>
       <div class="metric-label">해결된 알림</div>
       <div class="metric-change positive">
         <i class="fas fa-arrow-up"></i>
-            +8 (지난 24시간)
+            <span id="resolvedAlertsChange">-</span>
     </div>
   </div>
 </div>
@@ -97,161 +97,12 @@
                                 <th>액션</th>
           </tr>
         </thead>
-        <tbody>
-                            <tr class="table-danger">
-                                <td>
-                                    <span class="status-badge stopped">
-                                        <span class="status-indicator"></span>
-                                        Critical
-                                    </span>
-                                </td>
-                                <td><strong>High Memory Usage</strong></td>
-                                <td>k8s-worker-02</td>
-                                <td>메모리 사용률이 90%를 초과했습니다 (91.2%)</td>
-                                <td>2025-08-21 14:25:33</td>
-                                <td>25분</td>
-                                <td>
-                                    <div class="btn-group-actions">
-                                        <button class="btn btn-sm btn-outline-success" title="해결됨으로 표시">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-warning" title="알림 음소거">
-                                            <i class="fas fa-volume-mute"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-info" title="상세 보기">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr class="table-danger">
-                                <td>
-                                    <span class="status-badge stopped">
-                                        <span class="status-indicator"></span>
-                                        Critical
-                                    </span>
-                                </td>
-                                <td><strong>High CPU Usage</strong></td>
-                                <td>k8s-worker-02</td>
-                                <td>CPU 사용률이 85%를 초과했습니다 (89.1%)</td>
-                                <td>2025-08-21 14:20:15</td>
-                                <td>30분</td>
-                                <td>
-                                    <div class="btn-group-actions">
-                                        <button class="btn btn-sm btn-outline-success" title="해결됨으로 표시">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-warning" title="알림 음소거">
-                                            <i class="fas fa-volume-mute"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-info" title="상세 보기">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr class="table-danger">
-                                <td>
-                                    <span class="status-badge stopped">
-                                        <span class="status-indicator"></span>
-                                        Critical
-                                    </span>
-                                </td>
-                                <td><strong>Container Restart Loop</strong></td>
-                                <td>elasticsearch-master</td>
-                                <td>컨테이너가 5분 내에 3회 재시작되었습니다</td>
-                                <td>2025-08-21 14:15:22</td>
-                                <td>35분</td>
-                                <td>
-                                    <div class="btn-group-actions">
-                                        <button class="btn btn-sm btn-outline-success" title="해결됨으로 표시">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-warning" title="알림 음소거">
-                                            <i class="fas fa-volume-mute"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-info" title="상세 보기">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr class="table-warning">
-                                <td>
-                                    <span class="status-badge warning">
-                                        <span class="status-indicator"></span>
-                                        Warning
-                                    </span>
-                                </td>
-                                <td><strong>Disk Space Low</strong></td>
-                                <td>docker-host-01</td>
-                                <td>디스크 사용률이 80%를 초과했습니다 (78%)</td>
-                                <td>2025-08-21 13:45:10</td>
-                                <td>1시간 5분</td>
-            <td>
-              <div class="btn-group-actions">
-                                        <button class="btn btn-sm btn-outline-success" title="해결됨으로 표시">
-                  <i class="fas fa-check"></i>
-                </button>
-                                        <button class="btn btn-sm btn-outline-warning" title="알림 음소거">
-                                            <i class="fas fa-volume-mute"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-info" title="상세 보기">
-                  <i class="fas fa-eye"></i>
-                </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr class="table-warning">
-                                <td>
-                                    <span class="status-badge warning">
-                                        <span class="status-indicator"></span>
-                                        Warning
-                                    </span>
-                                </td>
-                                <td><strong>High Network Traffic</strong></td>
-                                <td>api-gateway</td>
-                                <td>네트워크 트래픽이 평균의 150%를 초과했습니다</td>
-                                <td>2025-08-21 14:30:45</td>
-                                <td>20분</td>
-                                <td>
-                                    <div class="btn-group-actions">
-                                        <button class="btn btn-sm btn-outline-success" title="해결됨으로 표시">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-warning" title="알림 음소거">
-                                            <i class="fas fa-volume-mute"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-info" title="상세 보기">
-                                            <i class="fas fa-eye"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-                                <td>
-                                    <span class="status-badge pending">
-                                        <span class="status-indicator"></span>
-                                        Info
-                                    </span>
-                                </td>
-                                <td><strong>Pod Scheduled</strong></td>
-                                <td>backend-service-new</td>
-                                <td>새로운 Pod이 k8s-worker-01에 스케줄되었습니다</td>
-                                <td>2025-08-21 14:40:12</td>
-                                <td>10분</td>
-            <td>
-              <div class="btn-group-actions">
-                                        <button class="btn btn-sm btn-outline-success" title="해결됨으로 표시">
-                  <i class="fas fa-check"></i>
-                </button>
-                                        <button class="btn btn-sm btn-outline-warning" title="알림 음소거">
-                                            <i class="fas fa-volume-mute"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-info" title="상세 보기">
-                  <i class="fas fa-eye"></i>
-                </button>
-                                    </div>
+        <tbody id="alertsTableBody">
+                            <!-- 알림 데이터가 여기에 동적으로 로드됩니다 -->
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>
+                                    알림 목록을 불러오는 중...
                                 </td>
                             </tr>
                         </tbody>
@@ -286,75 +137,12 @@
                                 <th>액션</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="alertRulesTableBody">
+                            <!-- 알림 규칙 데이터가 여기에 동적으로 로드됩니다 -->
                             <tr>
-                                <td><strong>High CPU Usage</strong></td>
-                                <td>모든 노드</td>
-                                <td>CPU > 85% for 5min</td>
-                                <td><span class="badge bg-danger">Critical</span></td>
-                                <td><span class="status-badge running"><span class="status-indicator"></span>활성</span></td>
-                                <td>
-                                    <div class="btn-group-actions">
-                                        <button class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-edit"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-                                <td><strong>High Memory Usage</strong></td>
-                                <td>모든 노드</td>
-                                <td>Memory > 90% for 3min</td>
-                                <td><span class="badge bg-danger">Critical</span></td>
-                                <td><span class="status-badge running"><span class="status-indicator"></span>활성</span></td>
-            <td>
-              <div class="btn-group-actions">
-                                        <button class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-edit"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-                                <td><strong>Container Restart</strong></td>
-                                <td>모든 컨테이너</td>
-                                <td>Restart count > 3 in 10min</td>
-                                <td><span class="badge bg-danger">Critical</span></td>
-                                <td><span class="status-badge running"><span class="status-indicator"></span>활성</span></td>
-            <td>
-              <div class="btn-group-actions">
-                                        <button class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-edit"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-                                <td><strong>Disk Space Warning</strong></td>
-                                <td>모든 노드</td>
-                                <td>Disk usage > 80%</td>
-                                <td><span class="badge bg-warning">Warning</span></td>
-                                <td><span class="status-badge running"><span class="status-indicator"></span>활성</span></td>
-            <td>
-              <div class="btn-group-actions">
-                                        <button class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-edit"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-                                <td><strong>Pod Scheduling</strong></td>
-                                <td>Kubernetes 클러스터</td>
-                                <td>Pod state changes</td>
-                                <td><span class="badge bg-info">Info</span></td>
-                                <td><span class="status-badge stopped"><span class="status-indicator"></span>비활성</span></td>
-            <td>
-              <div class="btn-group-actions">
-                                        <button class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-edit"></i>
-                </button>
-              </div>
+                                <td colspan="6" class="text-center text-muted py-4">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>
+                                    알림 규칙을 불러오는 중...
             </td>
           </tr>
         </tbody>

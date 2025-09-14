@@ -2,57 +2,6 @@
 // 이 파일은 Container Monitor 웹 애플리케이션의 메인 JavaScript 파일입니다.
 // 차트 초기화, 실시간 데이터 업데이트, 사이드바 토글 등의 기능을 담당합니다.
 
-// 홈 페이지 실시간 데이터 업데이트
-// API에서 개요 통계를 가져와서 홈 페이지의 메트릭 카드들을 업데이트합니다.
-async function updateRealTimeData() {
-  const stats = await window.StatsAPI.getOverviewStats();
-  if (stats && stats.success) {
-    updateElement("totalContainers", stats.data.total_containers);
-    updateElement("runningContainers", stats.data.running_containers);
-    updateElement("activeNodes", stats.data.active_nodes);
-    updateElement("healthyNodes", stats.data.healthy_nodes);
-    updateElement("systemHealth", stats.data.system_health + "%");
-    updateElement("uptime", stats.data.uptime + "%");
-    updateElement("warningAlerts", stats.data.warning_alerts);
-    updateElement("criticalAlerts", stats.data.critical_alerts);
-  }
-
-  const lastUpdateElement = document.getElementById("lastUpdate");
-  if (lastUpdateElement) {
-    lastUpdateElement.textContent = new Date().toLocaleTimeString("ko-KR");
-  }
-}
-
-// 대시보드 페이지 실시간 데이터 업데이트
-// API에서 대시보드 통계를 가져와서 대시보드 페이지의 메트릭 카드들을 업데이트합니다.
-async function updateDashboardData() {
-  if (!window.StatsAPI) {
-    return;
-  }
-
-  const stats = await window.StatsAPI.getDashboardStats();
-  if (stats && stats.success) {
-    // 메트릭 카드 업데이트
-    updateElement("totalContainers", stats.data.containers.total);
-    updateElement("runningContainers", stats.data.containers.running);
-    updateElement("stoppedContainers", stats.data.containers.stopped);
-    updateElement("failedContainers", stats.data.containers.failed);
-    updateElement("totalNodes", stats.data.nodes.total);
-    updateElement("avgCpu", stats.data.resources.avg_cpu + "%");
-    updateElement("avgMemory", stats.data.resources.avg_memory + "%");
-    updateElement("networkTraffic", stats.data.resources.network_traffic);
-  }
-}
-
-// 요소 업데이트 헬퍼 함수
-// 지정된 ID의 DOM 요소의 텍스트 내용을 업데이트합니다.
-function updateElement(id, value) {
-  const element = document.getElementById(id);
-  if (element) {
-    element.textContent = value;
-  }
-}
-
 // 사이드바 토글 기능
 // 햄버거 메뉴 버튼을 클릭했을 때 사이드바를 접었다 펼쳤다 하는 기능을 초기화합니다.
 function initSidebar() {
@@ -320,8 +269,8 @@ function init() {
     document.getElementById("totalContainers") &&
     !document.getElementById("cpuChart")
   ) {
-    setInterval(updateRealTimeData, 5000);
-    updateRealTimeData();
+    setInterval(window.StatsAPI.updateRealTimeData, 5000);
+    window.StatsAPI.updateRealTimeData();
   }
 
   // 대시보드 페이지 차트 초기화 (cpuChart가 있으면 대시보드 페이지)
@@ -335,19 +284,91 @@ function init() {
 
       // API 로드 확인 후 데이터 로드
       function waitForAPI() {
-        if (window.StatsAPI) {
-          updateDashboardData();
+        if (window.StatsAPI && window.AlertsAPI) {
+          window.StatsAPI.updateDashboardData();
+          window.AlertsAPI.loadRecentAlerts();
 
           // 5초마다 차트 및 데이터 업데이트
           setInterval(() => {
             updateCharts();
-            updateDashboardData();
+            window.StatsAPI.updateDashboardData();
+            window.AlertsAPI.loadRecentAlerts();
           }, 5000);
+        } else {
+          setTimeout(waitForAPI, 50);
+        }
+      }
+
+      waitForAPI();
+    }, 100);
+  }
+
+  // 컨테이너 페이지 데이터 로딩
+  if (document.getElementById("containersTableBody")) {
+    setTimeout(() => {
+      function waitForAPI() {
+        if (
+          window.ContainersAPI &&
+          typeof window.ContainersAPI.loadContainersData === "function"
+        ) {
+          window.ContainersAPI.loadContainersData();
         } else {
           setTimeout(waitForAPI, 100);
         }
       }
+      waitForAPI();
+    }, 100);
+  }
 
+  // 노드 페이지 데이터 로딩
+  if (document.getElementById("nodesTableBody")) {
+    setTimeout(() => {
+      function waitForAPI() {
+        if (
+          window.NodesAPI &&
+          typeof window.NodesAPI.loadNodesData === "function"
+        ) {
+          window.NodesAPI.loadNodesData();
+        } else {
+          setTimeout(waitForAPI, 100);
+        }
+      }
+      waitForAPI();
+    }, 100);
+  }
+
+  // 알림 페이지 데이터 로딩
+  if (document.getElementById("alertsTableBody")) {
+    setTimeout(() => {
+      function waitForAPI() {
+        if (
+          window.AlertsAPI &&
+          typeof window.AlertsAPI.loadAlertsData === "function" &&
+          typeof window.AlertsAPI.loadAlertRulesData === "function"
+        ) {
+          window.AlertsAPI.loadAlertsData();
+          window.AlertsAPI.loadAlertRulesData();
+        } else {
+          setTimeout(waitForAPI, 100);
+        }
+      }
+      waitForAPI();
+    }, 200);
+  }
+
+  // 이벤트 페이지 데이터 로딩
+  if (document.getElementById("eventsTableBody")) {
+    setTimeout(() => {
+      function waitForAPI() {
+        if (
+          window.EventsAPI &&
+          typeof window.EventsAPI.loadEventsData === "function"
+        ) {
+          window.EventsAPI.loadEventsData();
+        } else {
+          setTimeout(waitForAPI, 100);
+        }
+      }
       waitForAPI();
     }, 100);
   }
@@ -397,67 +418,77 @@ function initNodeCpuChart() {
     return;
   }
 
-  // 노드별 CPU 사용률 데이터 (예시)
-  const cpuData = {
-    labels: [
-      "k8s-master-01",
-      "k8s-worker-01",
-      "k8s-worker-02",
-      "k8s-docker-01",
-    ],
-    datasets: [
-      {
-        label: "CPU 사용률 (%)",
-        data: [25, 45, 38, 52],
-        backgroundColor: [
-          "rgba(5, 150, 105, 0.8)",
-          "rgba(217, 119, 6, 0.8)",
-          "rgba(8, 145, 178, 0.8)",
-          "rgba(220, 38, 38, 0.8)",
-        ],
-        borderColor: [
-          "rgba(5, 150, 105, 1)",
-          "rgba(217, 119, 6, 1)",
-          "rgba(8, 145, 178, 1)",
-          "rgba(220, 38, 38, 1)",
-        ],
-        borderWidth: 2,
-      },
-    ],
-  };
+  // API에서 노드 데이터를 가져와서 차트 생성
+  async function createNodeCpuChart() {
+    try {
+      if (window.NodesAPI) {
+        const response = await window.NodesAPI.getNodes();
+        if (response && response.success) {
+          const nodes = response.data.nodes;
 
-  new Chart(ctx, {
-    type: "bar",
-    data: cpuData,
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: false,
-        },
-      },
-      scales: {
-        x: {
-          grid: {
-            display: false,
-          },
-        },
-        y: {
-          beginAtZero: true,
-          max: 100,
-          grid: {
-            color: "rgba(0, 0, 0, 0.1)",
-          },
-          ticks: {
-            callback: function (value) {
-              return value + "%";
+          const cpuData = {
+            labels: nodes.map((node) => node.name),
+            datasets: [
+              {
+                label: "CPU 사용률 (%)",
+                data: nodes.map((node) => node.cpu.usage),
+                backgroundColor: nodes.map((node) => {
+                  const usage = node.cpu.usage;
+                  if (usage < 30) return "rgba(5, 150, 105, 0.8)";
+                  if (usage < 70) return "rgba(217, 119, 6, 0.8)";
+                  return "rgba(220, 38, 38, 0.8)";
+                }),
+                borderColor: nodes.map((node) => {
+                  const usage = node.cpu.usage;
+                  if (usage < 30) return "rgba(5, 150, 105, 1)";
+                  if (usage < 70) return "rgba(217, 119, 6, 1)";
+                  return "rgba(220, 38, 38, 1)";
+                }),
+                borderWidth: 2,
+              },
+            ],
+          };
+
+          new Chart(ctx, {
+            type: "bar",
+            data: cpuData,
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  display: false,
+                },
+              },
+              scales: {
+                x: {
+                  grid: {
+                    display: false,
+                  },
+                },
+                y: {
+                  beginAtZero: true,
+                  max: 100,
+                  grid: {
+                    color: "rgba(0, 0, 0, 0.1)",
+                  },
+                  ticks: {
+                    callback: function (value) {
+                      return value + "%";
+                    },
+                  },
+                },
+              },
             },
-          },
-        },
-      },
-    },
-  });
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error creating node CPU chart:", error);
+    }
+  }
+
+  createNodeCpuChart();
 }
 
 function initNodeMemoryChart() {
@@ -469,67 +500,77 @@ function initNodeMemoryChart() {
     return;
   }
 
-  // 노드별 메모리 사용률 데이터 (예시)
-  const memoryData = {
-    labels: [
-      "k8s-master-01",
-      "k8s-worker-01",
-      "k8s-worker-02",
-      "k8s-docker-01",
-    ],
-    datasets: [
-      {
-        label: "메모리 사용률 (%)",
-        data: [65, 78, 45, 82],
-        backgroundColor: [
-          "rgba(8, 145, 178, 0.8)",
-          "rgba(220, 38, 38, 0.8)",
-          "rgba(5, 150, 105, 0.8)",
-          "rgba(217, 119, 6, 0.8)",
-        ],
-        borderColor: [
-          "rgba(8, 145, 178, 1)",
-          "rgba(220, 38, 38, 1)",
-          "rgba(5, 150, 105, 1)",
-          "rgba(217, 119, 6, 1)",
-        ],
-        borderWidth: 2,
-      },
-    ],
-  };
+  // API에서 노드 데이터를 가져와서 차트 생성
+  async function createNodeMemoryChart() {
+    try {
+      if (window.NodesAPI) {
+        const response = await window.NodesAPI.getNodes();
+        if (response && response.success) {
+          const nodes = response.data.nodes;
 
-  new Chart(ctx, {
-    type: "bar",
-    data: memoryData,
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: false,
-        },
-      },
-      scales: {
-        x: {
-          grid: {
-            display: false,
-          },
-        },
-        y: {
-          beginAtZero: true,
-          max: 100,
-          grid: {
-            color: "rgba(0, 0, 0, 0.1)",
-          },
-          ticks: {
-            callback: function (value) {
-              return value + "%";
+          const memoryData = {
+            labels: nodes.map((node) => node.name),
+            datasets: [
+              {
+                label: "메모리 사용률 (%)",
+                data: nodes.map((node) => node.memory.usage),
+                backgroundColor: nodes.map((node) => {
+                  const usage = node.memory.usage;
+                  if (usage < 30) return "rgba(5, 150, 105, 0.8)";
+                  if (usage < 70) return "rgba(217, 119, 6, 0.8)";
+                  return "rgba(220, 38, 38, 0.8)";
+                }),
+                borderColor: nodes.map((node) => {
+                  const usage = node.memory.usage;
+                  if (usage < 30) return "rgba(5, 150, 105, 1)";
+                  if (usage < 70) return "rgba(217, 119, 6, 1)";
+                  return "rgba(220, 38, 38, 1)";
+                }),
+                borderWidth: 2,
+              },
+            ],
+          };
+
+          new Chart(ctx, {
+            type: "bar",
+            data: memoryData,
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  display: false,
+                },
+              },
+              scales: {
+                x: {
+                  grid: {
+                    display: false,
+                  },
+                },
+                y: {
+                  beginAtZero: true,
+                  max: 100,
+                  grid: {
+                    color: "rgba(0, 0, 0, 0.1)",
+                  },
+                  ticks: {
+                    callback: function (value) {
+                      return value + "%";
+                    },
+                  },
+                },
+              },
             },
-          },
-        },
-      },
-    },
-  });
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error creating node memory chart:", error);
+    }
+  }
+
+  createNodeMemoryChart();
 }
 
 // 알림 페이지 차트 초기화 함수

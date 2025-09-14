@@ -58,6 +58,42 @@ def get_nodes():
             details=str(e)
         )
 
+@router.get("/nodes/stats", response_model=BaseResponse)
+def get_node_stats():
+    """노드 페이지 통계"""
+    try:
+        # TODO: 백엔드 개발자 구현 필요
+        # 1. 데이터베이스에서 노드 상태별 집계 (nodes 테이블)
+        # 2. 데이터베이스에서 노드 리소스 사용률 평균 계산 (metrics 테이블)
+        # 3. 데이터베이스에서 이전 시점과의 변화량 계산 (metrics_history 테이블)
+        
+        # 현재는 랜덤 데이터로 시뮬레이션
+        node_stats = NodePageStats(
+            healthy_nodes=random.randint(9, 11),
+            warning_nodes=random.randint(0, 2),
+            total_cores=random.randint(40, 60),
+            total_memory=random.randint(160, 256),
+            avg_cpu_usage=round(random.uniform(25, 45), 1),
+            avg_memory_usage=round(random.uniform(60, 80), 1),
+            healthy_nodes_change=f"+{random.randint(0, 3)}%",
+            warning_nodes_change=f"{random.choice(['+', '-'])}{random.randint(0, 2)}%",
+            total_cores_change="+0%",
+            total_memory_change="+0%",
+            avg_cpu_usage_change=f"{random.choice(['+', '-'])}{random.uniform(0.5, 3.0):.1f}%",
+            avg_memory_usage_change=f"{random.choice(['+', '-'])}{random.uniform(0.5, 2.0):.1f}%"
+        )
+        
+        return BaseResponse.success_response(
+            data=node_stats.dict(),
+            message="Node stats retrieved successfully"
+        )
+    except Exception as e:
+        return BaseResponse.error_response(
+            message="Failed to retrieve node stats",
+            error_code="DATABASE_ERROR",
+            details=str(e)
+        )
+
 @router.get("/nodes/{node_name}", response_model=BaseResponse)
 def get_node(node_name: str):
     """특정 노드 상세 정보 조회"""

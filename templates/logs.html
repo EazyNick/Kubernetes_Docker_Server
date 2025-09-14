@@ -18,19 +18,15 @@
           <!-- 컨테이너 선택 필터 -->
           <div class="col-md-3 mb-3">
             <label class="form-label">컨테이너</label>
-            <select class="form-select">
+            <select class="form-select" id="containerFilter">
               <option value="">모든 컨테이너</option>
-              <option value="nginx-web-1">nginx-web-1</option>
-              <option value="nginx-web-2">nginx-web-2</option>
-              <option value="redis-cache-1">redis-cache-1</option>
-              <option value="postgres-db-1">postgres-db-1</option>
-              <option value="api-gateway-1">api-gateway-1</option>
+              <!-- 컨테이너 옵션들이 여기에 동적으로 로드됩니다 -->
             </select>
           </div>
           <!-- 로그 레벨 필터 -->
           <div class="col-md-3 mb-3">
             <label class="form-label">로그 레벨</label>
-            <select class="form-select">
+            <select class="form-select" id="levelFilter">
               <option value="">모든 레벨</option>
               <option value="info">INFO</option>
               <option value="warn">WARN</option>
@@ -41,7 +37,7 @@
           <!-- 시간 범위 필터 -->
           <div class="col-md-3 mb-3">
             <label class="form-label">시간 범위</label>
-            <select class="form-select">
+            <select class="form-select" id="timeRangeFilter">
               <option value="1h">최근 1시간</option>
               <option value="6h">최근 6시간</option>
               <option value="24h" selected>최근 24시간</option>
@@ -54,6 +50,7 @@
             <input
               type="text"
               class="form-control"
+              id="searchInput"
               placeholder="로그 내용 검색..."
             />
           </div>
@@ -81,26 +78,11 @@
         </h5>
         <p class="dashboard-card-subtitle">최근 24시간 로그 통계</p>
       </div>
-      <div class="dashboard-card-body">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span>전체 로그</span>
-          <span class="fw-bold">12,847</span>
-        </div>
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="text-success">INFO</span>
-          <span class="fw-bold">10,234</span>
-        </div>
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="text-warning">WARN</span>
-          <span class="fw-bold">2,156</span>
-        </div>
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="text-danger">ERROR</span>
-          <span class="fw-bold">457</span>
-        </div>
-        <div class="d-flex justify-content-between align-items-center">
-          <span class="text-info">DEBUG</span>
-          <span class="fw-bold">0</span>
+      <div class="dashboard-card-body" id="logStatsContainer">
+        <!-- 로그 통계 데이터가 여기에 동적으로 로드됩니다 -->
+        <div class="text-center py-4">
+          <i class="fas fa-spinner fa-spin me-2"></i>
+          로그 통계를 불러오는 중...
         </div>
       </div>
     </div>
@@ -129,108 +111,10 @@
   </div>
   <div class="dashboard-card-body">
     <div class="log-container" id="logContainer">
-      <div class="log-entry">
-        <span class="log-timestamp">14:32:15</span>
-        <span class="log-level info">INFO</span>
-        <span class="log-message"
-          >nginx-web-1: GET /api/health HTTP/1.1 200</span
-        >
-      </div>
-      <div class="log-entry">
-        <span class="log-timestamp">14:32:14</span>
-        <span class="log-level info">INFO</span>
-        <span class="log-message"
-          >postgres-db-1: Connection established from 172.17.0.5</span
-        >
-      </div>
-      <div class="log-entry">
-        <span class="log-timestamp">14:32:13</span>
-        <span class="log-level warn">WARN</span>
-        <span class="log-message"
-          >redis-cache-1: Memory usage is above 80%</span
-        >
-      </div>
-      <div class="log-entry">
-        <span class="log-timestamp">14:32:12</span>
-        <span class="log-level info">INFO</span>
-        <span class="log-message"
-          >api-gateway-1: Load balancer health check passed</span
-        >
-      </div>
-      <div class="log-entry">
-        <span class="log-timestamp">14:32:11</span>
-        <span class="log-level error">ERROR</span>
-        <span class="log-message"
-          >nginx-web-2: Failed to connect to upstream server</span
-        >
-      </div>
-      <div class="log-entry">
-        <span class="log-timestamp">14:32:10</span>
-        <span class="log-level info">INFO</span>
-        <span class="log-message"
-          >k8s-worker-01: Pod nginx-web-3 scheduled successfully</span
-        >
-      </div>
-      <div class="log-entry">
-        <span class="log-timestamp">14:32:09</span>
-        <span class="log-level info">INFO</span>
-        <span class="log-message"
-          >nginx-web-1: Container health check passed</span
-        >
-      </div>
-      <div class="log-entry">
-        <span class="log-timestamp">14:32:08</span>
-        <span class="log-level warn">WARN</span>
-        <span class="log-message"
-          >postgres-db-1: Slow query detected: 2.3s</span
-        >
-      </div>
-      <div class="log-entry">
-        <span class="log-timestamp">14:32:07</span>
-        <span class="log-level info">INFO</span>
-        <span class="log-message"
-          >api-gateway-1: Rate limit applied to client 192.168.1.100</span
-        >
-      </div>
-      <div class="log-entry">
-        <span class="log-timestamp">14:32:06</span>
-        <span class="log-level info">INFO</span>
-        <span class="log-message"
-          >nginx-web-2: Image pull completed for nginx:1.21</span
-        >
-      </div>
-      <div class="log-entry">
-        <span class="log-timestamp">14:32:05</span>
-        <span class="log-level error">ERROR</span>
-        <span class="log-message"
-          >redis-cache-1: Connection timeout to master</span
-        >
-      </div>
-      <div class="log-entry">
-        <span class="log-timestamp">14:32:04</span>
-        <span class="log-level info">INFO</span>
-        <span class="log-message"
-          >k8s-master-01: Service endpoint updated for nginx-service</span
-        >
-      </div>
-      <div class="log-entry">
-        <span class="log-timestamp">14:32:03</span>
-        <span class="log-level info">INFO</span>
-        <span class="log-message"
-          >nginx-web-1: Backup process completed successfully</span
-        >
-      </div>
-      <div class="log-entry">
-        <span class="log-timestamp">14:32:02</span>
-        <span class="log-level warn">WARN</span>
-        <span class="log-message"
-          >postgres-db-1: Resource limits exceeded for query</span
-        >
-      </div>
-      <div class="log-entry">
-        <span class="log-timestamp">14:32:01</span>
-        <span class="log-level info">INFO</span>
-        <span class="log-message">api-gateway-1: SSL certificate renewed</span>
+      <!-- 로그 데이터가 여기에 동적으로 로드됩니다 -->
+      <div class="text-center py-4">
+        <i class="fas fa-spinner fa-spin me-2"></i>
+        로그 데이터를 불러오는 중...
       </div>
     </div>
   </div>
@@ -318,6 +202,144 @@ document.addEventListener('DOMContentLoaded', function() {
     // 정렬된 로그 엔트리들을 컨테이너에 다시 추가
     logEntries.forEach(entry => logContainer.appendChild(entry));
   }
+
+  // 컨테이너 목록 로드
+  async function loadContainerOptions() {
+    const containerSelect = document.getElementById('containerFilter');
+    
+    try {
+      // 로그 API에서 고유한 소스 목록을 가져옴
+      const response = await fetch('/api/logs?limit=100');
+      const data = await response.json();
+      
+      if (data.success && data.data && data.data.logs) {
+        const logs = data.data.logs;
+        const uniqueSources = [...new Set(logs.map(log => log.source))].sort();
+        
+        // 기존 옵션 제거 (첫 번째 "모든 컨테이너" 옵션 제외)
+        while (containerSelect.children.length > 1) {
+          containerSelect.removeChild(containerSelect.lastChild);
+        }
+        
+        // 새로운 옵션 추가
+        uniqueSources.forEach(source => {
+          const option = document.createElement('option');
+          option.value = source;
+          option.textContent = source;
+          containerSelect.appendChild(option);
+        });
+      }
+    } catch (error) {
+      console.error('Error loading container options:', error);
+    }
+  }
+
+  // 로그 통계 로드
+  async function loadLogStats() {
+    const statsContainer = document.getElementById('logStatsContainer');
+    
+    try {
+      const response = await fetch('/api/logs/stats?time_range=24h');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        const stats = data.data;
+        
+        statsContainer.innerHTML = `
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span>전체 로그</span>
+            <span class="fw-bold">${stats.total_logs.toLocaleString()}</span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="text-success">INFO</span>
+            <span class="fw-bold">${stats.info_count.toLocaleString()}</span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="text-warning">WARN</span>
+            <span class="fw-bold">${stats.warn_count.toLocaleString()}</span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="text-danger">ERROR</span>
+            <span class="fw-bold">${stats.error_count.toLocaleString()}</span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="text-info">DEBUG</span>
+            <span class="fw-bold">${stats.debug_count.toLocaleString()}</span>
+          </div>
+        `;
+      } else {
+        statsContainer.innerHTML = `
+          <div class="text-center py-4">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            로그 통계를 불러올 수 없습니다.
+          </div>
+        `;
+      }
+    } catch (error) {
+      console.error('Error loading log stats:', error);
+      statsContainer.innerHTML = `
+        <div class="text-center py-4">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          로그 통계를 불러오는데 실패했습니다.
+        </div>
+      `;
+    }
+  }
+
+  // 필터 이벤트 리스너 추가
+  function setupFilterListeners() {
+    const containerFilter = document.getElementById('containerFilter');
+    const levelFilter = document.getElementById('levelFilter');
+    const timeRangeFilter = document.getElementById('timeRangeFilter');
+    const searchInput = document.getElementById('searchInput');
+    
+    function applyFilters() {
+      const params = {
+        level: levelFilter.value || undefined,
+        source: containerFilter.value || undefined,
+        time_range: timeRangeFilter.value || '24h'
+      };
+      
+      window.LogsAPI.loadLogsData(params);
+    }
+    
+    if (containerFilter) containerFilter.addEventListener('change', applyFilters);
+    if (levelFilter) levelFilter.addEventListener('change', applyFilters);
+    if (timeRangeFilter) timeRangeFilter.addEventListener('change', applyFilters);
+    if (searchInput) {
+      searchInput.addEventListener('input', function() {
+        // 검색어는 클라이언트 사이드에서 필터링 (실제로는 서버에서 처리해야 함)
+        const searchTerm = this.value.toLowerCase();
+        const logEntries = document.querySelectorAll('.log-entry');
+        
+        logEntries.forEach(entry => {
+          const message = entry.querySelector('.log-message').textContent.toLowerCase();
+          if (message.includes(searchTerm)) {
+            entry.style.display = '';
+          } else {
+            entry.style.display = 'none';
+          }
+        });
+      });
+    }
+  }
+
+  // 페이지 로드 시 로그 데이터 로딩
+  loadLogStats();
+  loadContainerOptions();
+  setupFilterListeners();
+  
+  // LogsAPI가 있으면 로그 데이터도 로드
+  setTimeout(() => {
+    if (window.LogsAPI && typeof window.LogsAPI.loadLogsData === 'function') {
+      window.LogsAPI.loadLogsData();
+    }
+  }, 100);
 });
 </script>
 

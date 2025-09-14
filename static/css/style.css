@@ -512,6 +512,17 @@ body {
   color: var(--info-color);
 }
 
+.status-badge.info {
+  background: rgba(8, 145, 178, 0.1);
+  color: var(--info-color);
+  border: 1px solid rgba(8, 145, 178, 0.3);
+}
+
+/* 노드 상태별 아이콘 스타일 */
+.status-badge i {
+  font-size: 0.8em;
+}
+
 .status-indicator {
   width: 6px;
   height: 6px;

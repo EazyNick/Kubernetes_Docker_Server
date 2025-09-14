@@ -24,11 +24,11 @@
         <i class="fas fa-cubes"></i>
       </div>
     </div>
-    <div class="metric-value" id="totalContainers">147</div>
+    <div class="metric-value" id="totalContainers">-</div>
     <div class="metric-label">전체 컨테이너</div>
     <div class="metric-change positive">
       <i class="fas fa-arrow-up"></i>
-      <span>+3.2%</span>
+      <span id="totalContainersChange">-</span>
     </div>
   </div>
 
@@ -38,11 +38,11 @@
         <i class="fas fa-play-circle"></i>
       </div>
     </div>
-    <div class="metric-value" id="runningContainers">134</div>
+    <div class="metric-value" id="runningContainers">-</div>
     <div class="metric-label">실행 중</div>
     <div class="metric-change positive">
       <i class="fas fa-arrow-up"></i>
-      <span>+1.8%</span>
+      <span id="runningContainersChange">-</span>
     </div>
   </div>
 
@@ -52,11 +52,11 @@
         <i class="fas fa-pause-circle"></i>
       </div>
     </div>
-    <div class="metric-value" id="stoppedContainers">8</div>
+    <div class="metric-value" id="stoppedContainers">-</div>
     <div class="metric-label">중지됨</div>
     <div class="metric-change negative">
       <i class="fas fa-arrow-down"></i>
-      <span>-0.5%</span>
+      <span id="stoppedContainersChange">-</span>
     </div>
   </div>
 
@@ -66,11 +66,11 @@
         <i class="fas fa-exclamation-circle"></i>
       </div>
     </div>
-    <div class="metric-value" id="failedContainers">5</div>
+    <div class="metric-value" id="failedContainers">-</div>
     <div class="metric-label">실패</div>
     <div class="metric-change negative">
       <i class="fas fa-arrow-up"></i>
-      <span>+2</span>
+      <span id="failedContainersChange">-</span>
     </div>
   </div>
 </div>
@@ -83,11 +83,11 @@
           <i class="fas fa-server"></i>
         </div>
       </div>
-      <div class="metric-value" id="activeNodes">12</div>
+      <div class="metric-value" id="dashboardActiveNodes">-</div>
       <div class="metric-label">활성 노드</div>
       <div class="metric-change positive">
         <i class="fas fa-arrow-up"></i>
-        <span>+1</span>
+        <span id="dashboardActiveNodesChange">-</span>
       </div>
     </div>
   </div>
@@ -99,11 +99,11 @@
           <i class="fas fa-microchip"></i>
         </div>
       </div>
-      <div class="metric-value" id="avgCpuUsage">68%</div>
+      <div class="metric-value" id="dashboardAvgCpuUsage">-</div>
       <div class="metric-label">평균 CPU 사용률</div>
       <div class="metric-change positive">
         <i class="fas fa-arrow-up"></i>
-        <span>+5%</span>
+        <span id="dashboardAvgCpuUsageChange">-</span>
       </div>
     </div>
   </div>
@@ -115,11 +115,11 @@
           <i class="fas fa-memory"></i>
         </div>
       </div>
-      <div class="metric-value" id="avgMemoryUsage">72%</div>
+      <div class="metric-value" id="dashboardAvgMemoryUsage">-</div>
       <div class="metric-label">평균 메모리 사용률</div>
       <div class="metric-change positive">
         <i class="fas fa-arrow-up"></i>
-        <span>+3%</span>
+        <span id="dashboardAvgMemoryUsageChange">-</span>
       </div>
     </div>
   </div>
@@ -131,11 +131,11 @@
           <i class="fas fa-network-wired"></i>
         </div>
       </div>
-      <div class="metric-value" id="networkTraffic">1.2GB</div>
+      <div class="metric-value" id="networkTraffic">-</div>
       <div class="metric-label">네트워크 트래픽</div>
       <div class="metric-change positive">
         <i class="fas fa-arrow-up"></i>
-        <span>+15%</span>
+        <span id="networkTrafficChange">-</span>
       </div>
     </div>
   </div>
@@ -224,44 +224,11 @@
         <p class="dashboard-card-subtitle">시스템에서 발생한 최근 알림</p>
       </div>
       <div class="dashboard-card-body">
-        <div class="alert-list">
-          <div class="alert-item success">
-            <div class="d-flex justify-content-between align-items-start">
-              <div>
-                <strong>컨테이너 시작</strong>
-                <p class="mb-1 text-muted small">
-                  nginx-web-2 컨테이너가 성공적으로 시작되었습니다.
-                </p>
-                <small class="text-muted">5분 전</small>
-              </div>
-              <span class="status-badge running">정상</span>
-            </div>
-          </div>
-
-          <div class="alert-item warning">
-            <div class="d-flex justify-content-between align-items-start">
-              <div>
-                <strong>높은 CPU 사용률</strong>
-                <p class="mb-1 text-muted small">
-                  worker-node-3의 CPU 사용률이 85%를 초과했습니다.
-                </p>
-                <small class="text-muted">12분 전</small>
-              </div>
-              <span class="status-badge warning">경고</span>
-            </div>
-          </div>
-
-          <div class="alert-item danger">
-            <div class="d-flex justify-content-between align-items-start">
-              <div>
-                <strong>컨테이너 실패</strong>
-                <p class="mb-1 text-muted small">
-                  redis-cache-1 컨테이너가 예기치 않게 종료되었습니다.
-                </p>
-                <small class="text-muted">15분 전</small>
-              </div>
-              <span class="status-badge stopped">위험</span>
-            </div>
+        <div class="alert-list" id="recentAlerts">
+          <!-- 최근 알림이 여기에 동적으로 로드됩니다 -->
+          <div class="text-center text-muted py-4">
+            <i class="fas fa-spinner fa-spin me-2"></i>
+            알림을 불러오는 중...
           </div>
         </div>
       </div>
@@ -269,10 +236,3 @@
   </div>
 </div>
 {% endblock %}
-
-<!-- API 모듈들 -->
-<script src="/static/js/api/stats.js"></script>
-<script src="/static/js/api/containers.js"></script>
-<script src="/static/js/api/nodes.js"></script>
-<script src="/static/js/api/alerts.js"></script>
-<script src="/static/js/api/events.js"></script>

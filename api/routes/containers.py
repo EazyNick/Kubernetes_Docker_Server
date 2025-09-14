@@ -8,6 +8,9 @@ from models import (
     Container,
     ContainerList,
     Pagination
+    Pagination,
+    MemoryInfo,
+    NetworkInfo
 )
 import random
 from datetime import datetime, timedelta
@@ -25,13 +28,35 @@ def get_containers(page: int = 1, per_page: int = 20):
         
         for i in range(min(per_page, total_containers - (page - 1) * per_page)):
             container_id = f"container-{(page - 1) * per_page + i + 1:03d}"
+            
+            # 메모리 정보 생성
+            memory_used = random.randint(50, 2000)
+            memory_total = random.randint(1024, 4096)  # 1GB ~ 4GB
+            memory_usage = round((memory_used / memory_total) * 100, 1)
+            
+            # 네트워크 정보 생성 (Bytes/s 단위)
+            network_rx = random.randint(100000, 5000000)  # 100KB/s ~ 5MB/s
+            network_tx = random.randint(50000, 3000000)   # 50KB/s ~ 3MB/s
+            
             containers.append(Container(
                 id=container_id,
                 name=f"app-{random.choice(['web', 'api', 'db', 'cache'])}-{(page - 1) * per_page + i + 1:02d}",
                 image=f"{random.choice(['nginx', 'node', 'python', 'redis', 'postgres'])}:{random.choice(['latest', '1.21', '16-alpine', '7-alpine'])}",
                 status=random.choice(["running", "stopped", "failed"]),
+                status=random.choices(
+                    ["running", "stopped", "failed", "restarting", "paused"],
+                    weights=[60, 15, 8, 4, 13]  # paused 상태를 더 자주 나타나도록 조정
+                )[0],
                 cpu=round(random.uniform(0, 100), 1),
-                memory=random.randint(50, 2000),
+                memory=MemoryInfo(
+                    used=memory_used,
+                    total=memory_total,
+                    usage=memory_usage
+                ),
+                network=NetworkInfo(
+                    rx=network_rx,
+                    tx=network_tx
+                ),
                 uptime=f"{random.randint(1, 30)}d {random.randint(0, 23)}h",
                 node=f"k8s-node-{random.randint(1, 3)}",
                 created_at=(datetime.now() - timedelta(days=random.randint(1, 30))).isoformat() + "Z",

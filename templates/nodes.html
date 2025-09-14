@@ -12,11 +12,11 @@
                 <i class="fas fa-server"></i>
             </div>
         </div>
-        <div class="metric-value" id="healthyNodes">11</div>
+        <div class="metric-value" id="healthyNodes">-</div>
         <div class="metric-label">정상 노드</div>
         <div class="metric-change positive">
             <i class="fas fa-arrow-up"></i>
-            91.7%
+            <span id="healthyNodesChange">-</span>
         </div>
     </div>
     <div class="metric-card">
@@ -25,11 +25,11 @@
                 <i class="fas fa-exclamation-triangle"></i>
             </div>
         </div>
-        <div class="metric-value" id="warningNodes">1</div>
+        <div class="metric-value" id="warningNodes">-</div>
         <div class="metric-label">주의 노드</div>
         <div class="metric-change negative">
             <i class="fas fa-arrow-up"></i>
-            8.3%
+            <span id="warningNodesChange">-</span>
         </div>
     </div>
     <div class="metric-card">
@@ -38,11 +38,11 @@
                 <i class="fas fa-microchip"></i>
             </div>
         </div>
-        <div class="metric-value" id="totalCores">96</div>
+        <div class="metric-value" id="totalCores">-</div>
         <div class="metric-label">총 CPU 코어</div>
         <div class="metric-change">
             <i class="fas fa-minus"></i>
-            변화 없음
+            <span id="totalCoresChange">-</span>
         </div>
     </div>
     <div class="metric-card">
@@ -51,11 +51,41 @@
                 <i class="fas fa-memory"></i>
             </div>
         </div>
-        <div class="metric-value" id="totalMemory">384GB</div>
+        <div class="metric-value" id="totalMemory">-</div>
         <div class="metric-label">총 메모리</div>
         <div class="metric-change">
             <i class="fas fa-minus"></i>
-            변화 없음
+            <span id="totalMemoryChange">-</span>
+        </div>
+    </div>
+</div>
+
+<!-- 평균 리소스 사용률 메트릭 카드 섹션 -->
+<div class="metric-grid mb-4">
+    <div class="metric-card">
+        <div class="metric-card-header">
+            <div class="metric-icon warning">
+                <i class="fas fa-microchip"></i>
+            </div>
+        </div>
+        <div class="metric-value" id="avgCpuUsage">-</div>
+        <div class="metric-label">평균 CPU 사용률</div>
+        <div class="metric-change positive">
+            <i class="fas fa-arrow-up"></i>
+            <span id="avgCpuUsageChange">-</span>
+        </div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-card-header">
+            <div class="metric-icon info">
+                <i class="fas fa-memory"></i>
+            </div>
+        </div>
+        <div class="metric-value" id="avgMemoryUsage">-</div>
+        <div class="metric-label">평균 메모리 사용률</div>
+        <div class="metric-change positive">
+            <i class="fas fa-arrow-up"></i>
+            <span id="avgMemoryUsageChange">-</span>
         </div>
     </div>
 </div>
@@ -102,161 +132,12 @@
                                 </th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="nodesTableBody">
+                            <!-- 노드 데이터가 여기에 동적으로 로드됩니다 -->
                             <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-crown me-2 text-warning"></i>
-                                        <div>
-                                            <strong>k8s-master-01</strong>
-                                            <div class="small text-muted">10.0.1.10</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge running"><span class="status-indicator"></span>Ready</span></td>
-                                <td><span class="badge bg-primary">Master</span></td>
-                                <td>
-                                    <div class="small">4 cores</div>
-                                    <div class="progress-modern mb-1">
-                                        <div class="progress-bar-modern" style="width: 23%; background: var(--success-color);"></div>
-                                    </div>
-                                    <div class="small text-muted">23%</div>
-                                </td>
-                                <td>
-                                    <div class="small">16 GB</div>
-                                    <div class="progress-modern mb-1">
-                                        <div class="progress-bar-modern" style="width: 45%; background: var(--warning-color);"></div>
-                                    </div>
-                                    <div class="small text-muted">7.2 GB</div>
-                                </td>
-                                <td>
-                                    <div class="small">100 GB</div>
-                                    <div class="progress-modern mb-1">
-                                        <div class="progress-bar-modern" style="width: 67%; background: var(--info-color);"></div>
-                                    </div>
-                                    <div class="small text-muted">67 GB</div>
-                                </td>
-                                <td>15</td>
-                                <td>27d 14h</td>
-                                <td>
-                                    <!-- 액션 버튼 제거됨 -->
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-server me-2 text-primary"></i>
-                                        <div>
-                                            <strong>k8s-worker-01</strong>
-                                            <div class="small text-muted">10.0.1.11</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge running"><span class="status-indicator"></span>Ready</span></td>
-                                <td><span class="badge bg-info">Worker</span></td>
-                                <td>
-                                    <div class="small">8 cores</div>
-                                    <div class="progress-modern mb-1">
-                                        <div class="progress-bar-modern" style="width: 67%; background: var(--warning-color);"></div>
-                                    </div>
-                                    <div class="small text-muted">67%</div>
-                                </td>
-                                <td>
-                                    <div class="small">32 GB</div>
-                                    <div class="progress-modern mb-1">
-                                        <div class="progress-bar-modern" style="width: 78%; background: var(--danger-color);"></div>
-                                    </div>
-                                    <div class="small text-muted">25 GB</div>
-                                </td>
-                                <td>
-                                    <div class="small">200 GB</div>
-                                    <div class="progress-modern mb-1">
-                                        <div class="progress-bar-modern" style="width: 45%; background: var(--success-color);"></div>
-                                    </div>
-                                    <div class="small text-muted">90 GB</div>
-                                </td>
-                                <td>42</td>
-                                <td>25d 8h</td>
-                                <td>
-                                    <!-- 액션 버튼 제거됨 -->
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-server me-2 text-primary"></i>
-                                        <div>
-                                            <strong>k8s-worker-02</strong>
-                                            <div class="small text-muted">10.0.1.12</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge warning"><span class="status-indicator"></span>Warning</span></td>
-                                <td><span class="badge bg-info">Worker</span></td>
-                                <td>
-                                    <div class="small">8 cores</div>
-                                    <div class="progress-modern mb-1">
-                                        <div class="progress-bar-modern" style="width: 89%; background: var(--danger-color);"></div>
-                                    </div>
-                                    <div class="small text-muted">89%</div>
-                                </td>
-                                <td>
-                                    <div class="small">32 GB</div>
-                                    <div class="progress-modern mb-1">
-                                        <div class="progress-bar-modern" style="width: 91%; background: var(--danger-color);"></div>
-                                    </div>
-                                    <div class="small text-muted">29.1 GB</div>
-                                </td>
-                                <td>
-                                    <div class="small">200 GB</div>
-                                    <div class="progress-modern mb-1">
-                                        <div class="progress-bar-modern" style="width: 23%; background: var(--success-color);"></div>
-                                    </div>
-                                    <div class="small text-muted">46 GB</div>
-                                </td>
-                                <td>38</td>
-                                <td>20d 3h</td>
-                                <td>
-                                    <!-- 액션 버튼 제거됨 -->
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fab fa-docker me-2 text-info"></i>
-                                        <div>
-                                            <strong>docker-host-01</strong>
-                                            <div class="small text-muted">10.0.2.10</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge running"><span class="status-indicator"></span>Ready</span></td>
-                                <td><span class="badge bg-secondary">Docker</span></td>
-                                <td>
-                                    <div class="small">16 cores</div>
-                                    <div class="progress-modern mb-1">
-                                        <div class="progress-bar-modern" style="width: 34%; background: var(--success-color);"></div>
-                                    </div>
-                                    <div class="small text-muted">34%</div>
-                                </td>
-                                <td>
-                                    <div class="small">64 GB</div>
-                                    <div class="progress-modern mb-1">
-                                        <div class="progress-bar-modern" style="width: 56%; background: var(--warning-color);"></div>
-                                    </div>
-                                    <div class="small text-muted">35.8 GB</div>
-                                </td>
-                                <td>
-                                    <div class="small">500 GB</div>
-                                    <div class="progress-modern mb-1">
-                                        <div class="progress-bar-modern" style="width: 78%; background: var(--info-color);"></div>
-                                    </div>
-                                    <div class="small text-muted">390 GB</div>
-                                </td>
-                                <td>52</td>
-                                <td>45d 12h</td>
-                                <td>
-                                    <!-- 액션 버튼 제거됨 -->
+                                <td colspan="8" class="text-center text-muted py-4">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>
+                                    노드 목록을 불러오는 중...
                                 </td>
                             </tr>
                         </tbody>
