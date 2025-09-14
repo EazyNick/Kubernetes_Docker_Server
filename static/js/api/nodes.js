@@ -75,6 +75,7 @@ async function loadNodesData() {
 
   try {
     const response = await window.NodesAPI.getNodes();
+
     if (response && response.success) {
       const nodes = response.data.nodes;
       const tbody = document.getElementById("nodesTableBody");
@@ -165,7 +166,7 @@ async function loadNodesData() {
                 console.error("updateElement function not available");
               }
 
-              return; // 서버 데이터 사용 시 로컬 계산 생략
+              // 서버 데이터 사용 시 로컬 계산 생략하지만 테이블은 계속 업데이트
             }
           }
         } catch (error) {
@@ -230,95 +231,100 @@ async function loadNodesData() {
           }
         }
 
-        nodes.forEach((node) => {
-          const statusInfo = getNodeStatusInfo(node.status);
-          const roleClass =
-            node.role === "Master"
-              ? "bg-primary"
-              : node.role === "Worker"
-              ? "bg-info"
-              : "bg-secondary";
+        for (let index = 0; index < nodes.length; index++) {
+          try {
+            const node = nodes[index];
+            const statusInfo = getNodeStatusInfo(node.status);
+            const roleClass =
+              node.role === "Master"
+                ? "bg-primary"
+                : node.role === "Worker"
+                ? "bg-info"
+                : "bg-secondary";
 
-          const cpuColor =
-            node.cpu.usage < 30
-              ? "var(--success-color)"
-              : node.cpu.usage < 70
-              ? "var(--warning-color)"
-              : "var(--danger-color)";
-          const memoryColor =
-            node.memory.usage < 30
-              ? "var(--success-color)"
-              : node.memory.usage < 70
-              ? "var(--warning-color)"
-              : "var(--danger-color)";
-          const diskColor =
-            node.disk.usage < 30
-              ? "var(--success-color)"
-              : node.disk.usage < 70
-              ? "var(--info-color)"
-              : "var(--warning-color)";
+            const cpuColor =
+              node.cpu.usage < 30
+                ? "var(--success-color)"
+                : node.cpu.usage < 70
+                ? "var(--warning-color)"
+                : "var(--danger-color)";
+            const memoryColor =
+              node.memory.usage < 30
+                ? "var(--success-color)"
+                : node.memory.usage < 70
+                ? "var(--warning-color)"
+                : "var(--danger-color)";
+            const diskColor =
+              node.disk.usage < 30
+                ? "var(--success-color)"
+                : node.disk.usage < 70
+                ? "var(--info-color)"
+                : "var(--warning-color)";
 
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>
-              <div class="d-flex align-items-center">
-                <i class="fas fa-${
-                  node.role === "Master" ? "crown" : "server"
-                } me-2 text-${
-            node.role === "Master" ? "warning" : "primary"
-          }"></i>
-                <div>
-                  <strong>${node.name}</strong>
-                  <div class="small text-muted">${node.ip}</div>
+            const row = document.createElement("tr");
+            row.innerHTML = `
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-${
+                    node.role === "Master" ? "crown" : "server"
+                  } me-2 text-${
+              node.role === "Master" ? "warning" : "primary"
+            }"></i>
+                  <div>
+                    <strong>${node.name}</strong>
+                    <div class="small text-muted">${node.ip}</div>
+                  </div>
                 </div>
-              </div>
-            </td>
-            <td>
-              <span class="status-badge ${statusInfo.class}">
-                <i class="fas ${statusInfo.icon} me-1"></i>
-                <span class="status-indicator"></span>
-                ${statusInfo.text}
-              </span>
-            </td>
-            <td><span class="badge ${roleClass}">${node.role}</span></td>
-            <td>
-              <div class="small">${node.cpu.cores} cores</div>
-              <div class="progress-modern mb-1">
-                <div class="progress-bar-modern" style="width: ${
-                  node.cpu.usage
-                }%; background: ${cpuColor};"></div>
-              </div>
-              <div class="small text-muted">${node.cpu.usage}%</div>
-            </td>
-            <td>
-              <div class="small">${node.memory.total} GB</div>
-              <div class="progress-modern mb-1">
-                <div class="progress-bar-modern" style="width: ${
-                  node.memory.usage
-                }%; background: ${memoryColor};"></div>
-              </div>
-              <div class="small text-muted">${(
-                (node.memory.total * node.memory.usage) /
-                100
-              ).toFixed(1)} GB</div>
-            </td>
-            <td>
-              <div class="small">${node.disk.total} GB</div>
-              <div class="progress-modern mb-1">
-                <div class="progress-bar-modern" style="width: ${
-                  node.disk.usage
-                }%; background: ${diskColor};"></div>
-              </div>
-              <div class="small text-muted">${(
-                (node.disk.total * node.disk.usage) /
-                100
-              ).toFixed(0)} GB</div>
-            </td>
-            <td>${node.containers}</td>
-            <td>${node.uptime}</td>
-          `;
-          tbody.appendChild(row);
-        });
+              </td>
+              <td>
+                <span class="status-badge ${statusInfo.class}">
+                  <i class="fas ${statusInfo.icon} me-1"></i>
+                  <span class="status-indicator"></span>
+                  ${statusInfo.text}
+                </span>
+              </td>
+              <td><span class="badge ${roleClass}">${node.role}</span></td>
+              <td>
+                <div class="small">${node.cpu.cores} cores</div>
+                <div class="progress-modern mb-1">
+                  <div class="progress-bar-modern" style="width: ${
+                    node.cpu.usage
+                  }%; background: ${cpuColor};"></div>
+                </div>
+                <div class="small text-muted">${node.cpu.usage}%</div>
+              </td>
+              <td>
+                <div class="small">${node.memory.total} GB</div>
+                <div class="progress-modern mb-1">
+                  <div class="progress-bar-modern" style="width: ${
+                    node.memory.usage
+                  }%; background: ${memoryColor};"></div>
+                </div>
+                <div class="small text-muted">${(
+                  (node.memory.total * node.memory.usage) /
+                  100
+                ).toFixed(1)} GB</div>
+              </td>
+              <td>
+                <div class="small">${node.disk.total} GB</div>
+                <div class="progress-modern mb-1">
+                  <div class="progress-bar-modern" style="width: ${
+                    node.disk.usage
+                  }%; background: ${diskColor};"></div>
+                </div>
+                <div class="small text-muted">${(
+                  (node.disk.total * node.disk.usage) /
+                  100
+                ).toFixed(0)} GB</div>
+              </td>
+              <td>${node.containers}</td>
+              <td>${node.uptime}</td>
+            `;
+            tbody.appendChild(row);
+          } catch (error) {
+            console.error(`Error processing node ${index + 1}:`, error);
+          }
+        }
       }
     }
   } catch (error) {
