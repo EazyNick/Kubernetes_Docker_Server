@@ -45,11 +45,13 @@ function getNodeStatusInfo(status) {
 // 노드 목록 조회
 async function getNodes() {
   try {
+    console.log("🖥️ [노드API] 노드 목록 요청 중...");
     const response = await fetch("/api/nodes");
     const data = await response.json();
+    console.log("🖥️ [노드API] 노드 목록 응답:", data);
     return data;
   } catch (error) {
-    console.error("Error fetching nodes:", error);
+    console.error("❌ [노드API] 노드 목록 요청 실패:", error);
     return null;
   }
 }

@@ -4,6 +4,7 @@ const LOGS_API_BASE = "/api";
 // 로그 목록 조회
 async function getLogs(params = {}) {
   try {
+    console.log("📝 [로그API] 로그 목록 요청 중...", params);
     const queryParams = new URLSearchParams();
 
     if (params.limit) queryParams.append("limit", params.limit);
@@ -18,9 +19,11 @@ async function getLogs(params = {}) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log("📝 [로그API] 로그 목록 응답:", data);
+    return data;
   } catch (error) {
-    console.error("Error fetching logs:", error);
+    console.error("❌ [로그API] 로그 목록 요청 실패:", error);
     throw error;
   }
 }
@@ -28,6 +31,7 @@ async function getLogs(params = {}) {
 // 로그 통계 조회
 async function getLogStats(timeRange = "24h") {
   try {
+    console.log(`📊 [로그API] 로그 통계 요청 중... (시간 범위: ${timeRange})`);
     const url = `${LOGS_API_BASE}/logs/stats?time_range=${timeRange}`;
     const response = await fetch(url);
 
@@ -35,9 +39,11 @@ async function getLogStats(timeRange = "24h") {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log("📊 [로그API] 로그 통계 응답:", data);
+    return data;
   } catch (error) {
-    console.error("Error fetching log stats:", error);
+    console.error("❌ [로그API] 로그 통계 요청 실패:", error);
     throw error;
   }
 }
@@ -62,6 +68,8 @@ async function getLog(logId) {
 // 로그 데이터 로딩 (페이지용)
 async function loadLogsData(params = {}) {
   const container = document.getElementById("logContainer");
+
+  console.log("📝 [로그API] 로그 데이터 로딩 시작...", params);
 
   try {
     const response = await getLogs(params);

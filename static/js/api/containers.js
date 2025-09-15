@@ -17,13 +17,17 @@ function formatBytesPerSecond(bytesPerSecond) {
 // 컨테이너 목록 조회 (페이징 지원)
 async function getContainers(page = 1, perPage = 20) {
   try {
+    console.log(
+      `🐳 [컨테이너API] 컨테이너 목록 요청 중... (페이지: ${page}, 크기: ${perPage})`
+    );
     const response = await fetch(
       `/api/containers?page=${page}&per_page=${perPage}`
     );
     const data = await response.json();
+    console.log("🐳 [컨테이너API] 컨테이너 목록 응답:", data);
     return data;
   } catch (error) {
-    console.error("Error fetching containers:", error);
+    console.error("❌ [컨테이너API] 컨테이너 목록 요청 실패:", error);
     return null;
   }
 }

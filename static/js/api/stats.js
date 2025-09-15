@@ -6,11 +6,13 @@
 // 홈 페이지 개요 통계 조회
 async function getOverviewStats() {
   try {
+    console.log("📊 [통계API] 홈 페이지 개요 통계 요청 중...");
     const response = await fetch("/api/stats/overview");
     const data = await response.json();
+    console.log("📊 [통계API] 개요 통계 응답:", data);
     return data;
   } catch (error) {
-    console.error("Error fetching overview stats:", error);
+    console.error("❌ [통계API] 개요 통계 요청 실패:", error);
     return null;
   }
 }
@@ -18,11 +20,13 @@ async function getOverviewStats() {
 // 대시보드 통계 조회
 async function getDashboardStats() {
   try {
+    console.log("📊 [통계API] 대시보드 통계 요청 중...");
     const response = await fetch("/api/stats/dashboard");
     const data = await response.json();
+    console.log("📊 [통계API] 대시보드 통계 응답:", data);
     return data;
   } catch (error) {
-    console.error("Error fetching dashboard stats:", error);
+    console.error("❌ [통계API] 대시보드 통계 요청 실패:", error);
     return null;
   }
 }
@@ -33,14 +37,22 @@ function updateElement(id, value) {
   if (element) {
     element.textContent = value;
   } else {
-    console.error(`Element with id '${id}' not found`);
+    // 변화량 요소는 선택적이므로 오류 대신 경고만 표시
+    if (id.includes("Change")) {
+      console.warn(`⚠️ 변화량 요소 '${id}'를 찾을 수 없습니다. (선택적 요소)`);
+    } else {
+      console.error(`❌ 필수 요소 '${id}'를 찾을 수 없습니다.`);
+    }
   }
 }
 
-// 실시간 데이터 업데이트
+// 실시간 데이터 업데이트 (홈 화면용 - 변화량 제외)
 async function updateRealTimeData() {
   const stats = await window.StatsAPI.getOverviewStats();
   if (stats && stats.success) {
+    console.log("📊 [통계API] 홈 화면 데이터 업데이트 중...");
+
+    // 기본 통계 데이터만 업데이트 (변화량 제외)
     updateElement("totalContainers", stats.data.total_containers);
     updateElement("runningContainers", stats.data.running_containers);
     updateElement("activeNodes", stats.data.active_nodes);
@@ -50,18 +62,7 @@ async function updateRealTimeData() {
     updateElement("warningAlerts", stats.data.warning_alerts);
     updateElement("criticalAlerts", stats.data.critical_alerts);
 
-    // 서버에서 받은 변화량으로 업데이트
-    updateElement("totalContainersChange", stats.data.total_containers_change);
-    updateElement(
-      "runningContainersChange",
-      stats.data.running_containers_change
-    );
-    updateElement("activeNodesChange", stats.data.active_nodes_change);
-    updateElement("healthyNodesChange", stats.data.healthy_nodes_change);
-    updateElement("systemHealthChange", stats.data.system_health_change);
-    updateElement("uptimeChange", stats.data.uptime_change);
-    updateElement("warningAlertsChange", stats.data.warning_alerts_change);
-    updateElement("criticalAlertsChange", stats.data.critical_alerts_change);
+    console.log("📊 [통계API] 홈 화면 데이터 업데이트 완료");
   }
 
   const lastUpdateElement = document.getElementById("lastUpdate");

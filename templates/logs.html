@@ -334,12 +334,7 @@ document.addEventListener('DOMContentLoaded', function() {
   loadContainerOptions();
   setupFilterListeners();
   
-  // LogsAPI가 있으면 로그 데이터도 로드
-  setTimeout(() => {
-    if (window.LogsAPI && typeof window.LogsAPI.loadLogsData === 'function') {
-      window.LogsAPI.loadLogsData();
-    }
-  }, 100);
+  // 로그 데이터 로딩은 app.js에서 처리됩니다
 });
 </script>
 

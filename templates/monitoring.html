@@ -1,7 +1,7 @@
 <!-- 고급 모니터링 페이지 - 시스템 성능 지표와 상세한 모니터링 차트를 제공하는 페이지 -->
 {% extends "base.html" %}
-{% block title %}모니터링 - 컨테이너 모니터링{% endblock %}
-{% block breadcrumb %}모니터링{% endblock %}
+{% block title %}상세 모니터링 - 컨테이너 모니터링{% endblock %}
+{% block breadcrumb %}상세 모니터링{% endblock %}
 {% block content %}
 
 <!-- 실시간 성능 메트릭 헤더 -->
@@ -405,125 +405,7 @@ async function loadMonitoringData() {
   }
 }
 
-// 컨테이너 데이터 로딩
-async function loadContainerData() {
-  const tableBody = document.getElementById("monitoringTableBody");
-  
-  try {
-    if (!window.ContainersAPI) {
-      console.error("ContainersAPI not available");
-      return;
-    }
-
-    const response = await window.ContainersAPI.getContainers();
-    
-    if (response && response.success && response.data && response.data.containers) {
-      const containers = response.data.containers;
-      
-      if (containers.length === 0) {
-        tableBody.innerHTML = `
-          <tr>
-            <td colspan="8" class="text-center text-muted py-4">
-              <i class="fas fa-info-circle me-2"></i>
-              컨테이너가 없습니다.
-            </td>
-          </tr>
-        `;
-        return;
-      }
-
-      // 상위 컨테이너들을 CPU 사용률 기준으로 정렬
-      const sortedContainers = containers
-        .sort((a, b) => parseFloat(b.cpu) - parseFloat(a.cpu))
-        .slice(0, 10); // 상위 10개만 표시
-
-      tableBody.innerHTML = sortedContainers.map((container, index) => {
-        const cpuUsage = parseFloat(container.cpu);
-        const memoryUsage = parseFloat(container.memory.usage);
-        
-        const cpuColor = cpuUsage < 30 ? "var(--success-color)" : 
-                        cpuUsage < 70 ? "var(--warning-color)" : "var(--danger-color)";
-        const memoryColor = memoryUsage < 30 ? "var(--success-color)" : 
-                           memoryUsage < 70 ? "var(--warning-color)" : "var(--danger-color)";
-        
-        const badgeClass = index === 0 ? "bg-danger" : 
-                          index === 1 ? "bg-warning" : 
-                          index === 2 ? "bg-info" : "bg-secondary";
-        
-        const iconClass = container.image.includes('elasticsearch') ? 'fas fa-cube text-primary' :
-                         container.image.includes('postgres') ? 'fab fa-docker text-info' :
-                         container.image.includes('api') ? 'fas fa-cube text-success' :
-                         'fas fa-cube text-secondary';
-
-        return `
-          <tr>
-            <td><span class="badge ${badgeClass}">${index + 1}</span></td>
-            <td>
-              <div class="d-flex align-items-center">
-                <i class="${iconClass} me-2"></i>
-                <strong>${container.name}</strong>
-              </div>
-            </td>
-            <td>${container.node || 'Unknown'}</td>
-            <td>
-              <div class="progress-modern mb-1">
-                <div class="progress-bar-modern" style="width: ${cpuUsage}%; background: ${cpuColor};"></div>
-              </div>
-              <small>${cpuUsage.toFixed(1)}%</small>
-            </td>
-            <td>
-              <div class="progress-modern mb-1">
-                <div class="progress-bar-modern" style="width: ${memoryUsage}%; background: ${memoryColor};"></div>
-              </div>
-              <small>${memoryUsage}%</small>
-            </td>
-            <td><small>${container.network ? formatBytesPerSecond(container.network.rx) : '0 B/s'}</small></td>
-            <td><small>${container.network ? formatBytesPerSecond(container.network.tx) : '0 B/s'}</small></td>
-            <td><span class="status-badge ${container.status.toLowerCase()}"><span class="status-indicator"></span>${container.status}</span></td>
-          </tr>
-        `;
-      }).join("");
-    } else {
-      tableBody.innerHTML = `
-        <tr>
-          <td colspan="8" class="text-center text-muted py-4">
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            컨테이너 데이터를 불러올 수 없습니다.
-          </td>
-        </tr>
-      `;
-    }
-  } catch (error) {
-    console.error("Error loading container data:", error);
-    tableBody.innerHTML = `
-      <tr>
-        <td colspan="8" class="text-center text-muted py-4">
-          <i class="fas fa-exclamation-triangle me-2"></i>
-          컨테이너 데이터를 불러오는데 실패했습니다.
-        </td>
-      </tr>
-    `;
-  }
-}
-
 // 페이지 로드 시 데이터 로딩
-document.addEventListener('DOMContentLoaded', function() {
-  setTimeout(() => {
-    function waitForAPI() {
-      if (window.NodesAPI && typeof window.NodesAPI.getNodes === 'function' &&
-          window.ContainersAPI && typeof window.ContainersAPI.getContainers === 'function' &&
-          window.MonitoringCharts && typeof window.MonitoringCharts.initAllCharts === 'function') {
-        loadMonitoringData();
-        loadContainerData();
-        // 차트 초기화
-        window.MonitoringCharts.initAllCharts();
-      } else {
-        setTimeout(waitForAPI, 100);
-      }
-    }
-    waitForAPI();
-  }, 100);
-});
 </script>
 
 {% endblock %}

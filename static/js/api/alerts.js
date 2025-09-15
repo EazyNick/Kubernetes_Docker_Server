@@ -6,11 +6,13 @@
 // 알림 목록 조회
 async function getAlerts() {
   try {
+    console.log("🚨 [알림API] 알림 목록 요청 중...");
     const response = await fetch("/api/alerts");
     const data = await response.json();
+    console.log("🚨 [알림API] 알림 목록 응답:", data);
     return data;
   } catch (error) {
-    console.error("Error fetching alerts:", error);
+    console.error("❌ [알림API] 알림 목록 요청 실패:", error);
     return null;
   }
 }

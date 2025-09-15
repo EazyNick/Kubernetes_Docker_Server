@@ -235,4 +235,27 @@
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Dashboard page loaded');
+  
+  // StatsAPI가 로드될 때까지 대기
+  function waitForStatsAPI() {
+    if (window.StatsAPI) {
+      console.log('StatsAPI loaded, updating dashboard data');
+      window.StatsAPI.updateDashboardData();
+      
+      // 5초마다 데이터 업데이트
+      setInterval(() => {
+        window.StatsAPI.updateDashboardData();
+      }, 5000);
+    } else {
+      setTimeout(waitForStatsAPI, 100);
+    }
+  }
+  
+  waitForStatsAPI();
+});
+</script>
 {% endblock %}
