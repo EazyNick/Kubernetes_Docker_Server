@@ -7,7 +7,6 @@ from models import (
     BaseResponse,
     Alert,
     AlertList,
-    AlertSummary
     AlertSummary,
     AlertRule,
     AlertRuleList

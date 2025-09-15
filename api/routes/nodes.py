@@ -6,7 +6,6 @@ from fastapi import APIRouter
 from models import (
     BaseResponse,
     Node,
-    NodeList
     NodeList,
     NodePageStats
 )
@@ -29,7 +28,7 @@ def get_nodes():
                 name=f"k8s-{node_type}-{i+1:02d}",
                 ip=f"10.0.1.{10+i}",
                 role=node_type.title(),
-                status=random.choice(["Ready", "Warning"]),
+                #status=random.choice(["Ready", "Warning"]),
                 status=random.choices(
                     ["Ready", "NotReady", "Unknown", "Warning"], 
                     weights=[75, 15, 5, 5]  # Ready가 대부분, 나머지는 적은 비율

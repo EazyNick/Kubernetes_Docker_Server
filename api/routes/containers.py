@@ -7,7 +7,6 @@ from models import (
     BaseResponse,
     Container,
     ContainerList,
-    Pagination
     Pagination,
     MemoryInfo,
     NetworkInfo
@@ -42,7 +41,7 @@ def get_containers(page: int = 1, per_page: int = 20):
                 id=container_id,
                 name=f"app-{random.choice(['web', 'api', 'db', 'cache'])}-{(page - 1) * per_page + i + 1:02d}",
                 image=f"{random.choice(['nginx', 'node', 'python', 'redis', 'postgres'])}:{random.choice(['latest', '1.21', '16-alpine', '7-alpine'])}",
-                status=random.choice(["running", "stopped", "failed"]),
+                # status=random.choice(["running", "stopped", "failed"]),
                 status=random.choices(
                     ["running", "stopped", "failed", "restarting", "paused"],
                     weights=[60, 15, 8, 4, 13]  # paused 상태를 더 자주 나타나도록 조정
