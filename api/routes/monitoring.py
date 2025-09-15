@@ -39,14 +39,26 @@ async def get_network_traffic():
                     data=rx_data,
                     borderColor="#4CAF50",
                     backgroundColor="rgba(76, 175, 80, 0.1)",
-                    tension=0.4
+                    borderWidth=2,
+                    pointRadius=4,
+                    pointBackgroundColor="#4CAF50",
+                    pointBorderColor="#4CAF50",
+                    fill=False,
+                    tension=0.4,
+                    showLine=True
                 ),
                 ChartDataset(
                     label="송신 (MB/s)",
                     data=tx_data,
                     borderColor="#2196F3",
                     backgroundColor="rgba(33, 150, 243, 0.1)",
-                    tension=0.4
+                    borderWidth=2,
+                    pointRadius=4,
+                    pointBackgroundColor="#2196F3",
+                    pointBorderColor="#2196F3",
+                    fill=False,
+                    tension=0.4,
+                    showLine=True
                 )
             ]
         )

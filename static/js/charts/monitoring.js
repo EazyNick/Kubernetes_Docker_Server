@@ -18,39 +18,26 @@ window.MonitoringCharts = {
       return;
     }
 
-    // 최근 24시간의 네트워크 트래픽 데이터 생성 (시뮬레이션)
-    const labels = [];
-    const inputData = [];
-    const outputData = [];
-
-    for (let i = 23; i >= 0; i--) {
-      const time = new Date();
-      time.setHours(time.getHours() - i);
-      labels.push(time.getHours() + ":00");
-      inputData.push(Math.random() * 100 + 10);
-      outputData.push(Math.random() * 80 + 5);
+    // API에서 데이터를 가져와서 차트를 초기화
+    if (window.MonitoringAPI) {
+      window.MonitoringAPI.getNetworkTrafficData().then((data) => {
+        if (data) {
+          this.createNetworkTrafficChart(ctx, data);
+        } else {
+          ctx.innerHTML =
+            '<div class="text-center text-muted py-4">데이터를 불러올 수 없습니다.</div>';
+        }
+      });
+    } else {
+      ctx.innerHTML =
+        '<div class="text-center text-muted py-4">API를 사용할 수 없습니다.</div>';
     }
+  },
 
+  createNetworkTrafficChart(ctx, data) {
     const chartData = {
-      labels: labels,
-      datasets: [
-        {
-          label: "입력 (MB/s)",
-          data: inputData,
-          borderColor: "#059669",
-          backgroundColor: "rgba(5, 150, 105, 0.1)",
-          tension: 0.4,
-          fill: true,
-        },
-        {
-          label: "출력 (MB/s)",
-          data: outputData,
-          borderColor: "#d97706",
-          backgroundColor: "rgba(217, 119, 6, 0.1)",
-          tension: 0.4,
-          fill: true,
-        },
-      ],
+      labels: data.labels,
+      datasets: data.datasets,
     };
 
     new Chart(ctx, {

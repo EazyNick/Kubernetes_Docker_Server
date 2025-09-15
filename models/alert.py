@@ -34,17 +34,17 @@ class Alert(BaseModel):
 
 
 class AlertSummary(BaseModel):
-    """알림 요약 정보"""
-    critical: int  # 위험 알림 수
-    warning: int  # 경고 알림 수
-    info: int  # 정보 알림 수
-    resolved: int  # 해결된 알림 수
+    """알림 요약 통계 정보"""
+    critical: int  # 위험(Critical) 심각도 알림 개수 (즉시 조치 필요)
+    warning: int  # 경고(Warning) 심각도 알림 개수 (주의 깊게 모니터링 필요)
+    info: int  # 정보(Info) 심각도 알림 개수 (참고용 정보)
+    resolved: int  # 해결된(Resolved) 상태 알림 개수 (최근 24시간 내)
 
 
 class AlertList(BaseModel):
-    """알림 목록과 요약 정보"""
-    alerts: List[Alert]
-    summary: AlertSummary
+    """알림 목록과 요약 통계를 포함한 응답 모델"""
+    alerts: List[Alert]  # 개별 알림 객체들의 배열 (최신순 정렬)
+    summary: AlertSummary  # 알림 요약 통계 정보 (대시보드 표시용)
 
     class Config:
         json_schema_extra = {
@@ -73,14 +73,14 @@ class AlertList(BaseModel):
 
 
 class AlertRule(BaseModel):
-    """알림 규칙 정보"""
-    id: str  # 규칙 고유 식별자
-    name: str  # 규칙명 (예: "High CPU Usage", "Memory Warning")
-    target: str  # 규칙 대상 (예: "모든 노드", "특정 컨테이너")
-    condition: str  # 규칙 조건 (예: "CPU > 85% for 5min")
-    severity: str  # 규칙 심각도 ("Critical", "Warning", "Info")
-    status: str  # 규칙 상태 ("Active", "Inactive", "Testing")
-    created_at: str  # 규칙 생성 시간 (ISO 8601 형식)
+    """알림 규칙 정의 모델"""
+    id: str  # 규칙 고유 식별자 (예: "RULE-001", "RULE-CPU-001")
+    name: str  # 규칙명 (예: "High CPU Usage", "Memory Warning", "Disk Space Alert")
+    target: str  # 규칙 적용 대상 (예: "모든 노드", "특정 컨테이너", "nginx-*", "k8s-worker-*")
+    condition: str  # 규칙 조건 표현식 (예: "CPU > 85% for 5min", "Memory > 90% for 2min", "Disk < 10%")
+    severity: str  # 규칙 심각도 레벨 ("Critical"=위험, "Warning"=경고, "Info"=정보)
+    status: str  # 규칙 현재 상태 ("Active"=활성, "Inactive"=비활성, "Testing"=테스트중)
+    created_at: str  # 규칙 생성 시간 (ISO 8601 형식, 예: "2024-01-15T09:30:00Z")
 
     class Config:
         json_schema_extra = {
@@ -97,8 +97,8 @@ class AlertRule(BaseModel):
 
 
 class AlertRuleList(BaseModel):
-    """알림 규칙 목록"""
-    rules: List[AlertRule]
+    """알림 규칙 목록 응답 모델"""
+    rules: List[AlertRule]  # 알림 규칙 객체들의 배열 (이름순 또는 생성일순 정렬)
 
     class Config:
         json_schema_extra = {

@@ -10,18 +10,76 @@ window.MonitoringAPI = {
    */
   async getNetworkTrafficData() {
     try {
-      console.log("🌐 [모니터링API] 네트워크 트래픽 데이터 요청 중...");
-      const response = await fetch("/api/monitoring/network-traffic");
-      if (!response.ok) throw new Error("네트워크 응답이 정상이 아닙니다");
-      const result = await response.json();
-      console.log("🌐 [모니터링API] 네트워크 트래픽 데이터 응답:", result);
-      return result.success ? result.data : this.getMockNetworkTrafficData();
-    } catch (error) {
-      console.error(
-        "❌ [모니터링API] 네트워크 트래픽 데이터 요청 실패:",
-        error
+      console.log("🌐 [네트워크 트래픽 API] 데이터 요청 시작...");
+      console.log(
+        "🌐 [네트워크 트래픽 API] 요청 URL: /api/monitoring/network-traffic"
       );
-      return this.getMockNetworkTrafficData();
+      console.log(
+        "🌐 [네트워크 트래픽 API] 요청 시간:",
+        new Date().toLocaleTimeString("ko-KR")
+      );
+
+      const response = await fetch("/api/monitoring/network-traffic");
+
+      console.log(
+        "🌐 [네트워크 트래픽 API] HTTP 응답 상태:",
+        response.status,
+        response.statusText
+      );
+      console.log(
+        "🌐 [네트워크 트래픽 API] 응답 헤더:",
+        Object.fromEntries(response.headers.entries())
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log("🌐 [네트워크 트래픽 API] JSON 응답 데이터:", result);
+      console.log("🌐 [네트워크 트래픽 API] 응답 구조 분석:");
+      console.log("  - success:", result.success);
+      console.log("  - message:", result.message);
+      console.log("  - data 존재 여부:", !!result.data);
+      console.log("  - data 타입:", typeof result.data);
+      console.log("  - data 내용:", result.data);
+
+      if (result.success) {
+        console.log("🌐 [네트워크 트래픽 API] 데이터 구조 분석:");
+        console.log("  - labels:", result.data?.labels);
+        console.log("  - labels 개수:", result.data?.labels?.length || 0);
+        console.log("  - datasets:", result.data?.datasets);
+        console.log("  - datasets 개수:", result.data?.datasets?.length || 0);
+
+        if (result.data?.datasets && result.data.datasets.length > 0) {
+          result.data.datasets.forEach((dataset, index) => {
+            console.log(`  - dataset[${index}]:`, {
+              label: dataset.label,
+              dataLength: dataset.data?.length || 0,
+              dataSample: dataset.data?.slice(0, 3) || [],
+              borderColor: dataset.borderColor,
+              backgroundColor: dataset.backgroundColor,
+            });
+          });
+        }
+
+        console.log("✅ [네트워크 트래픽 API] 데이터 요청 성공");
+        return result.data;
+      } else {
+        console.warn(
+          "⚠️ [네트워크 트래픽 API] 서버에서 실패 응답:",
+          result.message
+        );
+        return null;
+      }
+    } catch (error) {
+      console.error("❌ [네트워크 트래픽 API] 데이터 요청 실패:", error);
+      console.error("❌ [네트워크 트래픽 API] 에러 상세:", {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+      });
+      return null;
     }
   },
 
@@ -30,15 +88,54 @@ window.MonitoringAPI = {
    */
   async getDiskIoData() {
     try {
-      console.log("💾 [모니터링API] 디스크 I/O 데이터 요청 중...");
+      console.log("💾 [디스크 I/O API] 데이터 요청 시작...");
+      console.log("💾 [디스크 I/O API] 요청 URL: /api/monitoring/disk-io");
+      console.log(
+        "💾 [모니터링API] 요청 시간:",
+        new Date().toLocaleTimeString("ko-KR")
+      );
+
       const response = await fetch("/api/monitoring/disk-io");
-      if (!response.ok) throw new Error("네트워크 응답이 정상이 아닙니다");
+
+      console.log(
+        "💾 [디스크 I/O API] HTTP 응답 상태:",
+        response.status,
+        response.statusText
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
       const result = await response.json();
-      console.log("💾 [모니터링API] 디스크 I/O 데이터 응답:", result);
-      return result.success ? result.data : this.getMockDiskIoData();
+      console.log("💾 [디스크 I/O API] JSON 응답 데이터:", result);
+
+      if (result.success) {
+        console.log(
+          "💾 [디스크 I/O API] 데이터 라벨 개수:",
+          result.data?.labels?.length || 0
+        );
+        console.log(
+          "💾 [디스크 I/O API] 데이터셋 개수:",
+          result.data?.datasets?.length || 0
+        );
+        console.log(
+          "💾 [디스크 I/O API] 읽기 데이터 샘플:",
+          result.data?.datasets?.[0]?.data?.slice(0, 5) || []
+        );
+        console.log(
+          "💾 [디스크 I/O API] 쓰기 데이터 샘플:",
+          result.data?.datasets?.[1]?.data?.slice(0, 5) || []
+        );
+        console.log("✅ [디스크 I/O API] 데이터 요청 성공");
+        return result.data;
+      } else {
+        console.warn("⚠️ [디스크 I/O API] 서버에서 실패 응답:", result.message);
+        return null;
+      }
     } catch (error) {
-      console.error("❌ [모니터링API] 디스크 I/O 데이터 요청 실패:", error);
-      return this.getMockDiskIoData();
+      console.error("❌ [디스크 I/O API] 데이터 요청 실패:", error);
+      return null;
     }
   },
 
@@ -47,15 +144,50 @@ window.MonitoringAPI = {
    */
   async getResponseTimeData() {
     try {
-      console.log("⏱️ [모니터링API] 응답 시간 데이터 요청 중...");
+      console.log("⏱️ [응답 시간 API] 데이터 요청 시작...");
+      console.log("⏱️ [응답 시간 API] 요청 URL: /api/monitoring/response-time");
+      console.log(
+        "⏱️ [모니터링API] 요청 시간:",
+        new Date().toLocaleTimeString("ko-KR")
+      );
+
       const response = await fetch("/api/monitoring/response-time");
-      if (!response.ok) throw new Error("네트워크 응답이 정상이 아닙니다");
+
+      console.log(
+        "⏱️ [응답 시간 API] HTTP 응답 상태:",
+        response.status,
+        response.statusText
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
       const result = await response.json();
-      console.log("⏱️ [모니터링API] 응답 시간 데이터 응답:", result);
-      return result.success ? result.data : this.getMockResponseTimeData();
+      console.log("⏱️ [응답 시간 API] JSON 응답 데이터:", result);
+
+      if (result.success) {
+        console.log(
+          "⏱️ [응답 시간 API] 데이터 라벨 개수:",
+          result.data?.labels?.length || 0
+        );
+        console.log(
+          "⏱️ [응답 시간 API] 데이터셋 개수:",
+          result.data?.datasets?.length || 0
+        );
+        console.log(
+          "⏱️ [응답 시간 API] 서비스 목록:",
+          result.data?.datasets?.map((ds) => ds.label) || []
+        );
+        console.log("✅ [응답 시간 API] 데이터 요청 성공");
+        return result.data;
+      } else {
+        console.warn("⚠️ [응답 시간 API] 서버에서 실패 응답:", result.message);
+        return null;
+      }
     } catch (error) {
-      console.error("❌ [모니터링API] 응답 시간 데이터 요청 실패:", error);
-      return this.getMockResponseTimeData();
+      console.error("❌ [응답 시간 API] 데이터 요청 실패:", error);
+      return null;
     }
   },
 
@@ -64,15 +196,49 @@ window.MonitoringAPI = {
    */
   async getRequestStatusData() {
     try {
-      console.log("📊 [모니터링API] 요청 상태 데이터 요청 중...");
+      console.log("📊 [요청 상태 API] 데이터 요청 시작...");
+      console.log(
+        "📊 [요청 상태 API] 요청 URL: /api/monitoring/request-status"
+      );
+      console.log(
+        "📊 [모니터링API] 요청 시간:",
+        new Date().toLocaleTimeString("ko-KR")
+      );
+
       const response = await fetch("/api/monitoring/request-status");
-      if (!response.ok) throw new Error("네트워크 응답이 정상이 아닙니다");
+
+      console.log(
+        "📊 [요청 상태 API] HTTP 응답 상태:",
+        response.status,
+        response.statusText
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
       const result = await response.json();
-      console.log("📊 [모니터링API] 요청 상태 데이터 응답:", result);
-      return result.success ? result.data : this.getMockRequestStatusData();
+      console.log("📊 [요청 상태 API] JSON 응답 데이터:", result);
+
+      if (result.success) {
+        console.log("📊 [요청 상태 API] 상태 라벨:", result.data?.labels || []);
+        console.log(
+          "📊 [요청 상태 API] 상태 데이터:",
+          result.data?.datasets?.[0]?.data || []
+        );
+        console.log(
+          "📊 [요청 상태 API] 총 요청 수:",
+          result.data?.datasets?.[0]?.data?.reduce((a, b) => a + b, 0) || 0
+        );
+        console.log("✅ [요청 상태 API] 데이터 요청 성공");
+        return result.data;
+      } else {
+        console.warn("⚠️ [요청 상태 API] 서버에서 실패 응답:", result.message);
+        return null;
+      }
     } catch (error) {
-      console.error("❌ [모니터링API] 요청 상태 데이터 요청 실패:", error);
-      return this.getMockRequestStatusData();
+      console.error("❌ [요청 상태 API] 데이터 요청 실패:", error);
+      return null;
     }
   },
 
@@ -81,6 +247,10 @@ window.MonitoringAPI = {
    */
   async getMetrics() {
     try {
+      console.log("📈 [메트릭 수집기] 모든 메트릭 데이터 수집 시작...");
+      console.log("📈 [메트릭 수집기] 병렬로 4개 API 요청 실행 중...");
+
+      const startTime = Date.now();
       const [networkData, diskData, responseData, statusData] =
         await Promise.all([
           this.getNetworkTrafficData(),
@@ -89,14 +259,39 @@ window.MonitoringAPI = {
           this.getRequestStatusData(),
         ]);
 
-      return {
+      const endTime = Date.now();
+      const duration = endTime - startTime;
+
+      console.log("📈 [메트릭 수집기] 모든 API 요청 완료");
+      console.log("📈 [메트릭 수집기] 총 소요 시간:", duration + "ms");
+      console.log(
+        "📈 [메트릭 수집기] 네트워크 트래픽 데이터:",
+        networkData ? "✅ 성공" : "❌ 실패"
+      );
+      console.log(
+        "📈 [메트릭 수집기] 디스크 I/O 데이터:",
+        diskData ? "✅ 성공" : "❌ 실패"
+      );
+      console.log(
+        "📈 [메트릭 수집기] 응답 시간 데이터:",
+        responseData ? "✅ 성공" : "❌ 실패"
+      );
+      console.log(
+        "📈 [메트릭 수집기] 요청 상태 데이터:",
+        statusData ? "✅ 성공" : "❌ 실패"
+      );
+
+      const result = {
         networkTraffic: networkData,
         diskIo: diskData,
         responseTime: responseData,
         requestStatus: statusData,
       };
+
+      console.log("✅ [메트릭 수집기] 모든 메트릭 데이터 수집 완료");
+      return result;
     } catch (error) {
-      console.error("Error fetching monitoring metrics:", error);
+      console.error("❌ [메트릭 수집기] 메트릭 데이터 수집 실패:", error);
       return null;
     }
   },
@@ -464,131 +659,6 @@ window.MonitoringAPI = {
         };
     }
   },
-
-  // Mock 데이터 생성 함수들
-  getMockNetworkTrafficData() {
-    const labels = [];
-    const rxData = [];
-    const txData = [];
-
-    // 최근 24시간 데이터 생성
-    for (let i = 23; i >= 0; i--) {
-      const time = new Date();
-      time.setHours(time.getHours() - i);
-      labels.push(time.getHours() + ":00");
-      rxData.push(Math.random() * 100 + 10);
-      txData.push(Math.random() * 80 + 5);
-    }
-
-    return {
-      labels,
-      datasets: [
-        {
-          label: "수신 (MB/s)",
-          data: rxData,
-          borderColor: "#4CAF50",
-          backgroundColor: "rgba(76, 175, 80, 0.1)",
-          tension: 0.4,
-        },
-        {
-          label: "송신 (MB/s)",
-          data: txData,
-          borderColor: "#2196F3",
-          backgroundColor: "rgba(33, 150, 243, 0.1)",
-          tension: 0.4,
-        },
-      ],
-    };
-  },
-
-  getMockDiskIoData() {
-    const labels = [];
-    const readData = [];
-    const writeData = [];
-
-    for (let i = 23; i >= 0; i--) {
-      const time = new Date();
-      time.setHours(time.getHours() - i);
-      labels.push(time.getHours() + ":00");
-      readData.push(Math.random() * 50 + 5);
-      writeData.push(Math.random() * 30 + 3);
-    }
-
-    return {
-      labels,
-      datasets: [
-        {
-          label: "읽기 (MB/s)",
-          data: readData,
-          borderColor: "#FF9800",
-          backgroundColor: "rgba(255, 152, 0, 0.1)",
-          tension: 0.4,
-        },
-        {
-          label: "쓰기 (MB/s)",
-          data: writeData,
-          borderColor: "#9C27B0",
-          backgroundColor: "rgba(156, 39, 176, 0.1)",
-          tension: 0.4,
-        },
-      ],
-    };
-  },
-
-  getMockResponseTimeData() {
-    const services = [
-      "API Gateway",
-      "User Service",
-      "Order Service",
-      "Payment Service",
-      "Notification Service",
-    ];
-    const labels = [];
-    const datasets = services.map((service, index) => {
-      const data = [];
-      for (let i = 23; i >= 0; i--) {
-        data.push(Math.random() * 200 + 50 + index * 20);
-      }
-      return {
-        label: service,
-        data: data,
-        borderColor: `hsl(${index * 60}, 70%, 50%)`,
-        backgroundColor: `hsla(${index * 60}, 70%, 50%, 0.1)`,
-        tension: 0.4,
-      };
-    });
-
-    // 시간 라벨 생성
-    for (let i = 23; i >= 0; i--) {
-      const time = new Date();
-      time.setHours(time.getHours() - i);
-      labels.push(time.getHours() + ":00");
-    }
-
-    return {
-      labels,
-      datasets,
-    };
-  },
-
-  getMockRequestStatusData() {
-    return {
-      labels: ["2xx", "3xx", "4xx", "5xx"],
-      datasets: [
-        {
-          data: [75, 15, 8, 2],
-          backgroundColor: [
-            "#4CAF50", // 2xx - 성공
-            "#2196F3", // 3xx - 리다이렉트
-            "#FF9800", // 4xx - 클라이언트 에러
-            "#F44336", // 5xx - 서버 에러
-          ],
-          borderWidth: 2,
-          borderColor: "#fff",
-        },
-      ],
-    };
-  },
 };
 
 // 차트 초기화 함수들
@@ -602,13 +672,131 @@ window.MonitoringCharts = {
    * 네트워크 트래픽 차트 초기화
    */
   initNetworkTrafficChart(data) {
+    console.log("🌐 [네트워크 트래픽 차트] 초기화 시작...");
     const ctx = document.getElementById("networkTrafficChart");
-    if (!ctx) return;
+    if (!ctx) {
+      console.warn("⚠️ [네트워크 트래픽 차트] 캔버스를 찾을 수 없습니다.");
+      return;
+    }
 
     if (this.networkTrafficChart) {
+      console.log("🔄 [네트워크 트래픽 차트] 기존 차트 제거 중...");
       this.networkTrafficChart.destroy();
     }
 
+    if (!data) {
+      console.warn(
+        "⚠️ [네트워크 트래픽 차트] 데이터가 없어 에러 메시지를 표시합니다."
+      );
+      ctx.innerHTML =
+        '<div class="text-center text-muted py-4">데이터를 불러올 수 없습니다.</div>';
+      return;
+    }
+
+    console.log("🌐 [네트워크 트래픽 차트] 차트 생성 중...");
+    console.log("🌐 [네트워크 트래픽 차트] 받은 데이터:", data);
+    console.log("🌐 [네트워크 트래픽 차트] 데이터 타입:", typeof data);
+    console.log(
+      "🌐 [네트워크 트래픽 차트] 데이터 라벨 개수:",
+      data.labels?.length || 0
+    );
+    console.log(
+      "🌐 [네트워크 트래픽 차트] 데이터셋 개수:",
+      data.datasets?.length || 0
+    );
+    console.log("🌐 [네트워크 트래픽 차트] 라벨 내용:", data.labels);
+    console.log("🌐 [네트워크 트래픽 차트] 데이터셋 내용:", data.datasets);
+
+    // 데이터셋 스타일 속성 확인 및 강제 적용
+    if (data.datasets && data.datasets.length > 0) {
+      const defaultColors = [
+        { borderColor: "#4CAF50", backgroundColor: "rgba(76, 175, 80, 0.1)" }, // 녹색
+        { borderColor: "#2196F3", backgroundColor: "rgba(33, 150, 243, 0.1)" }, // 파란색
+        { borderColor: "#FF9800", backgroundColor: "rgba(255, 152, 0, 0.1)" }, // 주황색
+        { borderColor: "#9C27B0", backgroundColor: "rgba(156, 39, 176, 0.1)" }, // 보라색
+      ];
+
+      data.datasets.forEach((dataset, index) => {
+        console.log(`🌐 [네트워크 트래픽 차트] dataset[${index}] 원본 속성:`, {
+          label: dataset.label,
+          borderColor: dataset.borderColor,
+          backgroundColor: dataset.backgroundColor,
+          borderWidth: dataset.borderWidth,
+          pointBackgroundColor: dataset.pointBackgroundColor,
+          pointBorderColor: dataset.pointBorderColor,
+          fill: dataset.fill,
+          tension: dataset.tension,
+          showLine: dataset.showLine,
+        });
+
+        // 색상이 없거나 투명한 경우 기본 색상 적용
+        if (
+          !dataset.borderColor ||
+          dataset.borderColor === "transparent" ||
+          dataset.borderColor === "rgba(0,0,0,0)"
+        ) {
+          dataset.borderColor =
+            defaultColors[index % defaultColors.length].borderColor;
+          console.log(
+            `🔄 [네트워크 트래픽 차트] dataset[${index}] borderColor 적용:`,
+            dataset.borderColor
+          );
+        }
+        if (
+          !dataset.backgroundColor ||
+          dataset.backgroundColor === "transparent" ||
+          dataset.backgroundColor === "rgba(0,0,0,0)"
+        ) {
+          dataset.backgroundColor =
+            defaultColors[index % defaultColors.length].backgroundColor;
+          console.log(
+            `🔄 [네트워크 트래픽 차트] dataset[${index}] backgroundColor 적용:`,
+            dataset.backgroundColor
+          );
+        }
+
+        // 기타 필수 속성들 강제 적용
+        dataset.borderWidth = dataset.borderWidth || 2;
+        dataset.pointBackgroundColor =
+          dataset.pointBackgroundColor || dataset.borderColor;
+        dataset.pointBorderColor =
+          dataset.pointBorderColor || dataset.borderColor;
+        dataset.pointRadius = dataset.pointRadius || 4;
+        dataset.pointHoverRadius = dataset.pointHoverRadius || 6;
+        dataset.fill = dataset.fill !== undefined ? dataset.fill : false;
+        dataset.tension = dataset.tension || 0.1;
+        dataset.showLine =
+          dataset.showLine !== undefined ? dataset.showLine : true;
+
+        console.log(`🌐 [네트워크 트래픽 차트] dataset[${index}] 최종 속성:`, {
+          label: dataset.label,
+          borderColor: dataset.borderColor,
+          backgroundColor: dataset.backgroundColor,
+          borderWidth: dataset.borderWidth,
+          pointBackgroundColor: dataset.pointBackgroundColor,
+          pointBorderColor: dataset.pointBorderColor,
+          fill: dataset.fill,
+          tension: dataset.tension,
+          showLine: dataset.showLine,
+        });
+      });
+    }
+
+    // Chart.js 로드 확인
+    console.log(
+      "🌐 [네트워크 트래픽 차트] Chart.js 로드 상태:",
+      typeof Chart !== "undefined" ? "✅ 로드됨" : "❌ 로드 안됨"
+    );
+    if (typeof Chart === "undefined") {
+      console.error(
+        "❌ [네트워크 트래픽 차트] Chart.js가 로드되지 않았습니다!"
+      );
+      ctx.innerHTML =
+        '<div class="text-center text-muted py-4">Chart.js를 로드할 수 없습니다.</div>';
+      return;
+    }
+
+    console.log("🌐 [네트워크 트래픽 차트] Chart 객체 생성 시작...");
     this.networkTrafficChart = new Chart(ctx, {
       type: "line",
       data: data,
@@ -640,6 +828,21 @@ window.MonitoringCharts = {
         },
       },
     });
+
+    console.log("🌐 [네트워크 트래픽 차트] Chart 객체 생성 완료");
+    console.log(
+      "🌐 [네트워크 트래픽 차트] 생성된 차트:",
+      this.networkTrafficChart
+    );
+    console.log(
+      "🌐 [네트워크 트래픽 차트] 차트 데이터:",
+      this.networkTrafficChart?.data
+    );
+    console.log(
+      "🌐 [네트워크 트래픽 차트] 차트 옵션:",
+      this.networkTrafficChart?.options
+    );
+    console.log("✅ [네트워크 트래픽 차트] 초기화 완료");
   },
 
   /**
@@ -651,6 +854,12 @@ window.MonitoringCharts = {
 
     if (this.diskIoChart) {
       this.diskIoChart.destroy();
+    }
+
+    if (!data) {
+      ctx.innerHTML =
+        '<div class="text-center text-muted py-4">데이터를 불러올 수 없습니다.</div>';
+      return;
     }
 
     this.diskIoChart = new Chart(ctx, {
@@ -697,6 +906,12 @@ window.MonitoringCharts = {
       this.responseTimeChart.destroy();
     }
 
+    if (!data) {
+      ctx.innerHTML =
+        '<div class="text-center text-muted py-4">데이터를 불러올 수 없습니다.</div>';
+      return;
+    }
+
     this.responseTimeChart = new Chart(ctx, {
       type: "line",
       data: data,
@@ -741,6 +956,12 @@ window.MonitoringCharts = {
       this.requestStatusChart.destroy();
     }
 
+    if (!data) {
+      ctx.innerHTML =
+        '<div class="text-center text-muted py-4">데이터를 불러올 수 없습니다.</div>';
+      return;
+    }
+
     this.requestStatusChart = new Chart(ctx, {
       type: "doughnut",
       data: data,
@@ -764,15 +985,32 @@ window.MonitoringCharts = {
    */
   async initAllCharts() {
     try {
-      const metrics = await window.MonitoringAPI.getMetrics();
-      if (!metrics) return;
+      console.log("📊 [차트 렌더러] 모든 차트 초기화 시작...");
+      console.log("📊 [차트 렌더러] 메트릭 데이터 요청 중...");
 
+      const metrics = await window.MonitoringAPI.getMetrics();
+      if (!metrics) {
+        console.warn(
+          "⚠️ [차트 렌더러] 메트릭 데이터를 받을 수 없어 차트 초기화를 중단합니다."
+        );
+        return;
+      }
+
+      console.log("📊 [차트 렌더러] 네트워크 트래픽 차트 초기화 중...");
       this.initNetworkTrafficChart(metrics.networkTraffic);
+
+      console.log("📊 [차트 렌더러] 디스크 I/O 차트 초기화 중...");
       this.initDiskIoChart(metrics.diskIo);
+
+      console.log("📊 [차트 렌더러] 응답 시간 차트 초기화 중...");
       this.initResponseTimeChart(metrics.responseTime);
+
+      console.log("📊 [차트 렌더러] 요청 상태 차트 초기화 중...");
       this.initRequestStatusChart(metrics.requestStatus);
+
+      console.log("✅ [차트 렌더러] 모든 차트 초기화 완료");
     } catch (error) {
-      console.error("Error initializing charts:", error);
+      console.error("❌ [차트 렌더러] 차트 초기화 실패:", error);
     }
   },
 };
