@@ -93,21 +93,47 @@ def get_containers(page: int = 1, per_page: int = 20, db: Session = Depends(get_
         )
 
 @router.get("/containers/{container_id}", response_model=BaseResponse)
-def get_container(container_id: str):
+def get_container(container_id: str, db : Session = Depends(get_db)):
     """특정 컨테이너 상세 정보 조회"""
     try:
-        # 실제 구현에서는 데이터베이스에서 특정 컨테이너 정보를 가져옴
+        #1. 단일 컨테이너 조회 쿼리
+        query = text("""
+            SELECT id, container_name, image, status, cpu_percentage,
+                   memory_used_mb, memory_total_mb, memory_percent,
+                   network_rx_bps, network_tx_bps,
+                   node_name, uptime_text, restart_count, created_at
+            FROM containers
+            WHERE id = :container_id
+        """)
+        row = db.execute(query, {"container_id": container_id}).fetchone()
+
+        #2. 조회 결과 없으면 에러 
+        if not row:
+            return BaseResponse.error_response(
+                message=f"Container {container_id} not found",
+                error_code="NOT_FOUND"
+            )
+        
+        #3. 결과 : Pydantic 모델로 매핑
         container = Container(
-            id=container_id,
-            name=f"app-{random.choice(['web', 'api', 'db', 'cache'])}-001",
-            image=f"{random.choice(['nginx', 'node', 'python', 'redis', 'postgres'])}:latest",
-            status=random.choice(["running", "stopped", "failed"]),
-            cpu=round(random.uniform(0, 100), 1),
-            memory=random.randint(50, 2000),
-            uptime=f"{random.randint(1, 30)}d {random.randint(0, 23)}h",
-            node=f"k8s-node-{random.randint(1, 3)}",
-            created_at=(datetime.now() - timedelta(days=random.randint(1, 30))).isoformat() + "Z",
-            restart_count=random.randint(0, 5)
+            id=str(row.id),
+            name= row.container_name,
+            image=row.image,
+            status=row.status,
+            cpu=row.cpu_percentage,
+            memory=MemoryInfo(
+                used = row.memory_used_mb,
+                total = row.memory_total_mb,
+                usage = row.memory_percent
+            ),
+            network = NetworkInfo(
+                rx = row.network_rx_bps or 0,
+                tx = row.network_tx_bps or 0
+            ),
+            uptime=row.uptime_text or "N/A",
+            node=row.node_name,
+            created_at= row.created_at.isoformat(),
+            restart_count = row.restart_count
         )
         
         return BaseResponse.success_response(
