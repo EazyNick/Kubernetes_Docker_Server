@@ -36,29 +36,11 @@ async def get_network_traffic():
             datasets=[
                 ChartDataset(
                     label="수신 (MB/s)",
-                    data=rx_data,
-                    borderColor="#4CAF50",
-                    backgroundColor="rgba(76, 175, 80, 0.1)",
-                    borderWidth=2,
-                    pointRadius=4,
-                    pointBackgroundColor="#4CAF50",
-                    pointBorderColor="#4CAF50",
-                    fill=False,
-                    tension=0.4,
-                    showLine=True
+                    data=rx_data
                 ),
                 ChartDataset(
                     label="송신 (MB/s)",
-                    data=tx_data,
-                    borderColor="#2196F3",
-                    backgroundColor="rgba(33, 150, 243, 0.1)",
-                    borderWidth=2,
-                    pointRadius=4,
-                    pointBackgroundColor="#2196F3",
-                    pointBorderColor="#2196F3",
-                    fill=False,
-                    tension=0.4,
-                    showLine=True
+                    data=tx_data
                 )
             ]
         )
@@ -96,17 +78,11 @@ async def get_disk_io():
             datasets=[
                 ChartDataset(
                     label="읽기 (MB/s)",
-                    data=read_data,
-                    borderColor="#FF9800",
-                    backgroundColor="rgba(255, 152, 0, 0.1)",
-                    tension=0.4
+                    data=read_data
                 ),
                 ChartDataset(
                     label="쓰기 (MB/s)",
-                    data=write_data,
-                    borderColor="#9C27B0",
-                    backgroundColor="rgba(156, 39, 176, 0.1)",
-                    tension=0.4
+                    data=write_data
                 )
             ]
         )
@@ -137,7 +113,6 @@ async def get_response_time():
             labels.append(time.strftime("%H:%M"))
         
         datasets = []
-        colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
         
         for i, service in enumerate(services):
             data = []
@@ -149,10 +124,7 @@ async def get_response_time():
             
             datasets.append(ChartDataset(
                 label=service,
-                data=data,
-                borderColor=colors[i % len(colors)],
-                backgroundColor=colors[i % len(colors)].replace('rgb', 'rgba').replace(')', ', 0.1)'),
-                tension=0.4
+                data=data
             ))
         
         data = ResponseTimeData(
@@ -180,22 +152,12 @@ async def get_request_status():
         # 실제적인 HTTP 상태 코드 분포 시뮬레이션
         data = RequestStatusData(
             labels=["2xx", "3xx", "4xx", "5xx"],
-            datasets=[{
-                "data": [
-                    random.randint(70, 85),  # 2xx 성공
-                    random.randint(10, 20),  # 3xx 리다이렉트
-                    random.randint(5, 12),   # 4xx 클라이언트 에러
-                    random.randint(1, 5)     # 5xx 서버 에러
-                ],
-                "backgroundColor": [
-                    "#4CAF50",  # 2xx - 성공 (녹색)
-                    "#2196F3",  # 3xx - 리다이렉트 (파란색)
-                    "#FF9800",  # 4xx - 클라이언트 에러 (주황색)
-                    "#F44336"   # 5xx - 서버 에러 (빨간색)
-                ],
-                "borderWidth": 2,
-                "borderColor": "#fff"
-            }]
+            data=[
+                random.randint(70, 85),  # 2xx 성공
+                random.randint(10, 20),  # 3xx 리다이렉트
+                random.randint(5, 12),   # 4xx 클라이언트 에러
+                random.randint(1, 5)     # 5xx 서버 에러
+            ]
         )
         
         return RequestStatusResponse(

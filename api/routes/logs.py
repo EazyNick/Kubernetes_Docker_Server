@@ -2,7 +2,7 @@ from fastapi import APIRouter, Query, HTTPException
 from typing import List, Optional
 import random
 from datetime import datetime, timedelta
-from models.log import LogEntry, LogStats, LogListResponse, LogStatsResponse
+from models import LogEntry, LogStats, LogListResponse, LogStatsResponse
 
 router = APIRouter(prefix="/api", tags=["logs"])
 

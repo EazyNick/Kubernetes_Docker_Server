@@ -7,18 +7,9 @@ from pydantic import BaseModel
 
 
 class ChartDataset(BaseModel):
-    """Chart.js 라인 차트 데이터셋 모델"""
+    """Chart.js 라인 차트 데이터셋 모델 (순수 데이터만)"""
     label: str  # 데이터셋의 이름 (예: "수신 (MB/s)", "송신 (MB/s)")
     data: List[float]  # 실제 데이터 값들의 배열 (예: [10.5, 20.3, 15.7, ...])
-    borderColor: str  # 선의 색상 (예: "#4CAF50", "#2196F3")
-    backgroundColor: str  # 채우기 영역의 색상 (예: "rgba(76, 175, 80, 0.1)")
-    tension: float = 0.4  # 선의 곡선 정도 (0.0=직선, 1.0=매우 곡선)
-    borderWidth: Optional[int] = None  # 선의 두께 (픽셀 단위, 기본값: 2)
-    pointRadius: Optional[int] = None  # 데이터 포인트의 크기 (픽셀 단위, 기본값: 4)
-    pointBackgroundColor: Optional[str] = None  # 포인트의 배경색 (기본값: borderColor와 동일)
-    pointBorderColor: Optional[str] = None  # 포인트의 테두리색 (기본값: borderColor와 동일)
-    fill: Optional[bool] = None  # 선 아래 영역을 채울지 여부 (기본값: false)
-    showLine: Optional[bool] = None  # 선을 표시할지 여부 (기본값: true, false면 점만 표시)
 
 
 class LineChartData(BaseModel):
@@ -28,9 +19,9 @@ class LineChartData(BaseModel):
 
 
 class DoughnutChartData(BaseModel):
-    """도넛 차트 데이터 모델 (파이 차트의 변형)"""
+    """도넛 차트 데이터 모델 (순수 데이터만)"""
     labels: List[str]  # 각 섹션의 라벨들 (예: ["2xx", "3xx", "4xx", "5xx"])
-    datasets: List[dict]  # 도넛 차트는 datasets 구조가 다름 (data, backgroundColor, borderColor 등)
+    data: List[float]  # 각 섹션의 데이터 값들 (예: [70, 15, 10, 5])
 
 
 class NetworkTrafficData(BaseModel):
@@ -52,9 +43,9 @@ class ResponseTimeData(BaseModel):
 
 
 class RequestStatusData(BaseModel):
-    """HTTP 요청 상태 코드 분포 데이터 모델"""
+    """HTTP 요청 상태 코드 분포 데이터 모델 (순수 데이터만)"""
     labels: List[str]  # 상태 코드 그룹 라벨들 (예: ["2xx", "3xx", "4xx", "5xx"])
-    datasets: List[dict]  # 상태별 요청 수 데이터 (data, backgroundColor, borderColor 포함)
+    data: List[float]  # 각 상태별 요청 수 데이터 (예: [70, 15, 10, 5])
 
 
 class MonitoringMetrics(BaseModel):

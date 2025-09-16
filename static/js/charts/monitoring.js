@@ -3,6 +3,10 @@
  * 모니터링 페이지의 네트워크 트래픽, 디스크 I/O, 응답 시간, 요청 상태 차트를 관리
  */
 
+// CSS 변수 가져오기 유틸리티 함수
+const getCSSVariable = (variable) =>
+  getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+
 // 모니터링 차트 네임스페이스
 window.MonitoringCharts = {
   /**
@@ -35,9 +39,37 @@ window.MonitoringCharts = {
   },
 
   createNetworkTrafficChart(ctx, data) {
+    // API에서 받은 데이터에 스타일 적용
+    const styledDatasets = data.datasets.map((dataset, index) => {
+      const colors = [
+        {
+          border: getCSSVariable("--chart-network-rx-color"),
+          background: getCSSVariable("--chart-network-rx-bg"),
+        },
+        {
+          border: getCSSVariable("--chart-network-tx-color"),
+          background: getCSSVariable("--chart-network-tx-bg"),
+        },
+      ];
+
+      return {
+        ...dataset,
+        borderColor: colors[index]?.border || "#666666",
+        backgroundColor:
+          colors[index]?.background || "rgba(102, 102, 102, 0.1)",
+        borderWidth: parseInt(getCSSVariable("--chart-border-width")),
+        pointRadius: parseInt(getCSSVariable("--chart-point-radius")),
+        pointBackgroundColor: colors[index]?.border || "#666666",
+        pointBorderColor: colors[index]?.border || "#666666",
+        fill: false,
+        tension: parseFloat(getCSSVariable("--chart-tension")),
+        showLine: true,
+      };
+    });
+
     const chartData = {
       labels: data.labels,
-      datasets: data.datasets,
+      datasets: styledDatasets,
     };
 
     new Chart(ctx, {
@@ -93,39 +125,49 @@ window.MonitoringCharts = {
       return;
     }
 
-    // 최근 24시간의 디스크 I/O 데이터 생성 (시뮬레이션)
-    const labels = [];
-    const readData = [];
-    const writeData = [];
-
-    for (let i = 23; i >= 0; i--) {
-      const time = new Date();
-      time.setHours(time.getHours() - i);
-      labels.push(time.getHours() + ":00");
-      readData.push(Math.random() * 50 + 5);
-      writeData.push(Math.random() * 30 + 3);
+    // API에서 데이터를 가져와서 차트를 초기화
+    if (window.MonitoringAPI) {
+      window.MonitoringAPI.getDiskIoData().then((data) => {
+        if (data) {
+          this.createDiskIoChart(ctx, data);
+        } else {
+          ctx.innerHTML =
+            '<div class="text-center text-muted py-4">데이터를 불러올 수 없습니다.</div>';
+        }
+      });
+    } else {
+      ctx.innerHTML =
+        '<div class="text-center text-muted py-4">API를 사용할 수 없습니다.</div>';
     }
+  },
+
+  createDiskIoChart(ctx, data) {
+    // API에서 받은 데이터에 스타일 적용
+    const styledDatasets = data.datasets.map((dataset, index) => {
+      const colors = [
+        {
+          border: getCSSVariable("--chart-disk-read-color"),
+          background: getCSSVariable("--chart-disk-read-bg"),
+        },
+        {
+          border: getCSSVariable("--chart-disk-write-color"),
+          background: getCSSVariable("--chart-disk-write-bg"),
+        },
+      ];
+
+      return {
+        ...dataset,
+        borderColor: colors[index]?.border || "#666666",
+        backgroundColor:
+          colors[index]?.background || "rgba(102, 102, 102, 0.1)",
+        tension: parseFloat(getCSSVariable("--chart-tension")),
+        fill: true,
+      };
+    });
 
     const chartData = {
-      labels: labels,
-      datasets: [
-        {
-          label: "읽기 (IOPS)",
-          data: readData,
-          borderColor: "#0891b2",
-          backgroundColor: "rgba(8, 145, 178, 0.1)",
-          tension: 0.4,
-          fill: true,
-        },
-        {
-          label: "쓰기 (IOPS)",
-          data: writeData,
-          borderColor: "#dc2626",
-          backgroundColor: "rgba(220, 38, 38, 0.1)",
-          tension: 0.4,
-          fill: true,
-        },
-      ],
+      labels: data.labels,
+      datasets: styledDatasets,
     };
 
     new Chart(ctx, {
@@ -148,7 +190,7 @@ window.MonitoringCharts = {
             beginAtZero: true,
             title: {
               display: true,
-              text: "I/O (IOPS)",
+              text: "I/O (MB/s)",
             },
           },
           x: {
@@ -181,29 +223,46 @@ window.MonitoringCharts = {
       return;
     }
 
-    // 최근 24시간의 응답 시간 데이터 생성 (시뮬레이션)
-    const labels = [];
-    const responseData = [];
-
-    for (let i = 23; i >= 0; i--) {
-      const time = new Date();
-      time.setHours(time.getHours() - i);
-      labels.push(time.getHours() + ":00");
-      responseData.push(Math.random() * 200 + 50);
+    // API에서 데이터를 가져와서 차트를 초기화
+    if (window.MonitoringAPI) {
+      window.MonitoringAPI.getResponseTimeData().then((data) => {
+        if (data) {
+          this.createResponseTimeChart(ctx, data);
+        } else {
+          ctx.innerHTML =
+            '<div class="text-center text-muted py-4">데이터를 불러올 수 없습니다.</div>';
+        }
+      });
+    } else {
+      ctx.innerHTML =
+        '<div class="text-center text-muted py-4">API를 사용할 수 없습니다.</div>';
     }
+  },
+
+  createResponseTimeChart(ctx, data) {
+    // API에서 받은 데이터에 스타일 적용
+    const serviceColors = [
+      getCSSVariable("--chart-service-1-color"),
+      getCSSVariable("--chart-service-2-color"),
+      getCSSVariable("--chart-service-3-color"),
+      getCSSVariable("--chart-service-4-color"),
+      getCSSVariable("--chart-service-5-color"),
+    ];
+
+    const styledDatasets = data.datasets.map((dataset, index) => {
+      const color = serviceColors[index % serviceColors.length];
+      return {
+        ...dataset,
+        borderColor: color,
+        backgroundColor: color.replace("rgb", "rgba").replace(")", ", 0.1)"),
+        tension: parseFloat(getCSSVariable("--chart-tension")),
+        fill: false,
+      };
+    });
 
     const chartData = {
-      labels: labels,
-      datasets: [
-        {
-          label: "평균 응답 시간 (ms)",
-          data: responseData,
-          borderColor: "#059669",
-          backgroundColor: "rgba(5, 150, 105, 0.1)",
-          tension: 0.4,
-          fill: true,
-        },
-      ],
+      labels: data.labels,
+      datasets: styledDatasets,
     };
 
     new Chart(ctx, {
@@ -214,7 +273,11 @@ window.MonitoringCharts = {
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            display: false,
+            position: "top",
+            labels: {
+              usePointStyle: true,
+              padding: 20,
+            },
           },
         },
         scales: {
@@ -255,23 +318,41 @@ window.MonitoringCharts = {
       return;
     }
 
+    // API에서 데이터를 가져와서 차트를 초기화
+    if (window.MonitoringAPI) {
+      window.MonitoringAPI.getRequestStatusData().then((data) => {
+        if (data) {
+          this.createRequestStatusChart(ctx, data);
+        } else {
+          ctx.innerHTML =
+            '<div class="text-center text-muted py-4">데이터를 불러올 수 없습니다.</div>';
+        }
+      });
+    } else {
+      ctx.innerHTML =
+        '<div class="text-center text-muted py-4">API를 사용할 수 없습니다.</div>';
+    }
+  },
+
+  createRequestStatusChart(ctx, data) {
+    // API에서 받은 데이터에 스타일 적용
+    const colors = {
+      backgroundColor: [
+        getCSSVariable("--chart-status-2xx-bg"),
+        getCSSVariable("--chart-status-3xx-bg"),
+        getCSSVariable("--chart-status-4xx-bg"),
+        getCSSVariable("--chart-status-5xx-bg"),
+      ],
+      borderColor: getCSSVariable("--chart-border-color"),
+    };
+
     const chartData = {
-      labels: ["2xx", "3xx", "4xx", "5xx"],
+      labels: data.labels,
       datasets: [
         {
-          data: [75, 15, 8, 2],
-          backgroundColor: [
-            "#059669", // 2xx - 성공
-            "#0891b2", // 3xx - 리다이렉트
-            "#d97706", // 4xx - 클라이언트 오류
-            "#dc2626", // 5xx - 서버 오류
-          ],
-          borderColor: [
-            "#047857", // 2xx
-            "#0e7490", // 3xx
-            "#b45309", // 4xx
-            "#b91c1c", // 5xx
-          ],
+          data: data.data,
+          backgroundColor: colors.backgroundColor,
+          borderColor: "#fff",
           borderWidth: 2,
         },
       ],
