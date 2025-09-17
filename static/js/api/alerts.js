@@ -121,16 +121,13 @@ async function loadAlertsData() {
             <td>${alert.target}</td>
             <td>${alert.message}</td>
             <td>${new Date(alert.created_at).toLocaleString("ko-KR")}</td>
-            <td>${alert.duration}</td>
+            <td class="text-center">${alert.duration}</td>
             <td>
               <div class="btn-group-actions">
                 <button class="btn btn-sm btn-outline-success" title="해결됨으로 표시" onclick="resolveAlert('${
                   alert.id
                 }')">
                   <i class="fas fa-check"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-warning" title="알림 음소거">
-                  <i class="fas fa-volume-mute"></i>
                 </button>
                 <button class="btn btn-sm btn-outline-info" title="상세 보기">
                   <i class="fas fa-eye"></i>

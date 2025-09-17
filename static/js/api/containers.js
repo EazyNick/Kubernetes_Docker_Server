@@ -63,7 +63,7 @@ async function loadContainersData() {
         if (containers.length === 0) {
           tbody.innerHTML = `
             <tr>
-              <td colspan="7" class="text-center text-muted py-4">
+              <td colspan="8" class="text-center text-muted py-4">
                 <i class="fas fa-info-circle me-2"></i>
                 컨테이너가 없습니다.
               </td>
@@ -153,7 +153,12 @@ async function loadContainersData() {
                 }</small>
               </div>
             </td>
-            <td>${container.node}</td>
+            <td>
+              <div class="d-flex align-items-center">
+                <i class="fas fa-server text-info me-2"></i>
+                <span>${container.node || "N/A"}</span>
+              </div>
+            </td>
             <td>${new Date(container.created_at).toLocaleString("ko-KR")}</td>
           `;
           tbody.appendChild(row);
@@ -166,7 +171,7 @@ async function loadContainersData() {
     if (tbody) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="7" class="text-center text-danger py-4">
+          <td colspan="8" class="text-center text-danger py-4">
             <i class="fas fa-exclamation-triangle me-2"></i>
             컨테이너 데이터를 불러오는데 실패했습니다.
           </td>

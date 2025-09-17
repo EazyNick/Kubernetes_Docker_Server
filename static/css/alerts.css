@@ -1,0 +1,50 @@
+/* 알림 페이지 전용 스타일 */
+
+/* 지속 시간 열 반응형 너비 조정 */
+.duration-column {
+  min-width: 100px;
+  white-space: nowrap;
+  text-align: center; /* 가운데 정렬 */
+}
+
+/* 지속 시간 열의 데이터 셀도 가운데 정렬 */
+.duration-column + td,
+tbody tr td:nth-child(6) {
+  text-align: center;
+}
+
+/* 작은 화면 (모바일) */
+@media (max-width: 768px) {
+  .duration-column {
+    min-width: 80px;
+    font-size: 0.9em;
+  }
+}
+
+/* 중간 화면 (태블릿) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .duration-column {
+    min-width: 110px;
+  }
+}
+
+/* 큰 화면 (데스크톱) */
+@media (min-width: 1025px) {
+  .duration-column {
+    min-width: 120px;
+  }
+}
+
+/* 매우 큰 화면 */
+@media (min-width: 1400px) {
+  .duration-column {
+    min-width: 140px;
+  }
+}
+
+/* 테이블이 좁을 때 지속 시간 열만 고정 너비 */
+@media (max-width: 1200px) {
+  .duration-column {
+    width: 120px;
+  }
+}
