@@ -147,6 +147,7 @@ if __name__ == "__main__":
     log_manager = LogManager()
     log_manager.logger.info("This is an info message for testing purposes.")
     log_manager.logger.debug("This is a debug message for testing purposes.")
+    log_manager.logger.warning("경고 메시지")  
     log_manager.logger.error("This is an error message for testing purposes.")
     log_manager.logger.hr("Section Start", level=2)
 
