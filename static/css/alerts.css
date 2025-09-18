@@ -48,3 +48,280 @@ tbody tr td:nth-child(6) {
     width: 120px;
   }
 }
+
+/* ========================================
+   알림 상세보기 모달 스타일
+   ======================================== */
+
+/* 모달 오버레이 */
+.modal {
+  z-index: 1055;
+}
+
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+/* 모달 다이얼로그 */
+.modal-dialog {
+  margin: 1.75rem auto;
+  max-width: 800px;
+}
+
+/* 모달 콘텐츠 */
+.modal-content {
+  border: none;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-xl);
+  background: white;
+}
+
+/* 모달 헤더 */
+.modal-header {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-bottom: 1px solid var(--gray-200);
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  padding: 1.5rem;
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.modal-title i {
+  color: var(--primary-color);
+}
+
+/* 닫기 버튼 */
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--gray-500);
+  opacity: 1;
+  transition: all 0.2s ease;
+}
+
+.btn-close:hover {
+  color: var(--gray-700);
+  transform: scale(1.1);
+}
+
+/* 모달 본문 */
+.modal-body {
+  padding: 2rem;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* 상세 정보 섹션 */
+.alert-detail-section {
+  margin-bottom: 2rem;
+}
+
+.alert-detail-section:last-child {
+  margin-bottom: 0;
+}
+
+/* 섹션 제목 */
+.alert-detail-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--gray-200);
+  display: flex;
+  align-items: center;
+}
+
+.alert-detail-title i {
+  color: var(--primary-color);
+  font-size: 0.9rem;
+}
+
+/* 상세 정보 콘텐츠 */
+.alert-detail-content {
+  background: var(--gray-50);
+  border-radius: 8px;
+  padding: 1.5rem;
+  border: 1px solid var(--gray-200);
+}
+
+/* 상세 정보 아이템 */
+.detail-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.detail-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+/* 라벨 */
+.detail-label {
+  font-weight: 600;
+  color: var(--gray-700);
+  min-width: 120px;
+  margin-right: 1rem;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+/* 값 */
+.detail-value {
+  color: var(--gray-900);
+  font-size: 0.875rem;
+  flex: 1;
+  word-break: break-word;
+}
+
+/* 상태 배지 스타일 (모달 내) */
+.detail-value .status-badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+}
+
+/* 심각도별 색상 */
+.detail-value .status-badge.critical {
+  background: rgba(220, 38, 38, 0.1);
+  color: var(--danger-color);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+}
+
+.detail-value .status-badge.warning {
+  background: rgba(217, 119, 6, 0.1);
+  color: var(--warning-color);
+  border: 1px solid rgba(217, 119, 6, 0.3);
+}
+
+.detail-value .status-badge.info {
+  background: rgba(8, 145, 178, 0.1);
+  color: var(--info-color);
+  border: 1px solid rgba(8, 145, 178, 0.3);
+}
+
+.detail-value .status-badge.resolved {
+  background: rgba(5, 150, 105, 0.1);
+  color: var(--success-color);
+  border: 1px solid rgba(5, 150, 105, 0.3);
+}
+
+/* 모달 푸터 */
+.modal-footer {
+  background: var(--gray-50);
+  border-top: 1px solid var(--gray-200);
+  border-radius: 0 0 var(--border-radius) var(--border-radius);
+  padding: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+/* 모달 버튼 */
+.modal-footer .btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.modal-footer .btn i {
+  font-size: 0.8rem;
+}
+
+/* 라벨 그룹 (여러 라벨 표시용) */
+.label-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.label-badge {
+  background: var(--primary-color);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* 메시지 박스 (긴 텍스트용) */
+.message-box {
+  background: white;
+  border: 1px solid var(--gray-300);
+  border-radius: 6px;
+  padding: 1rem;
+  font-family: "Courier New", monospace;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .modal-dialog {
+    margin: 0.5rem;
+    max-width: calc(100% - 1rem);
+  }
+
+  .modal-body {
+    padding: 1rem;
+  }
+
+  .detail-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .detail-label {
+    min-width: auto;
+    margin-right: 0;
+    margin-bottom: 0.5rem;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+  }
+
+  .modal-footer .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* 해결된 알림 스타일 */
+.alert-resolved {
+  opacity: 0.5;
+  background-color: #f8f9fa !important;
+}
+
+.alert-resolved td {
+  text-decoration: line-through;
+  color: #6c757d;
+}
+
+/* 버튼 그룹 스타일 */
+.btn-group-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}

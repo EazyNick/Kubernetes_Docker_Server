@@ -204,6 +204,182 @@
     </div>
 </div>
 
+<!-- 알림 상세보기 모달 -->
+<div class="modal fade" id="alertDetailModal" tabindex="-1" aria-labelledby="alertDetailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="alertDetailModalLabel">
+          <i class="fas fa-bell me-2"></i>
+          알림 상세 정보
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <!-- 알림 기본 정보 -->
+          <div class="col-md-6">
+            <div class="alert-detail-section">
+              <h6 class="alert-detail-title">
+                <i class="fas fa-info-circle me-2"></i>
+                기본 정보
+              </h6>
+              <div class="alert-detail-content">
+                <div class="detail-item">
+                  <span class="detail-label">알림 ID:</span>
+                  <span class="detail-value" id="detailAlertId">-</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">알림 유형:</span>
+                  <span class="detail-value" id="detailAlertType">-</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">대상:</span>
+                  <span class="detail-value" id="detailTarget">-</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">심각도:</span>
+                  <span class="detail-value" id="detailSeverity">-</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">상태:</span>
+                  <span class="detail-value" id="detailStatus">-</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 시간 정보 -->
+          <div class="col-md-6">
+            <div class="alert-detail-section">
+              <h6 class="alert-detail-title">
+                <i class="fas fa-clock me-2"></i>
+                시간 정보
+              </h6>
+              <div class="alert-detail-content">
+                <div class="detail-item">
+                  <span class="detail-label">발생 시간:</span>
+                  <span class="detail-value" id="detailCreatedAt">-</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">지속 시간:</span>
+                  <span class="detail-value" id="detailDuration">-</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">마지막 업데이트:</span>
+                  <span class="detail-value" id="detailUpdatedAt">-</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">해결 시간:</span>
+                  <span class="detail-value" id="detailResolvedAt">-</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 메시지 및 설명 -->
+        <div class="alert-detail-section mt-3">
+          <h6 class="alert-detail-title">
+            <i class="fas fa-comment-alt me-2"></i>
+            메시지 및 설명
+          </h6>
+          <div class="alert-detail-content">
+            <div class="detail-item">
+              <span class="detail-label">메시지:</span>
+              <div class="detail-value" id="detailMessage">-</div>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">설명:</span>
+              <div class="detail-value" id="detailDescription">-</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 추가 정보 -->
+        <div class="alert-detail-section mt-3">
+          <h6 class="alert-detail-title">
+            <i class="fas fa-cogs me-2"></i>
+            추가 정보
+          </h6>
+          <div class="alert-detail-content">
+            <div class="detail-item">
+              <span class="detail-label">소스:</span>
+              <span class="detail-value" id="detailSource">-</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">라벨:</span>
+              <div class="detail-value" id="detailLabels">-</div>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">메트릭 값:</span>
+              <span class="detail-value" id="detailMetricValue">-</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">임계값:</span>
+              <span class="detail-value" id="detailThreshold">-</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">에스컬레이션 레벨:</span>
+              <span class="detail-value" id="detailEscalationLevel">-</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">담당자:</span>
+              <span class="detail-value" id="detailAssignedTo">-</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">태그:</span>
+              <div class="detail-value" id="detailTags">-</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 영향받는 서비스 -->
+        <div class="alert-detail-section mt-3">
+          <h6 class="alert-detail-title">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            영향받는 서비스
+          </h6>
+          <div class="alert-detail-content">
+            <div class="detail-item">
+              <span class="detail-label">서비스 목록:</span>
+              <div class="detail-value" id="detailAffectedServices">-</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 해결 노트 -->
+        <div class="alert-detail-section mt-3">
+          <h6 class="alert-detail-title">
+            <i class="fas fa-sticky-note me-2"></i>
+            해결 노트
+          </h6>
+          <div class="alert-detail-content">
+            <div class="detail-item">
+              <span class="detail-label">노트:</span>
+              <div class="detail-value" id="detailResolutionNotes">-</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>
+          닫기
+        </button>
+        <button type="button" class="btn btn-success" id="resolveAlertBtn" onclick="handleModalResolve()">
+          <i class="fas fa-check me-2"></i>
+          해결됨으로 표시
+        </button>
+        <button type="button" class="btn btn-primary" id="refreshAlertBtn">
+          <i class="fas fa-sync me-2"></i>
+          새로고침
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- 정렬 기능 JavaScript -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -293,6 +469,56 @@ document.addEventListener('DOMContentLoaded', function() {
 if (window.AlertsAPI) {
   window.AlertsAPI.loadAlertRulesData();
 }
+
+// 모달 초기화
+document.addEventListener('DOMContentLoaded', function() {
+  // Bootstrap 모달 초기화
+  const alertDetailModal = document.getElementById('alertDetailModal');
+  if (alertDetailModal) {
+    // 모달이 닫힐 때 이벤트 리스너 추가
+    alertDetailModal.addEventListener('hidden.bs.modal', function () {
+      // 모달이 닫힐 때 본문 내용 초기화
+      const modalBody = this.querySelector('.modal-body');
+      if (modalBody) {
+        // 기본 구조 복원 (JavaScript 함수 사용)
+        if (typeof restoreModalHTML === 'function') {
+          restoreModalHTML();
+        }
+      }
+      
+      // 모든 포커스 가능한 요소의 포커스 강제 해제
+      const focusedElements = this.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      focusedElements.forEach(element => {
+        if (element === document.activeElement) {
+          element.blur();
+        }
+      });
+      
+      // 포커스를 페이지의 다른 요소로 이동 (접근성 개선)
+      // 약간의 지연을 두어 모달이 완전히 닫힌 후 실행
+      setTimeout(() => {
+        const tableFocusable = document.querySelector('#alertsTable button, #alertsTable [href], #alertsTable input, #alertsTable select, #alertsTable textarea, #alertsTable [tabindex]:not([tabindex="-1"])');
+        if (tableFocusable) {
+          tableFocusable.focus();
+        } else {
+          const focusableElement = document.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+          if (focusableElement) {
+            focusableElement.focus();
+          }
+        }
+      }, 100);
+    });
+    
+    // 모달이 열릴 때 포커스 관리
+    alertDetailModal.addEventListener('shown.bs.modal', function () {
+      // 모달이 완전히 열린 후 첫 번째 포커스 가능한 요소에 포커스
+      const firstFocusable = this.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      if (firstFocusable) {
+        firstFocusable.focus();
+      }
+    });
+  }
+});
 </script>
 
 {% endblock %}

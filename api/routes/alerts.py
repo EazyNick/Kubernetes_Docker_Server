@@ -6,6 +6,7 @@ from fastapi import APIRouter
 from models import (
     BaseResponse,
     Alert,
+    AlertDetail,
     AlertList,
     AlertSummary,
     AlertRule,
@@ -63,7 +64,7 @@ def get_alerts():
 
 @router.get("/alerts/{alert_id}", response_model=BaseResponse)
 def get_alert(alert_id: str):
-    """특정 알림 상세 정보 조회"""
+    """특정 알림 기본 정보 조회"""
     try:
         # 실제 구현에서는 데이터베이스에서 특정 알림 정보를 가져옴
         alert = Alert(
@@ -85,6 +86,96 @@ def get_alert(alert_id: str):
     except Exception as e:
         return BaseResponse.error_response(
             message="Failed to retrieve alert",
+            error_code="DATABASE_ERROR",
+            details=str(e)
+        )
+
+@router.get("/alerts/{alert_id}/detail", response_model=BaseResponse)
+def get_alert_detail(alert_id: str):
+    """특정 알림 상세 정보 조회 (모달용)"""
+    try:
+        # 실제 구현에서는 데이터베이스에서 특정 알림 상세 정보를 가져옴
+        # 현재는 임의의 상세 데이터를 생성하여 반환
+        
+        alert_types = ["High Memory Usage", "High CPU Usage", "Container Restart Loop", "Disk Space Low", "High Network Traffic"]
+        severities = ["Critical", "Warning", "Info"]
+        statuses = ["Active", "Resolved"]
+        sources = ["kubelet", "deployment-controller", "service-controller", "node-exporter", "prometheus"]
+        
+        alert_type = random.choice(alert_types)
+        severity = random.choice(severities)
+        status = random.choice(statuses)
+        target = f"k8s-{random.choice(['master', 'worker'])}-{random.randint(1, 3)}"
+        created_time = datetime.now() - timedelta(minutes=random.randint(1, 1440))
+        updated_time = created_time + timedelta(minutes=random.randint(1, 30))
+        
+        # 해결된 경우 해결 시간 설정
+        resolved_at = None
+        if status == "Resolved":
+            resolved_at = (updated_time + timedelta(minutes=random.randint(1, 60))).isoformat() + "Z"
+        
+        # 라벨 생성
+        labels = {
+            "namespace": random.choice(["default", "kube-system", "monitoring", "production"]),
+            "pod": f"{random.choice(['nginx', 'api', 'web', 'db'])}-{random.randint(100, 999)}",
+            "node": target,
+            "cluster": "production",
+            "environment": random.choice(["prod", "staging", "dev"])
+        }
+        
+        # 영향받는 서비스 목록
+        affected_services = random.sample(
+            ["nginx", "api-gateway", "user-service", "payment-service", "notification-service", "auth-service"],
+            random.randint(1, 3)
+        )
+        
+        # 태그 목록
+        tags = random.sample(
+            ["production", "urgent", "infrastructure", "memory", "cpu", "network", "storage", "worker-node"],
+            random.randint(2, 4)
+        )
+        
+        # 메트릭 값과 임계값 생성
+        metric_values = {
+            "High Memory Usage": ("92.5%", "90%"),
+            "High CPU Usage": ("87.3%", "85%"),
+            "Container Restart Loop": ("8회", "5회"),
+            "Disk Space Low": ("8.2GB", "10GB"),
+            "High Network Traffic": ("150ms", "100ms")
+        }
+        
+        metric_value, threshold = metric_values.get(alert_type, ("N/A", "N/A"))
+        
+        alert_detail = AlertDetail(
+            id=alert_id,
+            alert_type=alert_type,
+            target=target,
+            message=f"{alert_type} detected on {target} for more than {random.randint(5, 30)} minutes",
+            description=f"The {target} node has been experiencing {alert_type.lower()} consistently for the past {random.randint(10, 60)} minutes. This is likely due to increased load or resource constraints in the cluster.",
+            severity=severity,
+            status=status,
+            created_at=created_time.isoformat() + "Z",
+            updated_at=updated_time.isoformat() + "Z",
+            resolved_at=resolved_at,
+            duration=f"{random.randint(5, 60)}분",
+            source=random.choice(sources),
+            labels=labels,
+            metric_value=metric_value,
+            threshold=threshold,
+            resolution_notes=f"Monitoring {alert_type.lower()} trends. Consider scaling up resources or optimizing configuration." if status == "Active" else "Issue has been resolved by scaling up node resources.",
+            affected_services=affected_services,
+            escalation_level=random.randint(1, 5),
+            assigned_to=random.choice(["admin", "devops-team", "on-call-engineer", "platform-team"]),
+            tags=tags
+        )
+        
+        return BaseResponse.success_response(
+            data={"alert": alert_detail.dict()},
+            message="Alert detail retrieved successfully"
+        )
+    except Exception as e:
+        return BaseResponse.error_response(
+            message="Failed to retrieve alert detail",
             error_code="DATABASE_ERROR",
             details=str(e)
         )
