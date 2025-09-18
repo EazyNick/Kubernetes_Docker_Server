@@ -1,0 +1,293 @@
+<!-- 이벤트 관리 페이지 - 시스템 이벤트를 모니터링하고 분석하는 페이지 -->
+{% extends "base.html" %}
+{% block title %}이벤트 - 컨테이너 모니터링{% endblock %}
+{% block breadcrumb %}이벤트{% endblock %}
+{% block content %}
+
+<!-- 이벤트 요약 카드 섹션 -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6">
+        <div class="metric-card">
+            <div class="metric-card-header">
+                <div class="metric-icon primary">
+                    <i class="fas fa-calendar-day"></i>
+                </div>
+            </div>
+            <div class="metric-value" id="todayEvents">-</div>
+            <div class="metric-label">오늘 이벤트</div>
+            <div class="metric-change positive">
+                <i class="fas fa-arrow-up"></i>
+                <span id="todayEventsChange">-</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="metric-card">
+            <div class="metric-card-header">
+                <div class="metric-icon warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+            </div>
+            <div class="metric-value" id="warningEvents">-</div>
+            <div class="metric-label">경고 이벤트</div>
+            <div class="metric-change negative">
+                <i class="fas fa-arrow-up"></i>
+                <span id="warningEventsChange">-</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="metric-card">
+            <div class="metric-card-header">
+                <div class="metric-icon success">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+            </div>
+            <div class="metric-value" id="normalEvents">-</div>
+            <div class="metric-label">정상 이벤트</div>
+            <div class="metric-change positive">
+                <i class="fas fa-arrow-up"></i>
+                <span id="normalEventsChange">-</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="metric-card">
+            <div class="metric-card-header">
+                <div class="metric-icon info">
+                    <i class="fas fa-sync-alt"></i>
+                </div>
+            </div>
+            <div class="metric-value" id="systemEvents">-</div>
+            <div class="metric-label">시스템 이벤트</div>
+            <div class="metric-change">
+                <i class="fas fa-minus"></i>
+                <span id="systemEventsChange">-</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 이벤트 필터 섹션 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <div class="dashboard-card-title">
+                    <i class="fas fa-filter"></i>
+                    이벤트 필터
+                </div>
+            </div>
+            <div class="dashboard-card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <select class="form-select form-select-sm">
+                            <option>모든 타입</option>
+                            <option>Pod Events</option>
+                            <option>Node Events</option>
+                            <option>Deployment Events</option>
+                            <option>Service Events</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select form-select-sm">
+                            <option>모든 네임스페이스</option>
+                            <option>default</option>
+                            <option>kube-system</option>
+                            <option>monitoring</option>
+                            <option>ingress-nginx</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select form-select-sm">
+                            <option>최근 1시간</option>
+                            <option>최근 6시간</option>
+                            <option>최근 24시간</option>
+                            <option>최근 7일</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="search" class="form-control form-control-sm" placeholder="이벤트 검색...">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 이벤트 타임라인 섹션 -->
+<div class="row">
+    <div class="col-12">
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <div class="dashboard-card-title">
+                    <i class="fas fa-history"></i>
+                    이벤트 타임라인
+                </div>
+                <div class="dashboard-card-subtitle">실시간 클러스터 이벤트 스트림</div>
+            </div>
+            <div class="dashboard-card-body">
+                <div class="table-container">
+                    <table id="eventsTable" class="table table-hover" style="table-layout: fixed; width: 100%;">
+                        <thead>
+                            <tr>
+                                <th class="sortable" data-column="time" style="width: 10%;">
+                                    시간 <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th class="sortable" data-column="type" style="width: 8%;">
+                                    타입 <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th class="sortable" data-column="object" style="width: 15%;">
+                                    오브젝트 <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th class="sortable" data-column="namespace" style="width: 12%; white-space: nowrap;">
+                                    네임스페이스 <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th class="sortable" data-column="reason" style="width: 12%;">
+                                    이유 <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th class="sortable" data-column="message" style="width: 30%;">
+                                    메시지 <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th class="sortable" data-column="source" style="width: 13%;">
+                                    소스 <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="eventsTableBody">
+                            <!-- 이벤트 데이터가 여기에 동적으로 로드됩니다 -->
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>
+                                    이벤트 목록을 불러오는 중...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 이벤트 통계 차트 섹션 -->
+<div class="row mt-4">
+    <div class="col-lg-8">
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <div class="dashboard-card-title">
+                    <i class="fas fa-chart-area"></i>
+                    이벤트 발생 추이 (최근 24시간)
+                </div>
+            </div>
+            <div class="dashboard-card-body">
+                <div class="chart-container">
+                    <canvas id="eventTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <div class="dashboard-card-title">
+                    <i class="fas fa-chart-doughnut"></i>
+                    이벤트 타입 분포
+                </div>
+            </div>
+            <div class="dashboard-card-body">
+                <div class="chart-container chart-container-small">
+                    <canvas id="eventTypeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 테이블 스타일 CSS -->
+<style>
+#eventsTable td:nth-child(4) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+</style>
+
+<!-- 정렬 기능 JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const table = document.getElementById('eventsTable');
+  const headers = table.querySelectorAll('th.sortable');
+  let currentSort = { column: null, direction: 'asc' };
+
+  headers.forEach(header => {
+    header.addEventListener('click', function() {
+      const column = this.dataset.column;
+      const tbody = table.querySelector('tbody');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+
+      // 정렬 방향 결정
+      if (currentSort.column === column) {
+        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+      } else {
+        currentSort.direction = 'asc';
+      }
+      currentSort.column = column;
+
+      // 정렬 실행
+      rows.sort((a, b) => {
+        const aValue = getCellValue(a, column);
+        const bValue = getCellValue(b, column);
+        
+        if (column === 'time') {
+          // 시간 정렬 (HH:MM:SS 형태)
+          return currentSort.direction === 'asc' 
+            ? aValue.localeCompare(bValue)
+            : bValue.localeCompare(aValue);
+        } else {
+          // 문자열 정렬
+          return currentSort.direction === 'asc' 
+            ? aValue.localeCompare(bValue)
+            : bValue.localeCompare(aValue);
+        }
+      });
+
+      // 테이블 업데이트
+      rows.forEach(row => tbody.appendChild(row));
+
+      // 정렬 아이콘 업데이트
+      updateSortIcons();
+    });
+  });
+
+  function getCellValue(row, column) {
+    const cellIndex = Array.from(headers).findIndex(h => h.dataset.column === column);
+    const cell = row.cells[cellIndex];
+    
+    if (column === 'time') {
+      return cell.querySelector('small').textContent;
+    } else if (column === 'type') {
+      return cell.querySelector('.status-badge').textContent.trim();
+    } else if (column === 'object') {
+      return cell.querySelector('strong').textContent;
+    } else {
+      return cell.textContent.trim();
+    }
+  }
+
+  function updateSortIcons() {
+    headers.forEach(header => {
+      const icon = header.querySelector('.sort-icon');
+      icon.className = 'fas fa-sort sort-icon';
+      
+      if (header.dataset.column === currentSort.column) {
+        icon.className = currentSort.direction === 'asc' 
+          ? 'fas fa-sort-up sort-icon' 
+          : 'fas fa-sort-down sort-icon';
+      }
+    });
+  }
+});
+</script>
+
+{% endblock %}

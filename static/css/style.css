@@ -1,0 +1,857 @@
+/* ========================================
+   CSS 변수 정의 (Design System)
+   ======================================== */
+:root {
+  /* 색상 팔레트 */
+  --primary-color: #2563eb; /* 메인 브랜드 색상 (파란색) */
+  --primary-dark: #1d4ed8; /* 메인 색상 다크 버전 */
+  --success-color: #059669; /* 성공/정상 상태 (초록색) */
+  --warning-color: #d97706; /* 경고 상태 (주황색) */
+  --danger-color: #dc2626; /* 위험/에러 상태 (빨간색) */
+  --info-color: #0891b2; /* 정보 상태 (청록색) */
+  --dark-color: #1f2937; /* 다크 모드 배경 */
+  --light-color: #f8fafc; /* 라이트 모드 배경 */
+
+  /* 그레이 스케일 */
+  --gray-50: #f9fafb; /* 가장 밝은 그레이 */
+  --gray-100: #f3f4f6; /* 배경용 그레이 */
+  --gray-200: #e5e7eb; /* 테두리용 그레이 */
+  --gray-300: #d1d5db; /* 호버용 그레이 */
+  --gray-500: #6b7280; /* 텍스트용 그레이 */
+  --gray-700: #374151; /* 다크 텍스트 */
+  --gray-800: #1f2937; /* 매우 다크 텍스트 */
+  --gray-900: #111827; /* 가장 다크한 텍스트 */
+
+  /* 디자인 토큰 */
+  --border-radius: 12px; /* 기본 모서리 둥글기 */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05); /* 작은 그림자 */
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); /* 기본 그림자 */
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1); /* 큰 그림자 */
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1); /* 매우 큰 그림자 */
+}
+
+/* ========================================
+   기본 리셋 및 전역 스타일
+   ======================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 전체 페이지 배경 및 기본 폰트 설정 */
+body {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+  min-height: 100vh;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  color: var(--gray-700);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* 메인 컨테이너 (전체 레이아웃 래퍼) */
+.main-container {
+  min-height: 100vh;
+  background: transparent;
+}
+
+/* ========================================
+   사이드바 레이아웃
+   ======================================== */
+/* 좌측 사이드바 (네비게이션 메뉴) */
+.sidebar {
+  background: rgba(30, 41, 59, 0.95); /* 반투명 다크 배경 */
+  backdrop-filter: blur(20px); /* 블러 효과 */
+  border-right: 1px solid rgba(71, 85, 105, 0.2);
+  min-height: 100vh;
+  position: fixed; /* 고정 위치 */
+  left: 0;
+  top: 0;
+  width: 250px; /* 사이드바 너비 */
+  z-index: 1000; /* 다른 요소들 위에 표시 */
+  transition: transform 0.3s ease; /* 슬라이드 애니메이션 */
+}
+
+/* 사이드바 접힌 상태 (모바일에서 숨김) */
+.sidebar-collapsed {
+  transform: translateX(-100%); /* 왼쪽으로 완전히 숨김 */
+}
+
+/* 메인 콘텐츠 영역 (사이드바 옆) */
+.main-content {
+  margin-left: 250px; /* 사이드바 너비만큼 왼쪽 여백 */
+  min-height: 100vh;
+  transition: margin-left 0.3s ease; /* 여백 변화 애니메이션 */
+}
+
+/* 사이드바가 접힌 상태에서 메인 콘텐츠 확장 */
+.content-expanded {
+  margin-left: 0; /* 왼쪽 여백 제거 */
+}
+
+/* ========================================
+   상단 바 (탑바) 레이아웃
+   ======================================== */
+/* 페이지 상단 고정 바 */
+.topbar {
+  background: rgba(248, 250, 252, 0.95); /* 반투명 라이트 배경 */
+  backdrop-filter: blur(20px); /* 블러 효과 */
+  border-bottom: 1px solid var(--gray-200);
+  padding: 1rem 1.5rem;
+  position: sticky; /* 스크롤 시 상단 고정 */
+  top: 0;
+  z-index: 100; /* 사이드바보다 낮은 우선순위 */
+  display: flex;
+  justify-content: space-between; /* 좌우 양쪽 끝 정렬 */
+  align-items: center;
+  height: 64px; /* 고정 높이 */
+}
+
+/* 탑바 왼쪽 영역 (햄버거 메뉴, 브레드크럼) */
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  height: 100%;
+}
+
+/* 탑바 오른쪽 영역 (사용자 메뉴, 알림 등) */
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-left: auto; /* 오른쪽 끝으로 밀어냄 */
+}
+
+/* ========================================
+   사이드바 토글 버튼
+   ======================================== */
+/* 햄버거 메뉴 버튼 (사이드바 열기/닫기) */
+.sidebar-toggle {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: var(--gray-500);
+  cursor: pointer;
+  padding: 0;
+  border-radius: var(--border-radius);
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+/* 햄버거 메뉴 호버 효과 */
+.sidebar-toggle:hover {
+  background: var(--gray-100);
+  color: var(--gray-700);
+}
+
+/* ========================================
+   브레드크럼 네비게이션
+   ======================================== */
+/* 현재 페이지 위치 표시 (홈 > 대시보드) */
+.breadcrumb {
+  color: var(--gray-500);
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 32px;
+}
+
+/* 브레드크럼 텍스트 요소 */
+.breadcrumb span {
+  display: flex;
+  align-items: center;
+  height: 32px;
+  line-height: 1;
+  margin: 0;
+  padding: 0;
+}
+
+/* 브레드크럼 아이콘 (화살표 등) */
+.breadcrumb i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  width: 12px;
+  line-height: 1;
+  margin: 0;
+  padding: 0;
+}
+
+/* 현재 페이지 강조 표시 */
+.breadcrumb-current {
+  color: var(--gray-900);
+  font-weight: 500;
+}
+
+/* 브레드크럼 아이콘 스타일 */
+.breadcrumb i {
+  font-size: 0.75rem;
+  color: var(--gray-400);
+}
+
+/* Font Awesome 아이콘 정렬 강제 */
+.breadcrumb .fas {
+  font-style: normal !important;
+  font-variant: normal !important;
+  text-rendering: auto !important;
+  line-height: 1 !important;
+  vertical-align: baseline !important;
+}
+
+/* 강력한 베이스라인 정렬 */
+.topbar-left,
+.breadcrumb,
+.breadcrumb * {
+  box-sizing: border-box !important;
+  vertical-align: top !important;
+}
+
+.breadcrumb span,
+.breadcrumb i {
+  transform: translateY(0) !important;
+}
+
+/* 탑바 전체 정렬 강화 */
+.topbar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  height: 60px !important;
+  box-sizing: border-box !important;
+}
+
+.topbar-left {
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+  gap: 1rem !important;
+}
+
+.topbar-right {
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+  gap: 1rem !important;
+}
+
+/* 브레드크럼 완전 수정 */
+.breadcrumb {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  height: 40px !important;
+  line-height: 40px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.breadcrumb span {
+  display: inline-flex !important;
+  align-items: center !important;
+  height: 40px !important;
+  line-height: 40px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  vertical-align: middle !important;
+  font-size: 14px !important;
+}
+
+.breadcrumb i {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 40px !important;
+  line-height: 40px !important;
+  margin: 0 0.5rem !important;
+  padding: 0 !important;
+  vertical-align: middle !important;
+  font-size: 12px !important;
+}
+
+/* 사이드바 토글 버튼 정렬 */
+.sidebar-toggle {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 40px !important;
+  width: 40px !important;
+}
+
+/* ========================================
+   메트릭 카드 (통계 표시 카드)
+   ======================================== */
+/* 개별 통계 카드 (CPU, 메모리, 컨테이너 수 등) */
+.metric-card {
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--border-radius);
+  padding: 1.2rem;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+/* 메트릭 카드 호버 효과 */
+.metric-card:hover {
+  box-shadow: var(--shadow);
+  border-color: var(--gray-300);
+}
+
+/* 메트릭 카드 헤더 (아이콘 영역) */
+.metric-card-header {
+  display: flex;
+  justify-content: between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+/* 메트릭 아이콘 컨테이너 */
+.metric-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  margin-right: auto;
+}
+
+/* 메트릭 아이콘 색상 변형 */
+.metric-icon.primary {
+  /* 기본 색상 (파란색) */
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--primary-color);
+}
+
+.metric-icon.success {
+  /* 성공 색상 (초록색) */
+  background: rgba(5, 150, 105, 0.1);
+  color: var(--success-color);
+}
+
+.metric-icon.warning {
+  /* 경고 색상 (주황색) */
+  background: rgba(217, 119, 6, 0.1);
+  color: var(--warning-color);
+}
+
+.metric-icon.danger {
+  /* 위험 색상 (빨간색) */
+  background: rgba(220, 38, 38, 0.1);
+  color: var(--danger-color);
+}
+
+/* 메트릭 값 (큰 숫자) */
+.metric-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  line-height: 1;
+  margin-bottom: 0.4rem;
+}
+
+/* 메트릭 라벨 (설명 텍스트) */
+.metric-label {
+  color: var(--gray-500);
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+/* 메트릭 변화량 표시 */
+.metric-change {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* 증가/긍정적 변화 */
+.metric-change.positive {
+  color: var(--success-color);
+}
+
+/* 감소/부정적 변화 */
+.metric-change.negative {
+  color: var(--danger-color);
+}
+
+/* ========================================
+   대시보드 카드 (차트, 테이블 등을 담는 카드)
+   ======================================== */
+/* 대시보드 섹션 카드 (차트, 알림 등) */
+.dashboard-card {
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+/* 대시보드 카드 호버 효과 */
+.dashboard-card:hover {
+  box-shadow: var(--shadow);
+  border-color: var(--gray-300);
+}
+
+/* 대시보드 카드 헤더 (제목 영역) */
+.dashboard-card-header {
+  padding: 1.5rem 1.5rem 0 1.5rem;
+  border-bottom: 1px solid var(--gray-200);
+  margin-bottom: 1.5rem;
+}
+
+/* 대시보드 카드 제목 */
+.dashboard-card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* 대시보드 카드 부제목 */
+.dashboard-card-subtitle {
+  font-size: 0.875rem;
+  color: var(--gray-500);
+}
+
+/* 대시보드 카드 본문 (차트, 내용 영역) */
+.dashboard-card-body {
+  padding: 0 1.5rem 1.5rem 1.5rem;
+}
+
+/* ========================================
+   차트 컨테이너
+   ======================================== */
+/* 기본 차트 컨테이너 (Chart.js 캔버스 래퍼) */
+.chart-container {
+  position: relative;
+  height: 320px;
+  margin: 1rem 0;
+}
+
+/* 작은 차트 컨테이너 */
+.chart-container-small {
+  height: 200px;
+}
+
+/* 큰 차트 컨테이너 */
+.chart-container-large {
+  height: 400px;
+}
+
+/* 전체 높이 카드 */
+.dashboard-card.h-100 {
+  min-height: 100%;
+}
+
+/* 전체 높이 카드의 본문 */
+.dashboard-card.h-100 .dashboard-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 전체 높이 카드의 차트 */
+.dashboard-card.h-100 .chart-container {
+  flex: 1;
+  min-height: 300px;
+}
+
+/* ========================================
+   상태 배지 (Status Badge)
+   ======================================== */
+/* 기본 상태 배지 (컨테이너 상태, 알림 상태 등) */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px; /* 완전히 둥근 모서리 */
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+  min-width: fit-content;
+}
+
+/* 실행 중 상태 (초록색) */
+.status-badge.running {
+  background: rgba(5, 150, 105, 0.1);
+  color: var(--success-color);
+}
+
+/* 중지됨 상태 (빨간색) */
+.status-badge.stopped {
+  background: rgba(220, 38, 38, 0.1);
+  color: var(--danger-color);
+}
+
+/* 경고 상태 (주황색) */
+.status-badge.warning {
+  background: rgba(217, 119, 6, 0.1);
+  color: var(--warning-color);
+}
+
+/* 대기 중 상태 (청록색) */
+.status-badge.pending {
+  background: rgba(8, 145, 178, 0.1);
+  color: var(--info-color);
+}
+
+.status-badge.info {
+  background: rgba(8, 145, 178, 0.1);
+  color: var(--info-color);
+  border: 1px solid rgba(8, 145, 178, 0.3);
+}
+
+/* 노드 상태별 아이콘 스타일 */
+.status-badge i {
+  font-size: 0.8em;
+}
+
+.status-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.progress-modern {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--gray-200);
+  overflow: hidden;
+}
+
+.progress-bar-modern {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.table-container {
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+.table thead th {
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-200);
+  font-weight: 600;
+  color: var(--gray-700);
+  font-size: 0.875rem;
+  padding: 1rem;
+}
+
+.table tbody td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--gray-100);
+  font-size: 0.875rem;
+  vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table .btn-group-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  justify-content: flex-start;
+}
+
+.table .btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1;
+  border-radius: 0.375rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+}
+
+/* ========================================
+   사이드바 네비게이션
+   ======================================== */
+/* 사이드바 네비게이션 컨테이너 */
+.sidebar-nav {
+  padding: 1rem 0;
+}
+
+/* 사이드바 메뉴 아이템 (홈, 대시보드, 컨테이너 등) */
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  color: rgba(255, 255, 255, 0.7); /* 반투명 흰색 */
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+/* 사이드바 메뉴 아이템 호버/활성 상태 */
+.sidebar-nav-item:hover,
+.sidebar-nav-item.active {
+  background: rgba(59, 130, 246, 0.1); /* 파란색 배경 */
+  color: #3b82f6; /* 파란색 텍스트 */
+  text-decoration: none;
+}
+
+/* 사이드바 메뉴 아이콘 */
+.sidebar-nav-item i {
+  width: 20px;
+  text-align: center;
+}
+
+/* 사이드바 브랜드 (로고 영역) */
+.sidebar-brand {
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(71, 85, 105, 0.2);
+  color: white;
+  font-weight: 700;
+  font-size: 1.125rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+/* 사이드바 브랜드 호버 효과 */
+.sidebar-brand:hover {
+  color: #3b82f6;
+  text-decoration: none;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+/* ========================================
+   실시간 표시기 및 애니메이션
+   ======================================== */
+/* 실시간 데이터 표시기 (Live Indicator) */
+.live-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(5, 150, 105, 0.1);
+  border: 1px solid rgba(5, 150, 105, 0.2);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--success-color);
+}
+
+/* 펄스 애니메이션 (깜빡이는 효과) */
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+/* 펄스 애니메이션 키프레임 */
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* ========================================
+   클러스터 상태 및 알림
+   ======================================== */
+/* 클러스터 상태 그리드 레이아웃 */
+.cluster-health {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* 기본 알림 아이템 */
+.alert-item {
+  padding: 1rem;
+  border-left: 4px solid var(--warning-color);
+  background: rgba(217, 119, 6, 0.05);
+  border-radius: 0 var(--border-radius) var(--border-radius) 0;
+  margin-bottom: 0.75rem;
+}
+
+/* 성공 알림 (초록색) */
+.alert-item.success {
+  border-left-color: var(--success-color);
+  background: rgba(5, 150, 105, 0.05);
+}
+
+/* 경고 알림 (주황색) */
+.alert-item.warning {
+  border-left-color: var(--warning-color);
+  background: rgba(217, 119, 6, 0.05);
+}
+
+/* 위험 알림 (빨간색) */
+.alert-item.danger {
+  border-left-color: var(--danger-color);
+  background: rgba(220, 38, 38, 0.05);
+}
+
+/* 심각한 알림 (빨간색) */
+.alert-item.critical {
+  border-left-color: var(--danger-color);
+  background: rgba(220, 38, 38, 0.05);
+}
+
+/* 정보 알림 (청록색) */
+.alert-item.info {
+  border-left-color: var(--info-color);
+  background: rgba(8, 145, 178, 0.05);
+}
+
+/* ========================================
+   그리드 레이아웃
+   ======================================== */
+/* 리소스 그리드 (자동 크기 조정) */
+.resource-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* 메트릭 그리드 (4열 고정) */
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.log-container {
+  background: var(--gray-900);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  font-family: "Courier New", monospace;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid var(--gray-700);
+}
+
+.log-entry {
+  display: flex;
+  margin-bottom: 0.5rem;
+  color: var(--gray-300);
+}
+
+.log-timestamp {
+  color: var(--gray-500);
+  margin-right: 1rem;
+  font-weight: 500;
+  min-width: 80px;
+}
+
+.log-level {
+  margin-right: 1rem;
+  font-weight: 700;
+  min-width: 60px;
+}
+
+.log-level.info {
+  color: var(--info-color);
+}
+
+.log-level.warn {
+  color: var(--warning-color);
+}
+
+.log-level.error {
+  color: var(--danger-color);
+}
+
+.log-message {
+  flex: 1;
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--gray-200);
+  margin-bottom: 1.5rem;
+}
+
+.tab {
+  padding: 0.75rem 1rem;
+  border: none;
+  background: none;
+  color: var(--gray-500);
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.tab:hover {
+  color: var(--gray-700);
+}
+
+.tab.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* ========================================
+   반응형 디자인 (모바일 대응)
+   ======================================== */
+@media (max-width: 768px) {
+  /* 모바일에서 사이드바 숨김 */
+  .sidebar {
+    transform: translateX(-100%);
+  }
+
+  /* 모바일에서 메인 콘텐츠 전체 너비 사용 */
+  .main-content {
+    margin-left: 0;
+  }
+
+  /* 모바일에서 메트릭 그리드를 1열로 변경 */
+  .metric-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* 모바일에서 리소스 그리드를 1열로 변경 */
+  .resource-grid {
+    grid-template-columns: 1fr;
+  }
+}

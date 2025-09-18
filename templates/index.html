@@ -1,0 +1,405 @@
+<!-- 홈 페이지 - 컨테이너 모니터링 시스템의 메인 페이지 -->
+{% extends "base.html" %}
+{% block title %}홈 - 컨테이너 모니터링{% endblock %}
+{% block breadcrumb %}홈{% endblock %}
+{% block content %}
+
+    <style>
+      .hero-section {
+        background: linear-gradient(
+          135deg,
+          rgba(37, 99, 235, 0.1) 0%,
+          rgba(8, 145, 178, 0.1) 100%
+        );
+        border-radius: var(--border-radius);
+        padding: 3rem 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+        border: 1px solid rgba(37, 99, 235, 0.2);
+      }
+
+      .hero-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--gray-900);
+        margin-bottom: 1rem;
+      }
+
+      .hero-subtitle {
+        font-size: 1.125rem;
+        color: var(--gray-600);
+        margin-bottom: 2rem;
+      }
+
+      .hero-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+      }
+
+      .hero-stat {
+        text-align: center;
+      }
+
+      .hero-stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+      }
+
+      .hero-stat-label {
+        color: var(--gray-600);
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      @media (max-width: 1200px) {
+        .feature-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      @media (max-width: 900px) {
+        .feature-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 600px) {
+        .feature-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .feature-card {
+        background: white;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        transition: all 0.2s ease;
+        box-shadow: var(--shadow-sm);
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .feature-card:hover {
+        box-shadow: var(--shadow-lg);
+        border-color: var(--primary-color);
+        text-decoration: none;
+        color: inherit;
+        transform: translateY(-2px);
+      }
+
+      .feature-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .feature-icon.primary {
+        background: rgba(37, 99, 235, 0.1);
+        color: var(--primary-color);
+      }
+
+      .feature-icon.success {
+        background: rgba(5, 150, 105, 0.1);
+        color: var(--success-color);
+      }
+
+      .feature-icon.warning {
+        background: rgba(217, 119, 6, 0.1);
+        color: var(--warning-color);
+      }
+
+      .feature-icon.info {
+        background: rgba(8, 145, 178, 0.1);
+        color: var(--info-color);
+      }
+
+      .feature-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--gray-900);
+        margin-bottom: 0.75rem;
+      }
+
+      .feature-description {
+        color: var(--gray-600);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+      }
+
+      .feature-link {
+        color: var(--primary-color);
+        font-weight: 500;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .status-overview {
+        background: white;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-sm);
+      }
+
+      .status-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--gray-900);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .status-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .status-item {
+        text-align: center;
+        padding: 1.5rem;
+        border-radius: 8px;
+        background: var(--gray-50);
+      }
+
+      .status-item.healthy {
+        background: rgba(5, 150, 105, 0.05);
+        border: 1px solid rgba(5, 150, 105, 0.2);
+      }
+
+      .status-item.warning {
+        background: rgba(217, 119, 6, 0.05);
+        border: 1px solid rgba(217, 119, 6, 0.2);
+      }
+
+      .status-item.danger {
+        background: rgba(220, 38, 38, 0.05);
+        border: 1px solid rgba(220, 38, 38, 0.2);
+      }
+
+      .status-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .status-value.healthy {
+        color: var(--success-color);
+      }
+
+      .status-value.warning {
+        color: var(--warning-color);
+      }
+
+      .status-value.danger {
+        color: var(--danger-color);
+      }
+
+      .status-label {
+        color: var(--gray-600);
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+
+
+
+      @media (max-width: 768px) {
+        .hero-title {
+          font-size: 2rem;
+        }
+
+        .hero-stats {
+          grid-template-columns: 1fr;
+        }
+
+        .feature-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .status-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .action-buttons {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+          <!-- Hero Section -->
+          <div class="hero-section">
+            <h1 class="hero-title">
+              <i class="fas fa-server me-3"></i>
+              Container Monitor
+            </h1>
+            <p class="hero-subtitle">
+              Docker와 Kubernetes 클러스터를 실시간으로 모니터링하고 관리하세요
+            </p>
+
+            <div class="hero-stats">
+              <div class="hero-stat">
+                <div class="hero-stat-value" id="totalContainers">-</div>
+                <div class="hero-stat-label">전체 컨테이너</div>
+                  </div>
+              <div class="hero-stat">
+                <div class="hero-stat-value" id="activeNodes">-</div>
+                <div class="hero-stat-label">활성 노드</div>
+                </div>
+              <div class="hero-stat">
+                <div class="hero-stat-value" id="systemHealth">-</div>
+                <div class="hero-stat-label">시스템 상태</div>
+                </div>
+              <div class="hero-stat">
+                <div class="hero-stat-value" id="uptime">-</div>
+                <div class="hero-stat-label">가동률</div>
+                </div>
+              </div>
+            </div>
+
+          <!-- Feature Grid -->
+          <div class="feature-grid">
+            <a href="/dashboard" class="feature-card">
+              <div class="feature-icon primary">
+                <i class="fas fa-tachometer-alt"></i>
+                  </div>
+              <h3 class="feature-title">실시간 대시보드</h3>
+              <p class="feature-description">
+                클러스터의 전체 상태를 한눈에 확인하고 실시간 메트릭을
+                모니터링하세요.
+              </p>
+              <div class="feature-link">
+                대시보드 보기 <i class="fas fa-arrow-right"></i>
+                </div>
+            </a>
+
+            <a href="/containers" class="feature-card">
+              <div class="feature-icon success">
+                      <i class="fas fa-cubes"></i>
+                    </div>
+              <h3 class="feature-title">컨테이너 관리</h3>
+              <p class="feature-description">
+                모든 컨테이너의 상태를 확인하고 시작, 중지, 재시작 등의 작업을
+                수행하세요.
+              </p>
+              <div class="feature-link">
+                컨테이너 관리 <i class="fas fa-arrow-right"></i>
+                    </div>
+            </a>
+
+            <a href="/nodes" class="feature-card">
+              <div class="feature-icon warning">
+                <i class="fas fa-server"></i>
+                    </div>
+              <h3 class="feature-title">노드 모니터링</h3>
+              <p class="feature-description">
+                클러스터 노드들의 리소스 사용률과 상태를 실시간으로
+                모니터링하세요.
+              </p>
+              <div class="feature-link">
+                노드 보기 <i class="fas fa-arrow-right"></i>
+                    </div>
+            </a>
+
+            <a href="/monitoring" class="feature-card">
+              <div class="feature-icon info">
+                <i class="fas fa-chart-line"></i>
+                  </div>
+              <h3 class="feature-title">상세 모니터링</h3>
+              <p class="feature-description">
+                상세한 성능 메트릭과 차트를 통해 시스템을 깊이 있게 분석하세요.
+              </p>
+              <div class="feature-link">
+                상세 모니터링 보기 <i class="fas fa-arrow-right"></i>
+                </div>
+            </a>
+
+            <a href="/logs" class="feature-card">
+              <div class="feature-icon warning">
+                <i class="fas fa-file-alt"></i>
+              </div>
+              <h3 class="feature-title">로그 확인</h3>
+              <p class="feature-description">
+                실시간 로그 스트림을 통해 시스템 상태와 오류를 추적하세요.
+              </p>
+              <div class="feature-link">
+                로그 보기 <i class="fas fa-arrow-right"></i>
+              </div>
+            </a>
+
+            <a href="/alerts" class="feature-card">
+              <div class="feature-icon danger">
+                <i class="fas fa-bell"></i>
+              </div>
+              <h3 class="feature-title">알림 설정</h3>
+              <p class="feature-description">
+                시스템 알림을 관리하고 중요한 이벤트에 대한 알림을 설정하세요.
+              </p>
+              <div class="feature-link">
+                알림 관리 <i class="fas fa-arrow-right"></i>
+              </div>
+            </a>
+
+            <a href="/events" class="feature-card">
+              <div class="feature-icon success">
+                <i class="fas fa-calendar-alt"></i>
+              </div>
+              <h3 class="feature-title">이벤트 확인</h3>
+              <p class="feature-description">
+                클러스터에서 발생하는 모든 이벤트를 실시간으로 모니터링하세요.
+              </p>
+              <div class="feature-link">
+                이벤트 보기 <i class="fas fa-arrow-right"></i>
+              </div>
+            </a>
+            </div>
+
+          <!-- Status Overview -->
+          <div class="status-overview">
+            <h2 class="status-title">
+              <i class="fas fa-heartbeat"></i>
+              시스템 상태 개요
+            </h2>
+            <div class="status-grid">
+              <div class="status-item healthy">
+                <div class="status-value healthy" id="runningContainers">-</div>
+                <div class="status-label">실행 중인 컨테이너</div>
+                    </div>
+              <div class="status-item healthy">
+                <div class="status-value healthy" id="healthyNodes">-</div>
+                <div class="status-label">정상 노드</div>
+                  </div>
+              <div class="status-item warning">
+                <div class="status-value warning" id="warningAlerts">-</div>
+                <div class="status-label">경고 알림</div>
+                                </div>
+              <div class="status-item danger">
+                <div class="status-value danger" id="criticalAlerts">-</div>
+                <div class="status-label">위험 알림</div>
+              </div>
+              </div>
+            </div>
+
+                    </div>
+
+{% endblock %}

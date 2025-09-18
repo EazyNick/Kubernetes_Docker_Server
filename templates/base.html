@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}컨테이너 모니터링 대시보드 - Docker & Kubernetes{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- DataTables -->
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    
+    <!-- Custom CSS -->
+    <link href="/static/css/style.css" rel="stylesheet" />
+    <link href="/static/css/chart.css" rel="stylesheet" />
+    <link href="/static/css/alerts.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="main-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <a href="/" class="sidebar-brand">
+                <i class="fas fa-server"></i>
+                Container Monitor
+            </a>
+            <nav class="sidebar-nav">
+                <a href="/" class="sidebar-nav-item {% if request.url.path == '/' %}active{% endif %}">
+                    <i class="fas fa-home"></i>
+                    홈
+                </a>
+                <a href="/dashboard" class="sidebar-nav-item {% if request.url.path == '/dashboard' %}active{% endif %}">
+                    <i class="fas fa-tachometer-alt"></i>
+                    대시보드
+                </a>
+                <a href="/containers" class="sidebar-nav-item {% if request.url.path == '/containers' %}active{% endif %}">
+                    <i class="fas fa-cubes"></i>
+                    컨테이너
+                </a>
+                <a href="/nodes" class="sidebar-nav-item {% if request.url.path == '/nodes' %}active{% endif %}">
+                    <i class="fas fa-server"></i>
+                    노드
+                </a>
+                <a href="/monitoring" class="sidebar-nav-item {% if request.url.path == '/monitoring' %}active{% endif %}">
+                    <i class="fas fa-chart-line"></i>
+                    상세 모니터링
+                </a>
+                <a href="/logs" class="sidebar-nav-item {% if request.url.path == '/logs' %}active{% endif %}">
+                    <i class="fas fa-file-alt"></i>
+                    로그
+                </a>
+                <a href="/alerts" class="sidebar-nav-item {% if request.url.path == '/alerts' %}active{% endif %}">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    알림
+                </a>
+                <a href="/events" class="sidebar-nav-item {% if request.url.path == '/events' %}active{% endif %}">
+                    <i class="fas fa-calendar-alt"></i>
+                    이벤트
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content" id="mainContent">
+            <!-- Top Bar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-current">{% block breadcrumb %}모니터링{% endblock %}</span>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <div class="live-indicator">
+                        <div class="status-indicator pulse"></div>
+                        실시간 연결
+                    </div>
+                    <span class="text-muted">마지막 업데이트: <span id="lastUpdate">방금</span></span>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="container-fluid p-4">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- API 모듈들 -->
+    <script src="/static/js/api/stats.js"></script>
+    <script src="/static/js/api/home.js"></script>
+    <script src="/static/js/api/containers.js"></script>
+    <script src="/static/js/api/nodes.js"></script>
+    <script src="/static/js/api/alerts.js"></script>
+    <script src="/static/js/api/events.js"></script>
+    <script src="/static/js/api/logs.js"></script>
+    <script src="/static/js/api/monitoring.js"></script>
+    <!-- Chart modules -->
+    <script src="/static/js/charts/nodes.js"></script>
+    <script src="/static/js/charts/alerts.js"></script>
+    <script src="/static/js/charts/events.js"></script>
+    <script src="/static/js/charts/monitoring.js"></script>
+    <!-- Custom JS -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

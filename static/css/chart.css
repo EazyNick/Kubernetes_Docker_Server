@@ -1,0 +1,78 @@
+/**
+ * 차트 관련 CSS 스타일 정의
+ * 모든 차트의 색상과 스타일을 중앙에서 관리
+ */
+
+/* 차트 색상 팔레트 */
+:root {
+  /* 네트워크 트래픽 차트 색상 */
+  --chart-network-rx-color: #4caf50;
+  --chart-network-rx-bg: rgba(76, 175, 80, 0.1);
+  --chart-network-tx-color: #2196f3;
+  --chart-network-tx-bg: rgba(33, 150, 243, 0.1);
+
+  /* 디스크 I/O 차트 색상 */
+  --chart-disk-read-color: #ff9800;
+  --chart-disk-read-bg: rgba(255, 152, 0, 0.1);
+  --chart-disk-write-color: #9c27b0;
+  --chart-disk-write-bg: rgba(156, 39, 176, 0.1);
+
+  /* 응답 시간 차트 색상 (서비스별) */
+  --chart-service-1-color: #ff6384;
+  --chart-service-1-bg: rgba(255, 99, 132, 0.1);
+  --chart-service-2-color: #36a2eb;
+  --chart-service-2-bg: rgba(54, 162, 235, 0.1);
+  --chart-service-3-color: #ffce56;
+  --chart-service-3-bg: rgba(255, 206, 86, 0.1);
+  --chart-service-4-color: #4bc0c0;
+  --chart-service-4-bg: rgba(75, 192, 192, 0.1);
+  --chart-service-5-color: #9966ff;
+  --chart-service-5-bg: rgba(153, 102, 255, 0.1);
+
+  /* 요청 상태 차트 색상 */
+  --chart-status-2xx-color: #4caf50;
+  --chart-status-2xx-bg: #4caf50;
+  --chart-status-3xx-color: #2196f3;
+  --chart-status-3xx-bg: #2196f3;
+  --chart-status-4xx-color: #ff9800;
+  --chart-status-4xx-bg: #ff9800;
+  --chart-status-5xx-color: #f44336;
+  --chart-status-5xx-bg: #f44336;
+
+  /* 기본 차트 스타일 */
+  --chart-border-width: 2px;
+  --chart-point-radius: 4px;
+  --chart-tension: 0.4;
+  --chart-border-color: #fff;
+}
+
+/* 차트 컨테이너 스타일 */
+.chart-container {
+  position: relative;
+  height: 300px;
+  width: 100%;
+}
+
+.chart-container canvas {
+  max-height: 100%;
+}
+
+/* 차트 로딩 상태 */
+.chart-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+/* 차트 에러 상태 */
+.chart-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  color: #dc3545;
+  font-size: 14px;
+}

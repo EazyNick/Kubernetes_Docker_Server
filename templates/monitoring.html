@@ -1,0 +1,411 @@
+<!-- 고급 모니터링 페이지 - 시스템 성능 지표와 상세한 모니터링 차트를 제공하는 페이지 -->
+{% extends "base.html" %}
+{% block title %}상세 모니터링 - 컨테이너 모니터링{% endblock %}
+{% block breadcrumb %}상세 모니터링{% endblock %}
+{% block content %}
+
+<!-- 실시간 성능 메트릭 헤더 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <div class="dashboard-card-title">
+                    <i class="fas fa-tachometer-alt"></i>
+                    실시간 성능 메트릭
+                </div>
+                <div class="dashboard-card-subtitle">클러스터 전체 성능 지표</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 네트워크 및 스토리지 차트 섹션 -->
+<div class="resource-grid">
+    <div class="dashboard-card">
+        <div class="dashboard-card-header">
+            <div class="dashboard-card-title">
+                <i class="fas fa-network-wired"></i>
+                네트워크 트래픽
+            </div>
+            <div class="dashboard-card-subtitle">실시간 네트워크 I/O</div>
+        </div>
+        <div class="dashboard-card-body">
+            <div class="chart-container">
+                <canvas id="networkTrafficChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="dashboard-card">
+        <div class="dashboard-card-header">
+            <div class="dashboard-card-title">
+                <i class="fas fa-hdd"></i>
+                디스크 I/O
+            </div>
+            <div class="dashboard-card-subtitle">읽기/쓰기 처리량</div>
+        </div>
+        <div class="dashboard-card-body">
+            <div class="chart-container">
+                <canvas id="diskIoChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 애플리케이션 성능 섹션 -->
+<div class="row">
+    <div class="col-lg-8">
+        <div class="dashboard-card h-100">
+            <div class="dashboard-card-header">
+                <div class="dashboard-card-title">
+                    <i class="fas fa-stopwatch"></i>
+                    응답 시간 분석
+                </div>
+                <div class="dashboard-card-subtitle">서비스별 평균 응답시간 (ms)</div>
+            </div>
+            <div class="dashboard-card-body">
+                <div class="chart-container">
+                    <canvas id="responseTimeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="dashboard-card h-100">
+            <div class="dashboard-card-header">
+                <div class="dashboard-card-title">
+                    <i class="fas fa-chart-pie"></i>
+                    요청 상태 분포
+                </div>
+                <div class="dashboard-card-subtitle">HTTP 상태 코드별</div>
+            </div>
+            <div class="dashboard-card-body d-flex align-items-center">
+                <div class="chart-container w-100">
+                    <canvas id="requestStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 리소스 사용률 히트맵 섹션 -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <div class="dashboard-card-title">
+                    <i class="fas fa-fire"></i>
+                    리소스 사용률 히트맵
+                </div>
+                <div class="dashboard-card-subtitle">노드별 실시간 리소스 사용 현황</div>
+            </div>
+            <div class="dashboard-card-body">
+                <div class="row" id="monitoringNodesContainer">
+                    <!-- 노드 데이터가 여기에 동적으로 로드됩니다 -->
+                    <div class="col-12 text-center py-4">
+                        <i class="fas fa-spinner fa-spin me-2"></i>
+                        노드 데이터를 불러오는 중...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top 리소스 사용 컨테이너 섹션 -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <div class="dashboard-card-title">
+                    <i class="fas fa-list-ol"></i>
+                    Top 리소스 사용 컨테이너
+                </div>
+                <div class="dashboard-card-subtitle">CPU 및 메모리 사용량 상위 컨테이너</div>
+            </div>
+            <div class="dashboard-card-body">
+                <div class="table-container">
+                    <table class="table table-hover" id="monitoringTable">
+                        <thead>
+                            <tr>
+                                <th class="sortable" data-column="rank">
+                                    순위 <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th class="sortable" data-column="container">
+                                    컨테이너 <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th class="sortable" data-column="node">
+                                    노드 <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th class="sortable" data-column="cpu">
+                                    CPU 사용률 <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th class="sortable" data-column="memory">
+                                    메모리 사용률 <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th class="sortable" data-column="network">
+                                    네트워크 I/O <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th class="sortable" data-column="disk">
+                                    디스크 I/O <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th class="sortable" data-column="status">
+                                    상태 <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="monitoringTableBody">
+                            <!-- 컨테이너 데이터가 여기에 동적으로 로드됩니다 -->
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-4">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>
+                                    컨테이너 데이터를 불러오는 중...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- 정렬 기능 JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const table = document.getElementById('monitoringTable');
+  const headers = table.querySelectorAll('th.sortable');
+  let currentSort = { column: null, direction: 'asc' };
+
+  headers.forEach(header => {
+    header.addEventListener('click', function() {
+      const column = this.dataset.column;
+      const tbody = table.querySelector('tbody');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+
+      // 정렬 방향 결정
+      if (currentSort.column === column) {
+        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+      } else {
+        currentSort.direction = 'asc';
+      }
+      currentSort.column = column;
+
+      // 정렬 실행
+      rows.sort((a, b) => {
+        const aValue = getCellValue(a, column);
+        const bValue = getCellValue(b, column);
+        
+        if (column === 'cpu' || column === 'memory') {
+          // 숫자 정렬 (퍼센트 값) - 퍼센트 기호 제거 후 숫자로 변환
+          const aNum = parseFloat(aValue.replace('%', '')) || 0;
+          const bNum = parseFloat(bValue.replace('%', '')) || 0;
+          return currentSort.direction === 'asc' ? aNum - bNum : bNum - aNum;
+        } else if (column === 'network' || column === 'disk') {
+          // 숫자 정렬 (I/O 값) - 단위 제거 후 숫자로 변환
+          const aNum = parseFloat(aValue.replace(/[^\d.]/g, '')) || 0;
+          const bNum = parseFloat(bValue.replace(/[^\d.]/g, '')) || 0;
+          return currentSort.direction === 'asc' ? aNum - bNum : bNum - aNum;
+        } else if (column === 'rank') {
+          // 순위 정렬 (숫자)
+          const aNum = parseInt(aValue) || 0;
+          const bNum = parseInt(bValue) || 0;
+          return currentSort.direction === 'asc' ? aNum - bNum : bNum - aNum;
+        } else {
+          // 문자열 정렬
+          return currentSort.direction === 'asc' 
+            ? aValue.localeCompare(bValue)
+            : bValue.localeCompare(aValue);
+        }
+      });
+
+      // 테이블 업데이트
+      rows.forEach(row => tbody.appendChild(row));
+
+      // 정렬 아이콘 업데이트
+      updateSortIcons();
+    });
+  });
+
+  function getCellValue(row, column) {
+    const cellIndex = Array.from(headers).findIndex(h => h.dataset.column === column);
+    const cell = row.cells[cellIndex];
+    
+    if (column === 'container') {
+      return cell.querySelector('strong').textContent;
+    } else if (column === 'status') {
+      return cell.querySelector('.status-badge').textContent;
+    } else if (column === 'cpu' || column === 'memory') {
+      // 퍼센트 값 추출
+      const span = cell.querySelector('span');
+      return span ? span.textContent.trim() : cell.textContent.trim();
+    } else if (column === 'rank') {
+      return cell.querySelector('.badge').textContent;
+    } else {
+      return cell.textContent.trim();
+    }
+  }
+
+  function updateSortIcons() {
+    headers.forEach(header => {
+      const icon = header.querySelector('.sort-icon');
+      icon.className = 'fas fa-sort sort-icon';
+      
+      if (header.dataset.column === currentSort.column) {
+        icon.className = currentSort.direction === 'asc' 
+          ? 'fas fa-sort-up sort-icon' 
+          : 'fas fa-sort-down sort-icon';
+      }
+    });
+  }
+});
+
+// Bytes/s를 적절한 단위로 변환하는 함수
+function formatBytesPerSecond(bytesPerSecond) {
+  if (bytesPerSecond >= 1024 * 1024) {
+    return `${(bytesPerSecond / (1024 * 1024)).toFixed(1)} MB/s`;
+  } else if (bytesPerSecond >= 1024) {
+    return `${(bytesPerSecond / 1024).toFixed(1)} KB/s`;
+  } else {
+    return `${bytesPerSecond} B/s`;
+  }
+}
+
+// 노드 상태별 매핑 함수
+function getNodeStatusInfo(status) {
+  const statusMap = {
+    "Ready": {
+      class: "running",
+      text: "정상",
+      icon: "fa-check-circle",
+      color: "var(--success-color)"
+    },
+    "NotReady": {
+      class: "stopped", 
+      text: "준비 안됨",
+      icon: "fa-times-circle",
+      color: "var(--danger-color)"
+    },
+    "Unknown": {
+      class: "warning",
+      text: "알 수 없음", 
+      icon: "fa-question-circle",
+      color: "var(--warning-color)"
+    },
+    "Warning": {
+      class: "warning",
+      text: "경고",
+      icon: "fa-exclamation-triangle",
+      color: "var(--warning-color)"
+    }
+  };
+  
+  return statusMap[status] || {
+    class: "warning",
+    text: status,
+    icon: "fa-question-circle",
+    color: "var(--warning-color)"
+  };
+}
+
+// 모니터링 페이지 데이터 로딩
+async function loadMonitoringData() {
+  if (!window.NodesAPI) {
+    console.error("NodesAPI not available");
+    return;
+  }
+
+  try {
+    const response = await window.NodesAPI.getNodes();
+    if (response && response.success) {
+      const nodes = response.data.nodes;
+      const container = document.getElementById("monitoringNodesContainer");
+
+      if (container) {
+        if (nodes.length === 0) {
+          container.innerHTML = `
+            <div class="col-12 text-center py-4">
+              <i class="fas fa-info-circle me-2"></i>
+              노드가 없습니다.
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = nodes.map(node => {
+          const statusInfo = getNodeStatusInfo(node.status);
+          
+          const cpuColor = node.cpu.usage < 30 ? "var(--success-color)" : 
+                          node.cpu.usage < 70 ? "var(--warning-color)" : "var(--danger-color)";
+          const memoryColor = node.memory.usage < 30 ? "var(--success-color)" : 
+                             node.memory.usage < 70 ? "var(--warning-color)" : "var(--danger-color)";
+          const diskColor = node.disk.usage < 30 ? "var(--success-color)" : 
+                           node.disk.usage < 70 ? "var(--info-color)" : "var(--warning-color)";
+
+          return `
+            <div class="col-md-3 mb-3">
+              <div class="metric-card">
+                <div style="padding: 1rem;">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0">${node.name}</h6>
+                    <span class="status-badge ${statusInfo.class}">
+                      <i class="fas ${statusInfo.icon} me-1"></i>
+                      <span class="status-indicator"></span>
+                      ${statusInfo.text}
+                    </span>
+                  </div>
+                  <div class="mb-2">
+                    <div class="d-flex justify-content-between">
+                      <small>CPU</small>
+                      <small>${node.cpu.usage}%</small>
+                    </div>
+                    <div class="progress-modern">
+                      <div class="progress-bar-modern" style="width: ${node.cpu.usage}%; background: ${cpuColor};"></div>
+                    </div>
+                  </div>
+                  <div class="mb-2">
+                    <div class="d-flex justify-content-between">
+                      <small>Memory</small>
+                      <small>${node.memory.usage}%</small>
+                    </div>
+                    <div class="progress-modern">
+                      <div class="progress-bar-modern" style="width: ${node.memory.usage}%; background: ${memoryColor};"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="d-flex justify-content-between">
+                      <small>Disk</small>
+                      <small>${node.disk.usage}%</small>
+                    </div>
+                    <div class="progress-modern">
+                      <div class="progress-bar-modern" style="width: ${node.disk.usage}%; background: ${diskColor};"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join("");
+      }
+    }
+  } catch (error) {
+    console.error("Error loading monitoring data:", error);
+    const container = document.getElementById("monitoringNodesContainer");
+    if (container) {
+      container.innerHTML = `
+        <div class="col-12 text-center py-4">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          모니터링 데이터를 불러오는데 실패했습니다.
+        </div>
+      `;
+    }
+  }
+}
+
+// 페이지 로드 시 데이터 로딩
+</script>
+
+{% endblock %}

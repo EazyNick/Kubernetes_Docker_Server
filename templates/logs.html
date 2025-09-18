@@ -1,0 +1,341 @@
+<!-- 로그 관리 페이지 - 시스템 및 애플리케이션 로그를 검색하고 분석하는 페이지 -->
+{% extends "base.html" %} {% block title %}로그 - 컨테이너 모니터링{% endblock
+%} {% block breadcrumb %}로그{% endblock %} {% block content %}
+
+<!-- 로그 필터 및 검색 섹션 -->
+<div class="row mb-4">
+  <div class="col-lg-8">
+    <div class="dashboard-card">
+      <div class="dashboard-card-header">
+        <h5 class="dashboard-card-title">
+          <i class="fas fa-filter"></i>
+          로그 필터
+        </h5>
+        <p class="dashboard-card-subtitle">로그 검색 및 필터링 옵션</p>
+      </div>
+      <div class="dashboard-card-body">
+        <div class="row">
+          <!-- 컨테이너 선택 필터 -->
+          <div class="col-md-3 mb-3">
+            <label class="form-label">컨테이너</label>
+            <select class="form-select" id="containerFilter">
+              <option value="">모든 컨테이너</option>
+              <!-- 컨테이너 옵션들이 여기에 동적으로 로드됩니다 -->
+            </select>
+          </div>
+          <!-- 로그 레벨 필터 -->
+          <div class="col-md-3 mb-3">
+            <label class="form-label">로그 레벨</label>
+            <select class="form-select" id="levelFilter">
+              <option value="">모든 레벨</option>
+              <option value="info">INFO</option>
+              <option value="warn">WARN</option>
+              <option value="error">ERROR</option>
+              <option value="debug">DEBUG</option>
+            </select>
+          </div>
+          <!-- 시간 범위 필터 -->
+          <div class="col-md-3 mb-3">
+            <label class="form-label">시간 범위</label>
+            <select class="form-select" id="timeRangeFilter">
+              <option value="1h">최근 1시간</option>
+              <option value="6h">최근 6시간</option>
+              <option value="24h" selected>최근 24시간</option>
+              <option value="7d">최근 7일</option>
+            </select>
+          </div>
+          <!-- 검색어 입력 필터 -->
+          <div class="col-md-3 mb-3">
+            <label class="form-label">검색어</label>
+            <input
+              type="text"
+              class="form-control"
+              id="searchInput"
+              placeholder="로그 내용 검색..."
+            />
+          </div>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-primary">
+            <i class="fas fa-search"></i> 검색
+          </button>
+          <button class="btn btn-outline-secondary">
+            <i class="fas fa-download"></i> 내보내기
+          </button>
+          <button class="btn btn-outline-danger">
+            <i class="fas fa-trash"></i> 로그 지우기
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="dashboard-card">
+      <div class="dashboard-card-header">
+        <h5 class="dashboard-card-title">
+          <i class="fas fa-chart-bar"></i>
+          로그 통계
+        </h5>
+        <p class="dashboard-card-subtitle">최근 24시간 로그 통계</p>
+      </div>
+      <div class="dashboard-card-body" id="logStatsContainer">
+        <!-- 로그 통계 데이터가 여기에 동적으로 로드됩니다 -->
+        <div class="text-center py-4">
+          <i class="fas fa-spinner fa-spin me-2"></i>
+          로그 통계를 불러오는 중...
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 실시간 로그 스트림 -->
+<div class="dashboard-card">
+  <div class="dashboard-card-header">
+    <h5 class="dashboard-card-title">
+      <i class="fas fa-stream"></i>
+      실시간 로그 스트림
+    </h5>
+    <p class="dashboard-card-subtitle">실시간으로 업데이트되는 로그</p>
+    <div class="d-flex gap-2 mt-2">
+      <button class="btn btn-sm btn-outline-primary" id="sortByTime">
+        <i class="fas fa-sort"></i> 시간순
+      </button>
+      <button class="btn btn-sm btn-outline-primary" id="sortByLevel">
+        <i class="fas fa-sort"></i> 레벨순
+      </button>
+      <button class="btn btn-sm btn-outline-primary" id="sortByMessage">
+        <i class="fas fa-sort"></i> 메시지순
+      </button>
+    </div>
+  </div>
+  <div class="dashboard-card-body">
+    <div class="log-container" id="logContainer">
+      <!-- 로그 데이터가 여기에 동적으로 로드됩니다 -->
+      <div class="text-center py-4">
+        <i class="fas fa-spinner fa-spin me-2"></i>
+        로그 데이터를 불러오는 중...
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 로그 정렬 기능 JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const logContainer = document.getElementById('logContainer');
+  const sortByTimeBtn = document.getElementById('sortByTime');
+  const sortByLevelBtn = document.getElementById('sortByLevel');
+  const sortByMessageBtn = document.getElementById('sortByMessage');
+  
+  let currentSort = { type: null, direction: 'asc' };
+
+  // 시간순 정렬
+  sortByTimeBtn.addEventListener('click', function() {
+    toggleSort('time', this);
+    sortLogs('time');
+  });
+
+  // 레벨순 정렬
+  sortByLevelBtn.addEventListener('click', function() {
+    toggleSort('level', this);
+    sortLogs('level');
+  });
+
+  // 메시지순 정렬
+  sortByMessageBtn.addEventListener('click', function() {
+    toggleSort('message', this);
+    sortLogs('message');
+  });
+
+  function toggleSort(type, button) {
+    if (currentSort.type === type) {
+      currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+    } else {
+      currentSort.direction = 'asc';
+      currentSort.type = type;
+    }
+    
+    // 모든 버튼 초기화
+    [sortByTimeBtn, sortByLevelBtn, sortByMessageBtn].forEach(btn => {
+      btn.innerHTML = btn.innerHTML.replace(/fa-sort-(up|down)/, 'fa-sort');
+    });
+    
+    // 현재 버튼 아이콘 업데이트
+    const icon = button.querySelector('i');
+    icon.className = currentSort.direction === 'asc' 
+      ? 'fas fa-sort-up' 
+      : 'fas fa-sort-down';
+  }
+
+  function sortLogs(sortType) {
+    const logEntries = Array.from(logContainer.querySelectorAll('.log-entry'));
+    
+    logEntries.sort((a, b) => {
+      let aValue, bValue;
+      
+      if (sortType === 'time') {
+        aValue = a.querySelector('.log-timestamp').textContent;
+        bValue = b.querySelector('.log-timestamp').textContent;
+        return currentSort.direction === 'asc' 
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
+      } else if (sortType === 'level') {
+        aValue = a.querySelector('.log-level').textContent;
+        bValue = b.querySelector('.log-level').textContent;
+        // 레벨 우선순위: ERROR > WARN > INFO > DEBUG
+        const levelOrder = { 'ERROR': 4, 'WARN': 3, 'INFO': 2, 'DEBUG': 1 };
+        const aOrder = levelOrder[aValue] || 0;
+        const bOrder = levelOrder[bValue] || 0;
+        return currentSort.direction === 'asc' 
+          ? aOrder - bOrder
+          : bOrder - aOrder;
+      } else if (sortType === 'message') {
+        aValue = a.querySelector('.log-message').textContent;
+        bValue = b.querySelector('.log-message').textContent;
+        return currentSort.direction === 'asc' 
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
+      }
+    });
+
+    // 정렬된 로그 엔트리들을 컨테이너에 다시 추가
+    logEntries.forEach(entry => logContainer.appendChild(entry));
+  }
+
+  // 컨테이너 목록 로드
+  async function loadContainerOptions() {
+    const containerSelect = document.getElementById('containerFilter');
+    
+    try {
+      // 로그 API에서 고유한 소스 목록을 가져옴
+      const response = await fetch('/api/logs?limit=100');
+      const data = await response.json();
+      
+      if (data.success && data.data && data.data.logs) {
+        const logs = data.data.logs;
+        const uniqueSources = [...new Set(logs.map(log => log.source))].sort();
+        
+        // 기존 옵션 제거 (첫 번째 "모든 컨테이너" 옵션 제외)
+        while (containerSelect.children.length > 1) {
+          containerSelect.removeChild(containerSelect.lastChild);
+        }
+        
+        // 새로운 옵션 추가
+        uniqueSources.forEach(source => {
+          const option = document.createElement('option');
+          option.value = source;
+          option.textContent = source;
+          containerSelect.appendChild(option);
+        });
+      }
+    } catch (error) {
+      console.error('Error loading container options:', error);
+    }
+  }
+
+  // 로그 통계 로드
+  async function loadLogStats() {
+    const statsContainer = document.getElementById('logStatsContainer');
+    
+    try {
+      const response = await fetch('/api/logs/stats?time_range=24h');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        const stats = data.data;
+        
+        statsContainer.innerHTML = `
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span>전체 로그</span>
+            <span class="fw-bold">${stats.total_logs.toLocaleString()}</span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="text-success">INFO</span>
+            <span class="fw-bold">${stats.info_count.toLocaleString()}</span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="text-warning">WARN</span>
+            <span class="fw-bold">${stats.warn_count.toLocaleString()}</span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="text-danger">ERROR</span>
+            <span class="fw-bold">${stats.error_count.toLocaleString()}</span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="text-info">DEBUG</span>
+            <span class="fw-bold">${stats.debug_count.toLocaleString()}</span>
+          </div>
+        `;
+      } else {
+        statsContainer.innerHTML = `
+          <div class="text-center py-4">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            로그 통계를 불러올 수 없습니다.
+          </div>
+        `;
+      }
+    } catch (error) {
+      console.error('Error loading log stats:', error);
+      statsContainer.innerHTML = `
+        <div class="text-center py-4">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          로그 통계를 불러오는데 실패했습니다.
+        </div>
+      `;
+    }
+  }
+
+  // 필터 이벤트 리스너 추가
+  function setupFilterListeners() {
+    const containerFilter = document.getElementById('containerFilter');
+    const levelFilter = document.getElementById('levelFilter');
+    const timeRangeFilter = document.getElementById('timeRangeFilter');
+    const searchInput = document.getElementById('searchInput');
+    
+    function applyFilters() {
+      const params = {
+        level: levelFilter.value || undefined,
+        source: containerFilter.value || undefined,
+        time_range: timeRangeFilter.value || '24h'
+      };
+      
+      window.LogsAPI.loadLogsData(params);
+    }
+    
+    if (containerFilter) containerFilter.addEventListener('change', applyFilters);
+    if (levelFilter) levelFilter.addEventListener('change', applyFilters);
+    if (timeRangeFilter) timeRangeFilter.addEventListener('change', applyFilters);
+    if (searchInput) {
+      searchInput.addEventListener('input', function() {
+        // 검색어는 클라이언트 사이드에서 필터링 (실제로는 서버에서 처리해야 함)
+        const searchTerm = this.value.toLowerCase();
+        const logEntries = document.querySelectorAll('.log-entry');
+        
+        logEntries.forEach(entry => {
+          const message = entry.querySelector('.log-message').textContent.toLowerCase();
+          if (message.includes(searchTerm)) {
+            entry.style.display = '';
+          } else {
+            entry.style.display = 'none';
+          }
+        });
+      });
+    }
+  }
+
+  // 페이지 로드 시 로그 데이터 로딩
+  loadLogStats();
+  loadContainerOptions();
+  setupFilterListeners();
+  
+  // 로그 데이터 로딩은 app.js에서 처리됩니다
+});
+</script>
+
+{% endblock %}
