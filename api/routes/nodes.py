@@ -2,13 +2,17 @@
 노드 관련 API 라우트
 클러스터 노드 정보 및 관리 기능을 제공
 """
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from models import (
     BaseResponse,
     Node,
     NodeList,
     NodePageStats
 )
+from sqlalchemy import text
+from sqlalchemy.orm import Session
+from db.database import get_db
+from models import BaseResponse, Node, NodeList
 from models.node import ResourceUsage, MemoryInfo, DiskInfo
 import random
 from datetime import datetime, timedelta
@@ -17,45 +21,47 @@ from datetime import datetime, timedelta
 router = APIRouter(prefix="/api", tags=["nodes"])
 
 @router.get("/nodes", response_model=BaseResponse)
-def get_nodes():
+def get_nodes(db: Session = Depends(get_db)):
     """노드 목록 조회"""
     try:
+        # host table에서 가져오기 
+        rows = db.execute(text("""
+            SELECT id, host_name, cpu_percentage, memory_usage, memory_percentage, get_datetime
+            FROM hosts
+            LIMIT 50
+        """)).fetchall()
+
         nodes = []
-        node_types = ["master", "worker", "worker", "docker"]
+        # node_types = ["master", "worker", "worker", "docker"] # DB 테이블 구조 변경?
         
-        for i, node_type in enumerate(node_types):
+        for row in rows:
             nodes.append(Node(
-                name=f"k8s-{node_type}-{i+1:02d}",
-                ip=f"10.0.1.{10+i}",
-                role=node_type.title(),
-                #status=random.choice(["Ready", "Warning"]),
-                status=random.choices(
-                    ["Ready", "NotReady", "Unknown", "Warning"], 
-                    weights=[75, 15, 5, 5]  # Ready가 대부분, 나머지는 적은 비율
-                )[0],
+                name=row.host_name,            # hosts.host_name → Node.name
+                ip="N/A",                      # DB에 없으므로 기본값
+                role="Worker",                 # DB에 없으므로 기본값(나중에 확장)
+                status="Ready",                # DB에 없으므로 기본값
                 cpu=ResourceUsage(
-                    cores=random.randint(4, 16),
-                    usage=round(random.uniform(20, 90), 1)
+                    cores=4,                   # DB에 없으므로 임시 값
+                    usage=row.cpu_percentage
                 ),
                 memory=MemoryInfo(
-                    total=random.choice([16, 32, 64]),
-                    usage=round(random.uniform(30, 95), 1)
+                    total=row.memory_usage,    # 여기선 단순히 사용량을 total처럼 매핑
+                    usage=row.memory_percentage
                 ),
                 disk=DiskInfo(
-                    total=random.choice([100, 200, 500]),
-                    usage=round(random.uniform(20, 80), 1)
+                    total=100,                 # DB에 없음 → 기본값
+                    usage=0
                 ),
-                containers=random.randint(10, 50),
-                uptime=f"{random.randint(20, 50)}d {random.randint(0, 23)}h",
-                last_heartbeat=(datetime.now() - timedelta(minutes=random.randint(1, 60))).isoformat() + "Z"
+                containers=0,                  # DB에 없음 → 기본값
+                uptime="N/A",                  # DB에 없음 → 기본값
+                last_heartbeat=row.get_datetime.isoformat() + "Z"
             ))
-        
-        node_list = NodeList(nodes=nodes)
-        
+
         return BaseResponse.success_response(
-            data=node_list.dict(),
+            data=NodeList(nodes=nodes).dict(),
             message="Nodes retrieved successfully"
         )
+
     except Exception as e:
         return BaseResponse.error_response(
             message="Failed to retrieve nodes",
@@ -98,6 +104,7 @@ def get_node_stats():
             error_code="DATABASE_ERROR",
             details=str(e)
         )
+
 
 @router.get("/nodes/{node_name}", response_model=BaseResponse)
 def get_node(node_name: str):
