@@ -50,10 +50,10 @@ tbody tr td:nth-child(6) {
 }
 
 /* ========================================
-   알림 상세보기 모달 스타일
+   알림 상세보기 팝업 스타일
    ======================================== */
 
-/* 모달 오버레이 */
+/* 알림 상세보기 팝업 오버레이 */
 .modal {
   z-index: 1055;
 }
@@ -63,13 +63,13 @@ tbody tr td:nth-child(6) {
   backdrop-filter: blur(4px);
 }
 
-/* 모달 다이얼로그 */
+/* 알림 상세보기 팝업 다이얼로그 */
 .modal-dialog {
   margin: 1.75rem auto;
   max-width: 800px;
 }
 
-/* 모달 콘텐츠 */
+/* 알림 상세보기 팝업 콘텐츠 */
 .modal-content {
   border: none;
   border-radius: var(--border-radius);
@@ -77,7 +77,7 @@ tbody tr td:nth-child(6) {
   background: white;
 }
 
-/* 모달 헤더 */
+/* 알림 상세보기 팝업 헤더 */
 .modal-header {
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   border-bottom: 1px solid var(--gray-200);
@@ -113,7 +113,7 @@ tbody tr td:nth-child(6) {
   transform: scale(1.1);
 }
 
-/* 모달 본문 */
+/* 알림 상세보기 팝업 본문 */
 .modal-body {
   padding: 2rem;
   max-height: 70vh;
@@ -187,7 +187,7 @@ tbody tr td:nth-child(6) {
   word-break: break-word;
 }
 
-/* 상태 배지 스타일 (모달 내) */
+/* 상태 배지 스타일 (알림 상세보기 팝업 내) */
 .detail-value .status-badge {
   font-size: 0.75rem;
   padding: 0.25rem 0.75rem;
@@ -218,7 +218,7 @@ tbody tr td:nth-child(6) {
   border: 1px solid rgba(5, 150, 105, 0.3);
 }
 
-/* 모달 푸터 */
+/* 알림 상세보기 팝업 푸터 */
 .modal-footer {
   background: var(--gray-50);
   border-top: 1px solid var(--gray-200);
@@ -229,7 +229,7 @@ tbody tr td:nth-child(6) {
   gap: 0.75rem;
 }
 
-/* 모달 버튼 */
+/* 알림 상세보기 팝업 버튼 */
 .modal-footer .btn {
   padding: 0.5rem 1rem;
   font-size: 0.875rem;

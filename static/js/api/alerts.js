@@ -29,7 +29,7 @@ async function getAlert(alertId) {
   }
 }
 
-// 특정 알림 상세 정보 조회 (모달용)
+// 특정 알림 상세 정보 조회 (상세보기용)
 async function getAlertDetail(alertId) {
   try {
     console.log("🔍 [API] 상세정보 요청 URL:", `/api/alerts/${alertId}/detail`);
@@ -393,7 +393,7 @@ async function resolveAlert(alertId) {
 // 알림 규칙 편집 함수 (전역으로 노출)
 function editAlertRule(ruleId) {
   console.log("편집할 알림 규칙 ID:", ruleId);
-  // TODO: 알림 규칙 편집 모달 또는 페이지로 이동
+  // TODO: 알림 규칙 편집 팝업 또는 페이지로 이동
   alert(`알림 규칙 ${ruleId} 편집 기능은 아직 구현되지 않았습니다.`);
 }
 
@@ -406,7 +406,7 @@ function deleteAlertRule(ruleId) {
   }
 }
 
-// 알림 상세보기 모달 표시
+// 알림 상세보기 팝업 표시
 async function showAlertDetail(alertId) {
   try {
     console.log("🔍 [알림상세] 알림 상세 정보 요청:", alertId);
@@ -414,13 +414,13 @@ async function showAlertDetail(alertId) {
     // 로딩 상태 표시
     showModalLoading(true);
 
-    // 모달 표시
+    // 알림 상세보기 팝업 표시
     const modal = new bootstrap.Modal(
       document.getElementById("alertDetailModal")
     );
     modal.show();
 
-    // 모달이 완전히 열린 후 포커스 관리
+    // 알림 상세보기 팝업이 완전히 열린 후 포커스 관리
     document.getElementById("alertDetailModal").addEventListener(
       "shown.bs.modal",
       function () {
@@ -444,7 +444,7 @@ async function showAlertDetail(alertId) {
       // 로딩 상태 해제하고 HTML 복원
       showModalLoading(false);
 
-      // 모달에 데이터 채우기
+      // 알림 상세보기 팝업에 데이터 채우기
       populateAlertDetailModal(alert);
     } else {
       console.error("❌ [알림상세] 알림 상세 정보 가져오기 실패:", response);
@@ -460,9 +460,9 @@ async function showAlertDetail(alertId) {
   }
 }
 
-// 모달에 알림 상세 정보 채우기
+// 알림 상세보기 팝업에 알림 상세 정보 채우기
 function populateAlertDetailModal(alert) {
-  console.log("🔍 [모달] 데이터 채우기 시작:", alert);
+  console.log("🔍 [알림상세팝업] 데이터 채우기 시작:", alert);
 
   // 기본 정보
   const alertIdElement = document.getElementById("detailAlertId");
@@ -470,7 +470,7 @@ function populateAlertDetailModal(alert) {
   if (alertIdElement) {
     alertIdElement.textContent = alert.id || "-";
   } else {
-    console.error("❌ [모달] detailAlertId 요소를 찾을 수 없습니다");
+    console.error("❌ [알림상세팝업] detailAlertId 요소를 찾을 수 없습니다");
   }
 
   const alertTypeElement = document.getElementById("detailAlertType");
@@ -478,7 +478,7 @@ function populateAlertDetailModal(alert) {
   if (alertTypeElement) {
     alertTypeElement.textContent = alert.alert_type || "-";
   } else {
-    console.error("❌ [모달] detailAlertType 요소를 찾을 수 없습니다");
+    console.error("❌ [알림상세팝업] detailAlertType 요소를 찾을 수 없습니다");
   }
 
   const targetElement = document.getElementById("detailTarget");
@@ -486,7 +486,7 @@ function populateAlertDetailModal(alert) {
   if (targetElement) {
     targetElement.textContent = alert.target || "-";
   } else {
-    console.error("❌ [모달] detailTarget 요소를 찾을 수 없습니다");
+    console.error("❌ [알림상세팝업] detailTarget 요소를 찾을 수 없습니다");
   }
 
   // 심각도 배지
@@ -646,14 +646,14 @@ function populateAlertDetailModal(alert) {
     }
   }
 
-  // 모달 버튼 이벤트 설정
+  // 알림 상세보기 팝업 버튼 이벤트 설정
   setupModalButtons(alert.id);
 
   // 해결된 알림인 경우 버튼 상태 업데이트
   updateModalButtonStates(alert.id);
 }
 
-// 모달 버튼 이벤트 설정
+// 알림 상세보기 팝업 버튼 이벤트 설정
 function setupModalButtons(alertId) {
   // 해결됨으로 표시 버튼은 HTML의 onclick으로 처리
   // 별도의 이벤트 리스너 설정 불필요
@@ -668,7 +668,7 @@ function setupModalButtons(alertId) {
         // 로딩 상태 해제하고 HTML 복원
         showModalLoading(false);
 
-        // 모달에 데이터 채우기
+        // 알림 상세보기 팝업에 데이터 채우기
         populateAlertDetailModal(response.data.alert);
         showToast("알림 정보가 새로고침되었습니다.", "success");
       } else {
@@ -683,9 +683,9 @@ function setupModalButtons(alertId) {
   };
 }
 
-// 모달 해결 버튼 클릭 핸들러
+// 알림 상세보기 팝업 해결 버튼 클릭 핸들러
 function handleModalResolve() {
-  // 현재 모달에 표시된 알림 ID 가져오기
+  // 현재 알림 상세보기 팝업에 표시된 알림 ID 가져오기
   const alertIdElement = document.getElementById("detailAlertId");
   if (!alertIdElement) {
     console.error("알림 ID를 찾을 수 없습니다.");
@@ -710,7 +710,7 @@ function handleModalResolve() {
     document.activeElement.blur();
   }
 
-  // 모달 닫기
+  // 알림 상세보기 팝업 닫기
   const modal = bootstrap.Modal.getInstance(
     document.getElementById("alertDetailModal")
   );
@@ -718,7 +718,7 @@ function handleModalResolve() {
     modal.hide();
   }
 
-  // 모달이 완전히 닫힌 후 포커스 이동 (접근성 개선)
+  // 알림 상세보기 팝업이 완전히 닫힌 후 포커스 이동 (접근성 개선)
   setTimeout(() => {
     const focusableElement = document.querySelector(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -726,10 +726,10 @@ function handleModalResolve() {
     if (focusableElement) {
       focusableElement.focus();
     }
-  }, 300); // Bootstrap 모달 애니메이션 완료 후 실행
+  }, 300); // Bootstrap 알림 상세보기 팝업 애니메이션 완료 후 실행
 }
 
-// 모달 버튼 상태 업데이트
+// 알림 상세보기 팝업 버튼 상태 업데이트
 function updateModalButtonStates(alertId) {
   const resolveBtn = document.getElementById("resolveAlertBtn");
   const row = document.querySelector(`tr[data-alert-id="${alertId}"]`);
@@ -748,7 +748,7 @@ function updateModalButtonStates(alertId) {
   }
 }
 
-// 모달 로딩 상태 표시
+// 알림 상세보기 팝업 로딩 상태 표시
 function showModalLoading(show) {
   const modalBody = document.querySelector("#alertDetailModal .modal-body");
   if (show) {
@@ -766,7 +766,7 @@ function showModalLoading(show) {
   }
 }
 
-// 모달 HTML 구조 복원
+// 알림 상세보기 팝업 HTML 구조 복원
 function restoreModalHTML() {
   const modalBody = document.querySelector("#alertDetailModal .modal-body");
   if (modalBody) {
@@ -920,7 +920,7 @@ function restoreModalHTML() {
   }
 }
 
-// 모달 오류 표시
+// 알림 상세보기 팝업 오류 표시
 function showModalError(message) {
   const modalBody = document.querySelector("#alertDetailModal .modal-body");
   modalBody.innerHTML = `
@@ -1029,7 +1029,7 @@ function toggleAlertResolve(alertId, isResolved) {
     showToast(`알림이 복원되었습니다.`, "info");
   }
 
-  // 모달이 열려있는 경우 버튼 상태 업데이트
+  // 알림 상세보기 팝업이 열려있는 경우 버튼 상태 업데이트
   const modal = document.getElementById("alertDetailModal");
   if (modal && modal.classList.contains("show")) {
     updateModalButtonStates(alertId);
@@ -1077,7 +1077,7 @@ function undoLastResolve() {
           "success"
         );
 
-        // 모달이 열려있는 경우 버튼 상태 업데이트
+        // 알림 상세보기 팝업이 열려있는 경우 버튼 상태 업데이트
         const modal = document.getElementById("alertDetailModal");
         if (modal && modal.classList.contains("show")) {
           updateModalButtonStates(lastAction.alertId);

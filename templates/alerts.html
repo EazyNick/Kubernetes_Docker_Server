@@ -204,7 +204,7 @@
     </div>
 </div>
 
-<!-- 알림 상세보기 모달 -->
+<!-- 알림 상세보기 팝업 -->
 <div class="modal fade" id="alertDetailModal" tabindex="-1" aria-labelledby="alertDetailModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -470,14 +470,14 @@ if (window.AlertsAPI) {
   window.AlertsAPI.loadAlertRulesData();
 }
 
-// 모달 초기화
+// 알림 상세보기 팝업 초기화
 document.addEventListener('DOMContentLoaded', function() {
-  // Bootstrap 모달 초기화
+  // Bootstrap 알림 상세보기 팝업 초기화
   const alertDetailModal = document.getElementById('alertDetailModal');
   if (alertDetailModal) {
-    // 모달이 닫힐 때 이벤트 리스너 추가
+    // 알림 상세보기 팝업이 닫힐 때 이벤트 리스너 추가
     alertDetailModal.addEventListener('hidden.bs.modal', function () {
-      // 모달이 닫힐 때 본문 내용 초기화
+      // 알림 상세보기 팝업이 닫힐 때 본문 내용 초기화
       const modalBody = this.querySelector('.modal-body');
       if (modalBody) {
         // 기본 구조 복원 (JavaScript 함수 사용)
@@ -495,7 +495,7 @@ document.addEventListener('DOMContentLoaded', function() {
       });
       
       // 포커스를 페이지의 다른 요소로 이동 (접근성 개선)
-      // 약간의 지연을 두어 모달이 완전히 닫힌 후 실행
+      // 약간의 지연을 두어 알림 상세보기 팝업이 완전히 닫힌 후 실행
       setTimeout(() => {
         const tableFocusable = document.querySelector('#alertsTable button, #alertsTable [href], #alertsTable input, #alertsTable select, #alertsTable textarea, #alertsTable [tabindex]:not([tabindex="-1"])');
         if (tableFocusable) {
@@ -509,9 +509,9 @@ document.addEventListener('DOMContentLoaded', function() {
       }, 100);
     });
     
-    // 모달이 열릴 때 포커스 관리
+    // 알림 상세보기 팝업이 열릴 때 포커스 관리
     alertDetailModal.addEventListener('shown.bs.modal', function () {
-      // 모달이 완전히 열린 후 첫 번째 포커스 가능한 요소에 포커스
+      // 알림 상세보기 팝업이 완전히 열린 후 첫 번째 포커스 가능한 요소에 포커스
       const firstFocusable = this.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
       if (firstFocusable) {
         firstFocusable.focus();

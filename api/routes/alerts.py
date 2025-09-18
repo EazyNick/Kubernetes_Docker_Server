@@ -92,7 +92,7 @@ def get_alert(alert_id: str):
 
 @router.get("/alerts/{alert_id}/detail", response_model=BaseResponse)
 def get_alert_detail(alert_id: str):
-    """특정 알림 상세 정보 조회 (모달용)"""
+    """특정 알림 상세 정보 조회 (상세보기용)"""
     try:
         # 실제 구현에서는 데이터베이스에서 특정 알림 상세 정보를 가져옴
         # 현재는 임의의 상세 데이터를 생성하여 반환

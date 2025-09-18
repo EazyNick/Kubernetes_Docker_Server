@@ -19,7 +19,7 @@ class Alert(BaseModel):
 
 
 class AlertDetail(BaseModel):
-    """알림 상세 정보 (모달 표시용)"""
+    """알림 상세 정보 (상세보기용)"""
     id: str  # 알림 고유 식별자
     alert_type: str  # 알림 유형/카테고리
     target: str  # 알림 대상 (노드/컨테이너 이름)
