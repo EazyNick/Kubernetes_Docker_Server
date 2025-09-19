@@ -201,10 +201,10 @@ def get_alert_rules():
     """알림 규칙 목록 조회"""
     try:
         # TODO: 백엔드 개발자 구현 필요
-        # 1. 데이터베이스에서 알림 규칙 목록 조회 (alert_rules 테이블)
-        # 2. 데이터베이스에서 규칙 상태 관리 (alert_rules 테이블)
-        # 3. 데이터베이스에서 규칙별 임계값 조회 (alert_rules 테이블)
-        # 4. 데이터베이스에서 규칙별 대상 노드/컨테이너 조회 (alert_rules 테이블)
+        # 1. 데이터베이스에서 알림 규칙 목록 조회
+        # 2. 데이터베이스에서 규칙 상태 관리 
+        # 3. 데이터베이스에서 규칙별 임계값 조회 
+        # 4. 데이터베이스에서 규칙별 대상 노드/컨테이너 조회 
         
         # 현재는 랜덤 데이터로 시뮬레이션
         rules = []
@@ -243,6 +243,86 @@ def get_alert_rules():
     except Exception as e:
         return BaseResponse.error_response(
             message="Failed to retrieve alert rules",
+            error_code="DATABASE_ERROR",
+            details=str(e)
+        )
+
+@router.put("/alert-rules/{rule_id}", response_model=BaseResponse)
+def update_alert_rule(rule_id: str, rule_data: dict):
+    """알림 규칙 수정"""
+    try:
+        # TODO: 백엔드 개발자 구현 필요
+        # 1. 데이터베이스에서 해당 규칙 존재 여부 확인
+        # 2. 규칙이 존재하는 경우 업데이트 처리
+        # 3. 업데이트 성공/실패 여부 반환
+        
+        # 규칙 ID가 유효한 형식인지 확인 (RULE-XXX 형식)
+        if not rule_id.startswith("RULE-") or len(rule_id) < 8:
+            return BaseResponse.error_response(
+                message="Invalid rule ID format",
+                error_code="INVALID_RULE_ID",
+                details="Rule ID must be in format 'RULE-XXX'"
+            )
+        
+        # 필수 필드 검증
+        required_fields = ["name", "target", "condition", "severity", "status"]
+        for field in required_fields:
+            if field not in rule_data or not rule_data[field]:
+                return BaseResponse.error_response(
+                    message=f"Missing required field: {field}",
+                    error_code="MISSING_FIELD",
+                    details=f"The field '{field}' is required"
+                )
+        
+        # 무조건 성공 처리
+        updated_rule = {
+            "id": rule_id,
+            "name": rule_data["name"],
+            "target": rule_data["target"],
+            "condition": rule_data["condition"],
+            "severity": rule_data["severity"],
+            "status": rule_data["status"],
+            "created_at": (datetime.now() - timedelta(days=random.randint(1, 30))).isoformat() + "Z"
+        }
+        return BaseResponse.success_response(
+            data={"rule": updated_rule, "updated": True},
+            message="Alert rule updated successfully"
+        )
+            
+    except Exception as e:
+        return BaseResponse.error_response(
+            message="Failed to update alert rule",
+            error_code="DATABASE_ERROR",
+            details=str(e)
+        )
+
+@router.delete("/alert-rules/{rule_id}", response_model=BaseResponse)
+def delete_alert_rule(rule_id: str):
+    """알림 규칙 삭제"""
+    try:
+        # TODO: 백엔드 개발자 구현 필요
+        # 1. 데이터베이스에서 해당 규칙 존재 여부 확인
+        # 2. 규칙이 존재하는 경우 삭제 처리
+        # 3. 관련된 알림 이력도 함께 삭제
+        # 4. 삭제 성공/실패 여부 반환
+        
+        # 규칙 ID가 유효한 형식인지 확인 (RULE-XXX 형식)
+        if not rule_id.startswith("RULE-") or len(rule_id) < 8:
+            return BaseResponse.error_response(
+                message="Invalid rule ID format",
+                error_code="INVALID_RULE_ID",
+                details="Rule ID must be in format 'RULE-XXX'"
+            )
+        
+        # 무조건 성공 처리
+        return BaseResponse.success_response(
+            data={"rule_id": rule_id, "deleted": True},
+            message="Alert rule deleted successfully"
+        )
+            
+    except Exception as e:
+        return BaseResponse.error_response(
+            message="Failed to delete alert rule",
             error_code="DATABASE_ERROR",
             details=str(e)
         )

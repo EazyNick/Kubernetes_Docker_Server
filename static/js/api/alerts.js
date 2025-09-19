@@ -80,6 +80,45 @@ async function getAlertRules() {
   }
 }
 
+// 알림 규칙 삭제 API 호출
+async function deleteAlertRuleAPI(ruleId) {
+  try {
+    console.log("🗑️ [알림규칙API] 알림 규칙 삭제 요청:", ruleId);
+    const response = await fetch(`/api/alert-rules/${ruleId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await response.json();
+    console.log("🗑️ [알림규칙API] 삭제 응답:", data);
+    return data;
+  } catch (error) {
+    console.error("❌ [알림규칙API] 알림 규칙 삭제 실패:", error);
+    return null;
+  }
+}
+
+// 알림 규칙 수정 API 호출
+async function updateAlertRuleAPI(ruleId, ruleData) {
+  try {
+    console.log("✏️ [알림규칙API] 알림 규칙 수정 요청:", ruleId, ruleData);
+    const response = await fetch(`/api/alert-rules/${ruleId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(ruleData),
+    });
+    const data = await response.json();
+    console.log("✏️ [알림규칙API] 수정 응답:", data);
+    return data;
+  } catch (error) {
+    console.error("❌ [알림규칙API] 알림 규칙 수정 실패:", error);
+    return null;
+  }
+}
+
 // 알림 페이지 데이터 로딩
 async function loadAlertsData() {
   // AlertsAPI가 사용 가능한지 확인
@@ -211,6 +250,10 @@ async function loadAlertRulesData() {
     // API 응답이 성공적이고 데이터가 있는 경우
     if (response && response.success) {
       const rules = response.data.rules;
+
+      // 전역 변수에 규칙 데이터 저장 (편집 시 사용)
+      window.alertRulesData = rules;
+
       const tbody = document.getElementById("alertRulesTableBody");
 
       // 테이블 본문이 존재하는 경우
@@ -254,7 +297,7 @@ async function loadAlertRulesData() {
               : "테스트";
 
           const row = document.createElement("tr");
-          row.setAttribute("data-alert-id", alert.id);
+          row.setAttribute("data-rule-id", rule.id);
           row.innerHTML = `
             <td><strong>${rule.name}</strong></td>
             <td>${rule.target}</td>
@@ -392,17 +435,144 @@ async function resolveAlert(alertId) {
 
 // 알림 규칙 편집 함수 (전역으로 노출)
 function editAlertRule(ruleId) {
-  console.log("편집할 알림 규칙 ID:", ruleId);
-  // TODO: 알림 규칙 편집 팝업 또는 페이지로 이동
-  alert(`알림 규칙 ${ruleId} 편집 기능은 아직 구현되지 않았습니다.`);
+  console.log("✏️ [알림규칙] 편집할 알림 규칙 ID:", ruleId);
+
+  // 현재 규칙 데이터 찾기
+  const currentRules = window.alertRulesData || [];
+  const rule = currentRules.find((r) => r.id === ruleId);
+
+  if (!rule) {
+    showToast("편집할 규칙을 찾을 수 없습니다.", "error");
+    return;
+  }
+
+  // 모달에 데이터 채우기
+  populateEditModal(rule);
+
+  // 모달 표시
+  const modal = new bootstrap.Modal(document.getElementById("editRuleModal"));
+  modal.show();
+}
+
+// 편집 모달에 데이터 채우기
+function populateEditModal(rule) {
+  document.getElementById("editRuleId").value = rule.id;
+  document.getElementById("editRuleName").value = rule.name || "";
+  document.getElementById("editRuleTarget").value = rule.target || "";
+  document.getElementById("editRuleCondition").value = rule.condition || "";
+  document.getElementById("editRuleSeverity").value = rule.severity || "";
+  document.getElementById("editRuleStatus").value = rule.status || "";
+}
+
+// 알림 규칙 저장 함수
+async function saveAlertRule() {
+  const ruleId = document.getElementById("editRuleId").value;
+  const form = document.getElementById("editRuleForm");
+
+  // 폼 유효성 검사
+  if (!form.checkValidity()) {
+    form.reportValidity();
+    return;
+  }
+
+  // 폼 데이터 수집
+  const formData = new FormData(form);
+  const ruleData = {
+    name: formData.get("name"),
+    target: formData.get("target"),
+    condition: formData.get("condition"),
+    severity: formData.get("severity"),
+    status: formData.get("status"),
+  };
+
+  try {
+    // 로딩 상태 표시
+    showToast("알림 규칙을 저장하는 중...", "info");
+
+    // 저장 버튼 비활성화
+    const saveBtn = document.getElementById("saveRuleBtn");
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>저장 중...';
+
+    // API 호출
+    const response = await window.AlertsAPI.updateAlertRuleAPI(
+      ruleId,
+      ruleData
+    );
+
+    if (response && response.success) {
+      // 저장 성공 시
+      showToast(
+        `알림 규칙 ${ruleId}이(가) 성공적으로 저장되었습니다.`,
+        "success"
+      );
+
+      // 모달 닫기
+      const modal = bootstrap.Modal.getInstance(
+        document.getElementById("editRuleModal")
+      );
+      modal.hide();
+
+      // 알림 규칙 목록 새로고침
+      await window.AlertsAPI.loadAlertRulesData();
+    } else {
+      // 저장 실패 시
+      const errorMessage =
+        response?.message || "알 수 없는 오류가 발생했습니다.";
+      showToast(`알림 규칙 저장 실패: ${errorMessage}`, "error");
+      console.error("❌ [알림규칙] 저장 실패:", response);
+    }
+  } catch (error) {
+    // 예외 발생 시
+    showToast("알림 규칙 저장 중 오류가 발생했습니다.", "error");
+    console.error("❌ [알림규칙] 저장 중 오류:", error);
+  } finally {
+    // 저장 버튼 복원
+    const saveBtn = document.getElementById("saveRuleBtn");
+    saveBtn.disabled = false;
+    saveBtn.innerHTML = '<i class="fas fa-save me-2"></i>저장';
+  }
 }
 
 // 알림 규칙 삭제 함수 (전역으로 노출)
-function deleteAlertRule(ruleId) {
+async function deleteAlertRule(ruleId) {
   if (confirm(`알림 규칙 ${ruleId}를 삭제하시겠습니까?`)) {
-    console.log("삭제할 알림 규칙 ID:", ruleId);
-    // TODO: 알림 규칙 삭제 API 호출
-    alert(`알림 규칙 ${ruleId} 삭제 기능은 아직 구현되지 않았습니다.`);
+    console.log("🗑️ [알림규칙] 삭제할 알림 규칙 ID:", ruleId);
+
+    try {
+      // 로딩 상태 표시
+      showToast("알림 규칙을 삭제하는 중...", "info");
+
+      // 삭제 API 호출
+      const response = await window.AlertsAPI.deleteAlertRuleAPI(ruleId);
+
+      if (response && response.success) {
+        // 삭제 성공 시
+        showToast(
+          `알림 규칙 ${ruleId}이(가) 성공적으로 삭제되었습니다.`,
+          "success"
+        );
+
+        // 테이블에서 해당 행 제거
+        const row = document.querySelector(`tr[data-rule-id="${ruleId}"]`);
+        if (row) {
+          row.remove();
+        }
+
+        // 알림 규칙 목록 새로고침
+        await window.AlertsAPI.loadAlertRulesData();
+      } else {
+        // 삭제 실패 시
+        const errorMessage =
+          response?.message || "알 수 없는 오류가 발생했습니다.";
+        showToast(`알림 규칙 삭제 실패: ${errorMessage}`, "error");
+        console.error("❌ [알림규칙] 삭제 실패:", response);
+      }
+    } catch (error) {
+      // 예외 발생 시
+      showToast("알림 규칙 삭제 중 오류가 발생했습니다.", "error");
+      console.error("❌ [알림규칙] 삭제 중 오류:", error);
+    }
   }
 }
 
@@ -1103,6 +1273,8 @@ window.AlertsAPI = {
   getAlertDetail,
   resolveAlert,
   getAlertRules,
+  deleteAlertRuleAPI,
+  updateAlertRuleAPI,
   loadAlertsData,
   loadAlertRulesData,
   loadRecentAlerts,
@@ -1113,3 +1285,4 @@ window.AlertsAPI = {
 
 // 전역 함수로 노출
 window.handleModalResolve = handleModalResolve;
+window.saveAlertRule = saveAlertRule;
