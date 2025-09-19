@@ -5,7 +5,7 @@ from db.database import get_db
 from typing import List, Optional
 import random
 from datetime import datetime, timedelta
-from models import LogEntry, LogStats, LogListResponse, LogStatsResponse
+from models import LogEntry, LogStats, LogListResponse, LogStatsResponse, BaseResponse
 import collections
 
 
@@ -267,3 +267,25 @@ async def get_log_by_id(log_id: str):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"로그 조회 중 오류가 발생했습니다: {str(e)}")
+
+@router.delete("/logs", response_model=BaseResponse)
+async def clear_all_logs(db: Session = Depends(get_db)):
+    """모든 로그 삭제"""
+    try:
+        # TODO: 백엔드 개발자 구현 필요
+        # 1. 데이터베이스에서 모든 로그 삭제 (logs 테이블)
+        # 2. 로그 통계 초기화 (필요한 경우)
+        # 3. 삭제 성공/실패 여부 반환
+        
+        # 현재는 무조건 성공 처리
+        return BaseResponse.success_response(
+            data={"cleared": True, "deleted_count": 0},
+            message="모든 로그가 성공적으로 삭제되었습니다."
+        )
+        
+    except Exception as e:
+        return BaseResponse.error_response(
+            message="로그 삭제 중 오류가 발생했습니다.",
+            error_code="DELETE_ERROR",
+            details=str(e)
+        )

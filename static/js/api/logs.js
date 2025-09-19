@@ -9,7 +9,8 @@ async function getLogs(params = {}) {
 
     if (params.limit) queryParams.append("limit", params.limit);
     if (params.level) queryParams.append("level", params.level);
-    if (params.container_id) queryParams.append("container_id", params.container_id);
+    if (params.container_id)
+      queryParams.append("container_id", params.container_id);
     if (params.time_range) queryParams.append("time_range", params.time_range);
 
     const url = `${LOGS_API_BASE}/logs?${queryParams.toString()}`;
@@ -168,6 +169,205 @@ function filterLogs(level, source, timeRange) {
   loadLogsData(params);
 }
 
+// 모든 로그 삭제
+async function clearAllLogs() {
+  try {
+    console.log("🗑️ [로그API] 모든 로그 삭제 요청 중...");
+    const response = await fetch(`${LOGS_API_BASE}/logs`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log("🗑️ [로그API] 로그 삭제 응답:", data);
+    return data;
+  } catch (error) {
+    console.error("❌ [로그API] 로그 삭제 요청 실패:", error);
+    throw error;
+  }
+}
+
+// 로그 삭제 확인 및 실행
+async function confirmAndClearLogs() {
+  if (confirm("정말 모든 로그를 지우시겠습니까?")) {
+    try {
+      // 로딩 상태 표시
+      showLogToast("로그를 삭제하는 중...", "info");
+
+      // 로그 삭제 API 호출
+      const response = await clearAllLogs();
+
+      if (response && response.success) {
+        // 삭제 성공 시
+        showLogToast("모든 로그가 성공적으로 삭제되었습니다.", "success");
+
+        // 로그 컨테이너 비우기
+        const logContainer = document.getElementById("logContainer");
+        if (logContainer) {
+          logContainer.innerHTML = `
+            <div class="text-center py-4">
+              <i class="fas fa-info-circle me-2"></i>
+              로그가 삭제되었습니다.
+            </div>
+          `;
+        }
+
+        // 로그 통계 새로고침
+        await updateLogStats();
+      } else {
+        // 삭제 실패 시
+        const errorMessage =
+          response?.message || "알 수 없는 오류가 발생했습니다.";
+        showLogToast(`로그 삭제 실패: ${errorMessage}`, "error");
+        console.error("❌ [로그API] 삭제 실패:", response);
+      }
+    } catch (error) {
+      // 예외 발생 시
+      showLogToast("로그 삭제 중 오류가 발생했습니다.", "error");
+      console.error("❌ [로그API] 삭제 중 오류:", error);
+    }
+  }
+}
+
+// 로그 토스트 메시지 표시
+function showLogToast(message, type = "info") {
+  // 기존 토스트가 있으면 제거
+  const existingToast = document.querySelector(".toast-container");
+  if (existingToast) {
+    existingToast.remove();
+  }
+
+  // 토스트 컨테이너 생성
+  const toastContainer = document.createElement("div");
+  toastContainer.className = "toast-container position-fixed top-0 end-0 p-3";
+  toastContainer.style.zIndex = "9999";
+
+  // 토스트 아이콘과 색상 설정
+  const iconClass =
+    type === "success"
+      ? "fa-check-circle text-success"
+      : type === "error"
+      ? "fa-exclamation-circle text-danger"
+      : "fa-info-circle text-info";
+
+  toastContainer.innerHTML = `
+    <div class="toast show" role="alert">
+      <div class="toast-header">
+        <i class="fas ${iconClass} me-2"></i>
+        <strong class="me-auto">로그 관리</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+      </div>
+      <div class="toast-body">
+        ${message}
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(toastContainer);
+
+  // 3초 후 자동 제거
+  setTimeout(() => {
+    if (toastContainer.parentNode) {
+      toastContainer.remove();
+    }
+  }, 3000);
+}
+
+// CSV 내보내기 기능
+function exportLogsToCSV() {
+  try {
+    console.log("📊 [로그내보내기] CSV 내보내기 시작...");
+
+    const logContainer = document.getElementById("logContainer");
+    if (!logContainer) {
+      showLogToast("로그 컨테이너를 찾을 수 없습니다.", "error");
+      return;
+    }
+
+    // 현재 화면에 표시된 로그 엔트리들 수집
+    const logEntries = logContainer.querySelectorAll(".log-entry");
+
+    if (logEntries.length === 0) {
+      showLogToast("내보낼 로그가 없습니다.", "warning");
+      return;
+    }
+
+    // CSV 헤더
+    const csvHeaders = ["시간", "레벨", "메시지"];
+
+    // 로그 데이터 추출
+    const csvData = [];
+    logEntries.forEach((entry, index) => {
+      const timestamp =
+        entry.querySelector(".log-timestamp")?.textContent?.trim() || "";
+      const level =
+        entry.querySelector(".log-level")?.textContent?.trim() || "";
+      const message =
+        entry.querySelector(".log-message")?.textContent?.trim() || "";
+
+      // CSV 형식으로 데이터 추가 (쉼표와 따옴표 처리)
+      csvData.push([
+        `"${timestamp.replace(/"/g, '""')}"`,
+        `"${level.replace(/"/g, '""')}"`,
+        `"${message.replace(/"/g, '""')}"`,
+      ]);
+    });
+
+    // CSV 내용 생성
+    const csvContent = [
+      csvHeaders.map((header) => `"${header}"`).join(","),
+      ...csvData.map((row) => row.join(",")),
+    ].join("\n");
+
+    // BOM 추가 (한글 깨짐 방지)
+    const BOM = "\uFEFF";
+    const csvWithBOM = BOM + csvContent;
+
+    // 파일명 생성 (현재 날짜/시간 포함)
+    const now = new Date();
+    const timestamp = now.toISOString().slice(0, 19).replace(/:/g, "-");
+    const filename = `logs_export_${timestamp}.csv`;
+
+    // Blob 생성 및 다운로드
+    const blob = new Blob([csvWithBOM], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+
+    if (link.download !== undefined) {
+      // 지원하는 브라우저
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", filename);
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } else {
+      // 구형 브라우저 지원
+      const csvDataUri =
+        "data:text/csv;charset=utf-8," + encodeURIComponent(csvWithBOM);
+      window.open(csvDataUri);
+    }
+
+    showLogToast(
+      `${logEntries.length}개의 로그가 CSV로 내보내졌습니다.`,
+      "success"
+    );
+    console.log(
+      `📊 [로그내보내기] CSV 내보내기 완료: ${filename} (${logEntries.length}개 로그)`
+    );
+  } catch (error) {
+    console.error("❌ [로그내보내기] CSV 내보내기 실패:", error);
+    showLogToast("CSV 내보내기 중 오류가 발생했습니다.", "error");
+  }
+}
+
 // 로그 API 함수들을 전역으로 노출
 window.LogsAPI = {
   getLogs,
@@ -176,4 +376,11 @@ window.LogsAPI = {
   loadLogsData,
   updateLogStats,
   filterLogs,
+  clearAllLogs,
+  confirmAndClearLogs,
+  exportLogsToCSV,
 };
+
+// 전역 함수로 노출
+window.confirmAndClearLogs = confirmAndClearLogs;
+window.exportLogsToCSV = exportLogsToCSV;
