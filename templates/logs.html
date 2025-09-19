@@ -208,13 +208,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const containerSelect = document.getElementById('containerFilter');
     
     try {
-      // 로그 API에서 고유한 소스 목록을 가져옴
-      const response = await fetch('/api/logs?limit=100');
+      // 컨테이너 API에서 컨테이너 목록을 가져옴
+      const response = await fetch('/api/containers');
       const data = await response.json();
       
-      if (data.success && data.data && data.data.logs) {
-        const logs = data.data.logs;
-        const uniqueSources = [...new Set(logs.map(log => log.source))].sort();
+      if (data.success && data.data && data.data.containers) {
+        const containers = data.data.containers;
         
         // 기존 옵션 제거 (첫 번째 "모든 컨테이너" 옵션 제외)
         while (containerSelect.children.length > 1) {
@@ -222,10 +221,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // 새로운 옵션 추가
-        uniqueSources.forEach(source => {
+        containers.forEach(container => {
           const option = document.createElement('option');
-          option.value = source;
-          option.textContent = source;
+          option.value = container.id;
+          option.textContent = container.name;
           containerSelect.appendChild(option);
         });
       }
@@ -301,7 +300,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function applyFilters() {
       const params = {
         level: levelFilter.value || undefined,
-        source: containerFilter.value || undefined,
+        container_id: containerFilter.value || undefined,
         time_range: timeRangeFilter.value || '24h'
       };
       

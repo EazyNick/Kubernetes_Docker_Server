@@ -9,7 +9,7 @@ async function getLogs(params = {}) {
 
     if (params.limit) queryParams.append("limit", params.limit);
     if (params.level) queryParams.append("level", params.level);
-    if (params.source) queryParams.append("source", params.source);
+    if (params.container_id) queryParams.append("container_id", params.container_id);
     if (params.time_range) queryParams.append("time_range", params.time_range);
 
     const url = `${LOGS_API_BASE}/logs?${queryParams.toString()}`;
@@ -102,7 +102,7 @@ async function loadLogsData(params = {}) {
           (log) => `
         <div class="log-entry">
           <span class="log-timestamp">${log.timestamp}</span>
-          <span class="log-level ${log.level}">${log.level.toUpperCase()}</span>
+          <span class="log-level ${log.level.toLowerCase()}">${log.level.toUpperCase()}</span>
           <span class="log-message">${log.message}</span>
         </div>
       `
