@@ -56,8 +56,11 @@
           </div>
         </div>
         <div class="d-flex gap-2">
-          <button class="btn btn-primary">
+          <button class="btn btn-primary" id="searchBtn">
             <i class="fas fa-search"></i> 검색
+          </button>
+          <button class="btn btn-outline-secondary" id="clearFilterBtn">
+            <i class="fas fa-times"></i> 필터 초기화
           </button>
           <button class="btn btn-outline-secondary" id="exportLogsBtn" onclick="exportLogsToCSV()">
             <i class="fas fa-download"></i> 내보내기
@@ -201,6 +204,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 정렬된 로그 엔트리들을 컨테이너에 다시 추가
     logEntries.forEach(entry => logContainer.appendChild(entry));
+  }
+
+  // 필터 이벤트 초기화
+  if (window.LogsAPI && window.LogsAPI.initializeFilterEvents) {
+    window.LogsAPI.initializeFilterEvents();
   }
 
   // 컨테이너 목록 로드

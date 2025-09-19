@@ -101,7 +101,7 @@ async function loadLogsData(params = {}) {
       container.innerHTML = logs
         .map(
           (log) => `
-        <div class="log-entry">
+        <div class="log-entry" data-container="${log.container_id || ""}">
           <span class="log-timestamp">${log.timestamp}</span>
           <span class="log-level ${log.level.toLowerCase()}">${log.level.toUpperCase()}</span>
           <span class="log-message">${log.message}</span>
@@ -368,6 +368,179 @@ function exportLogsToCSV() {
   }
 }
 
+// 필터링 기능
+function applyFilters() {
+  const containerFilter = document.getElementById("containerFilter");
+  const levelFilter = document.getElementById("levelFilter");
+  const timeRangeFilter = document.getElementById("timeRangeFilter");
+  const searchInput = document.getElementById("searchInput");
+  const logContainer = document.getElementById("logContainer");
+
+  const containerId = containerFilter?.value || "";
+  const level = levelFilter?.value || "";
+  const timeRange = timeRangeFilter?.value || "";
+  const searchTerm = searchInput?.value.trim().toLowerCase() || "";
+
+  console.log("🔍 필터 적용:", { containerId, level, timeRange, searchTerm });
+
+  // 모든 로그 엔트리 가져오기
+  const logEntries = Array.from(logContainer.querySelectorAll(".log-entry"));
+
+  if (logEntries.length === 0) {
+    console.log("⚠️ 로그 엔트리가 없습니다.");
+    return;
+  }
+
+  // 필터링된 로그 엔트리들
+  const filteredEntries = logEntries.filter((entry) => {
+    const timestamp = entry.querySelector(".log-timestamp")?.textContent || "";
+    const logLevel =
+      entry.querySelector(".log-level")?.textContent?.toLowerCase() || "";
+    const message =
+      entry.querySelector(".log-message")?.textContent?.toLowerCase() || "";
+    const containerName = entry.getAttribute("data-container") || "";
+
+    // 컨테이너 필터
+    if (containerId && containerName !== containerId) {
+      return false;
+    }
+
+    // 레벨 필터
+    if (level && logLevel !== level) {
+      return false;
+    }
+
+    // 검색어 필터
+    if (searchTerm && !message.includes(searchTerm)) {
+      return false;
+    }
+
+    // 시간 범위 필터 (간단한 구현)
+    if (timeRange) {
+      const logTime = new Date(timestamp);
+      const now = new Date();
+      const timeDiff = now - logTime;
+
+      let maxTime = 0;
+      switch (timeRange) {
+        case "1h":
+          maxTime = 60 * 60 * 1000;
+          break;
+        case "6h":
+          maxTime = 6 * 60 * 60 * 1000;
+          break;
+        case "24h":
+          maxTime = 24 * 60 * 60 * 1000;
+          break;
+        case "7d":
+          maxTime = 7 * 24 * 60 * 60 * 1000;
+          break;
+      }
+
+      if (timeDiff > maxTime) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
+  // 로그 컨테이너 비우기
+  logContainer.innerHTML = "";
+
+  if (filteredEntries.length === 0) {
+    logContainer.innerHTML = `
+      <div class="text-center py-4">
+        <i class="fas fa-search me-2"></i>
+        필터 조건에 맞는 로그가 없습니다.
+      </div>
+    `;
+  } else {
+    // 필터링된 로그들 다시 추가
+    filteredEntries.forEach((entry) => logContainer.appendChild(entry));
+
+    // 필터 상태 표시
+    showFilterStatus(filteredEntries.length, logEntries.length);
+  }
+}
+
+// 필터 초기화 함수
+function clearFilters() {
+  const containerFilter = document.getElementById("containerFilter");
+  const levelFilter = document.getElementById("levelFilter");
+  const timeRangeFilter = document.getElementById("timeRangeFilter");
+  const searchInput = document.getElementById("searchInput");
+
+  if (containerFilter) containerFilter.value = "";
+  if (levelFilter) levelFilter.value = "";
+  if (timeRangeFilter) timeRangeFilter.value = "24h";
+  if (searchInput) searchInput.value = "";
+
+  // 모든 로그 다시 로드
+  loadLogsData();
+
+  // 필터 상태 숨기기
+  hideFilterStatus();
+}
+
+// 필터 상태 표시
+function showFilterStatus(filteredCount, totalCount) {
+  const logContainer = document.getElementById("logContainer");
+  let statusDiv = document.getElementById("filterStatus");
+  if (!statusDiv) {
+    statusDiv = document.createElement("div");
+    statusDiv.id = "filterStatus";
+    statusDiv.className = "alert alert-info mt-3";
+    logContainer.parentNode.insertBefore(statusDiv, logContainer);
+  }
+
+  statusDiv.innerHTML = `
+    <i class="fas fa-filter me-2"></i>
+    필터링 결과: <strong>${filteredCount}</strong>개 / 전체 <strong>${totalCount}</strong>개
+    <button type="button" class="btn btn-sm btn-outline-secondary ms-2" onclick="window.LogsAPI.clearFilters()">
+      <i class="fas fa-times"></i> 필터 초기화
+    </button>
+  `;
+}
+
+// 필터 상태 숨기기
+function hideFilterStatus() {
+  const statusDiv = document.getElementById("filterStatus");
+  if (statusDiv) {
+    statusDiv.remove();
+  }
+}
+
+// 필터 이벤트 리스너 초기화
+function initializeFilterEvents() {
+  const searchBtn = document.getElementById("searchBtn");
+  const clearFilterBtn = document.getElementById("clearFilterBtn");
+  const searchInput = document.getElementById("searchInput");
+
+  // 검색 버튼 이벤트
+  if (searchBtn) {
+    searchBtn.addEventListener("click", function () {
+      applyFilters();
+    });
+  }
+
+  // 필터 초기화 버튼 이벤트
+  if (clearFilterBtn) {
+    clearFilterBtn.addEventListener("click", function () {
+      clearFilters();
+    });
+  }
+
+  // Enter 키로 검색
+  if (searchInput) {
+    searchInput.addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        applyFilters();
+      }
+    });
+  }
+}
+
 // 로그 API 함수들을 전역으로 노출
 window.LogsAPI = {
   getLogs,
@@ -379,8 +552,12 @@ window.LogsAPI = {
   clearAllLogs,
   confirmAndClearLogs,
   exportLogsToCSV,
+  applyFilters,
+  clearFilters,
+  initializeFilterEvents,
 };
 
 // 전역 함수로 노출
 window.confirmAndClearLogs = confirmAndClearLogs;
 window.exportLogsToCSV = exportLogsToCSV;
+window.clearFilters = clearFilters;
