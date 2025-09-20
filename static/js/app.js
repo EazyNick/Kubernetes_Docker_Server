@@ -7,10 +7,18 @@
 function initSidebar() {
   const sidebarToggle = document.getElementById("sidebarToggle");
   const sidebar = document.getElementById("sidebar");
+  const mainContent = document.getElementById("mainContent");
 
-  if (sidebarToggle && sidebar) {
+  if (sidebarToggle && sidebar && mainContent) {
     sidebarToggle.addEventListener("click", () => {
-      sidebar.classList.toggle("hidden");
+      sidebar.classList.toggle("sidebar-collapsed");
+
+      // 사이드바 상태에 따라 메인 콘텐츠 여백 조정
+      if (sidebar.classList.contains("sidebar-collapsed")) {
+        mainContent.classList.add("expanded");
+      } else {
+        mainContent.classList.remove("expanded");
+      }
     });
   }
 }
@@ -18,11 +26,15 @@ function initSidebar() {
 // 반응형 레이아웃 처리
 function handleResize() {
   const sidebar = document.getElementById("sidebar");
-  if (sidebar) {
+  const mainContent = document.getElementById("mainContent");
+
+  if (sidebar && mainContent) {
     if (window.innerWidth < 768) {
-      sidebar.classList.add("hidden");
+      sidebar.classList.add("sidebar-collapsed");
+      mainContent.classList.add("expanded");
     } else {
-      sidebar.classList.remove("hidden");
+      sidebar.classList.remove("sidebar-collapsed");
+      mainContent.classList.remove("expanded");
     }
   }
 }
@@ -32,6 +44,22 @@ function init() {
   initSidebar();
   handleResize();
   window.addEventListener("resize", handleResize);
+
+  // 페이지 로드 시 사이드바 상태 초기화
+  const sidebar = document.getElementById("sidebar");
+  const mainContent = document.getElementById("mainContent");
+
+  if (sidebar && mainContent) {
+    // 데스크톱에서는 기본적으로 열려있음 (sidebar-collapsed 클래스 제거)
+    if (window.innerWidth >= 768) {
+      sidebar.classList.remove("sidebar-collapsed");
+      mainContent.classList.remove("expanded");
+    } else {
+      // 모바일에서는 기본적으로 닫혀있음
+      sidebar.classList.add("sidebar-collapsed");
+      mainContent.classList.add("expanded");
+    }
+  }
 
   // 현재 페이지에 따라 적절한 초기화 함수 호출
   const currentPath = window.location.pathname;

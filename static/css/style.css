@@ -71,6 +71,7 @@ body {
   width: 250px; /* 사이드바 너비 */
   z-index: 1000; /* 다른 요소들 위에 표시 */
   transition: transform 0.3s ease; /* 슬라이드 애니메이션 */
+  transform: translateX(0); /* 기본적으로 열려있음 */
 }
 
 /* 사이드바 접힌 상태 (모바일에서 숨김) */
@@ -85,8 +86,8 @@ body {
   transition: margin-left 0.3s ease; /* 여백 변화 애니메이션 */
 }
 
-/* 사이드바가 접힌 상태에서 메인 콘텐츠 확장 */
-.content-expanded {
+/* 사이드바가 닫혔을 때 메인 콘텐츠 전체 너비 사용 */
+.main-content.expanded {
   margin-left: 0; /* 왼쪽 여백 제거 */
 }
 
@@ -148,6 +149,11 @@ body {
 .sidebar-toggle:hover {
   background: var(--gray-100);
   color: var(--gray-700);
+}
+
+/* 햄버거 메뉴 버튼 활성 상태 */
+.sidebar-toggle:active {
+  transform: scale(0.95);
 }
 
 /* ========================================

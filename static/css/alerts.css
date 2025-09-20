@@ -325,3 +325,158 @@ tbody tr td:nth-child(6) {
   align-items: center;
   gap: 0.5rem;
 }
+
+/* ========================================
+   설정 저장 완료 팝업 스타일
+   ======================================== */
+
+/* 설정 저장 완료 팝업 컨테이너 */
+.save-success-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 2rem 2.5rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  text-align: center;
+  min-width: 300px;
+  max-width: 400px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+/* 팝업 표시 상태 */
+.save-success-popup.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* 팝업 아이콘 */
+.save-success-icon {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  animation: successPulse 0.6s ease-out;
+}
+
+.save-success-icon i {
+  color: white;
+  font-size: 1.5rem;
+  animation: successCheck 0.5s ease-out 0.2s both;
+}
+
+/* 팝업 제목 */
+.save-success-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+  animation: slideUp 0.4s ease-out 0.3s both;
+}
+
+/* 팝업 메시지 */
+.save-success-message {
+  font-size: 0.95rem;
+  color: #6b7280;
+  margin-bottom: 0;
+  animation: slideUp 0.4s ease-out 0.4s both;
+}
+
+/* 애니메이션 키프레임 */
+@keyframes successPulse {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes successCheck {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(180deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* 팝업 배경 오버레이 */
+.save-success-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 9998;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.save-success-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 480px) {
+  .save-success-popup {
+    min-width: 280px;
+    padding: 1.5rem 2rem;
+    margin: 0 1rem;
+  }
+
+  .save-success-icon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .save-success-icon i {
+    font-size: 1.25rem;
+  }
+
+  .save-success-title {
+    font-size: 1.1rem;
+  }
+
+  .save-success-message {
+    font-size: 0.9rem;
+  }
+}

@@ -1283,6 +1283,72 @@ window.AlertsAPI = {
   undoLastResolve,
 };
 
+// 설정 저장 완료 팝업 표시 함수
+function showSaveSuccessPopup() {
+  // 기존 팝업이 있으면 제거
+  const existingPopup = document.querySelector(".save-success-popup");
+  const existingOverlay = document.querySelector(".save-success-overlay");
+
+  if (existingPopup) existingPopup.remove();
+  if (existingOverlay) existingOverlay.remove();
+
+  // 오버레이 생성
+  const overlay = document.createElement("div");
+  overlay.className = "save-success-overlay";
+  document.body.appendChild(overlay);
+
+  // 팝업 생성
+  const popup = document.createElement("div");
+  popup.className = "save-success-popup";
+  popup.innerHTML = `
+    <div class="save-success-icon">
+      <i class="fas fa-check"></i>
+    </div>
+    <div class="save-success-title">설정 저장 완료</div>
+    <div class="save-success-message">설정이 성공적으로 저장되었습니다.</div>
+  `;
+  document.body.appendChild(popup);
+
+  // 애니메이션을 위해 약간의 지연 후 표시
+  setTimeout(() => {
+    overlay.classList.add("show");
+    popup.classList.add("show");
+  }, 10);
+
+  // 1.5초 후 자동으로 팝업 제거
+  setTimeout(() => {
+    popup.classList.remove("show");
+    overlay.classList.remove("show");
+
+    // 애니메이션 완료 후 DOM에서 제거
+    setTimeout(() => {
+      if (popup.parentNode) popup.remove();
+      if (overlay.parentNode) overlay.remove();
+    }, 300);
+  }, 1500);
+}
+
+// 설정 저장 버튼 클릭 이벤트 처리
+function handleSaveSettings() {
+  // 설정 저장 로직 (실제로는 서버에 저장 요청)
+  console.log("설정 저장 중...");
+
+  // 체크박스 값들 수집
+  const emailNotification =
+    document.getElementById("emailNotification").checked;
+  const slackNotification =
+    document.getElementById("slackNotification").checked;
+  const smsNotification = document.getElementById("smsNotification").checked;
+
+  console.log("이메일 알림:", emailNotification);
+  console.log("Slack 알림:", slackNotification);
+  console.log("SMS 알림:", smsNotification);
+
+  // 설정 저장 완료 팝업 표시
+  showSaveSuccessPopup();
+}
+
 // 전역 함수로 노출
 window.handleModalResolve = handleModalResolve;
 window.saveAlertRule = saveAlertRule;
+window.handleSaveSettings = handleSaveSettings;
