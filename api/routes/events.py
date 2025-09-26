@@ -42,7 +42,12 @@ def get_events():
                 today_events=len(events),
                 warning_events=len([e for e in events if e.type == "Warning"]),
                 normal_events=len([e for e in events if e.type == "Normal"]),
-                system_events=len([e for e in events if e.namespace == "kube-system"])
+                system_events=len([e for e in events if e.namespace == "kube-system"]),
+                # 변화량 데이터 (화살표 방향 표시용)
+                today_events_change=random.choice([f"{random.choice(['+', '-'])}{random.randint(0, 8)}%", "0%"]),
+                warning_events_change=random.choice([f"{random.choice(['+', '-'])}{random.randint(0, 3)}%", "0%"]),
+                normal_events_change=random.choice([f"{random.choice(['+', '-'])}{random.randint(0, 5)}%", "0%"]),
+                system_events_change=random.choice([f"{random.choice(['+', '-'])}{random.randint(0, 2)}%", "0%"])
             )
         )
         
@@ -106,7 +111,12 @@ def get_events_by_namespace(namespace: str):
                 today_events=len(events),
                 warning_events=len([e for e in events if e.type == "Warning"]),
                 normal_events=len([e for e in events if e.type == "Normal"]),
-                system_events=len([e for e in events if e.namespace == "kube-system"])
+                system_events=len([e for e in events if e.namespace == "kube-system"]),
+                # 변화량 데이터 (화살표 방향 표시용)
+                today_events_change=random.choice([f"{random.choice(['+', '-'])}{random.randint(0, 8)}%", "0%"]),
+                warning_events_change=random.choice([f"{random.choice(['+', '-'])}{random.randint(0, 3)}%", "0%"]),
+                normal_events_change=random.choice([f"{random.choice(['+', '-'])}{random.randint(0, 5)}%", "0%"]),
+                system_events_change=random.choice([f"{random.choice(['+', '-'])}{random.randint(0, 2)}%", "0%"])
             )
         )
         

@@ -61,29 +61,29 @@ def get_dashboard_stats():
                 running=random.randint(130, 150),
                 stopped=random.randint(5, 10),
                 failed=random.randint(2, 8),
-                # 변화량 데이터
-                total_change=f"+{random.randint(0, 5)}%",
-                running_change=f"+{random.randint(0, 3)}%",
-                stopped_change=f"{random.choice(['+', '-'])}{random.randint(0, 2)}%",
-                failed_change=f"{random.choice(['+', '-'])}{random.randint(0, 1)}%"
+                # 변화량 데이터 (0%도 포함하여 테스트)
+                total_change=random.choice([f"+{random.randint(0, 5)}%", "0%"]),
+                running_change=random.choice([f"+{random.randint(0, 3)}%", "0%"]),
+                stopped_change=random.choice([f"{random.choice(['+', '-'])}{random.randint(0, 2)}%", "0%"]),
+                failed_change=random.choice([f"{random.choice(['+', '-'])}{random.randint(0, 1)}%", "0%"])
             ),
             nodes=NodeStats(
                 total=random.randint(10, 12),
                 healthy=random.randint(9, 11),
                 warning=random.randint(0, 2),
-                # 변화량 데이터
-                total_change="+0%",
-                healthy_change=f"+{random.randint(0, 2)}%",
-                warning_change=f"{random.choice(['+', '-'])}{random.randint(0, 1)}%"
+                # 변화량 데이터 (0%도 포함하여 테스트)
+                total_change="0%",
+                healthy_change=random.choice([f"+{random.randint(0, 2)}%", "0%"]),
+                warning_change=random.choice([f"{random.choice(['+', '-'])}{random.randint(0, 1)}%", "0%"])
             ),
             resources=ResourceStats(
                 avg_cpu=round(random.uniform(25, 45), 1),
                 avg_memory=round(random.uniform(60, 80), 1),
                 network_traffic=random.randint(100, 200),
-                # 변화량 데이터
-                avg_cpu_change=f"{random.choice(['+', '-'])}{random.uniform(0.5, 3.0):.1f}%",
-                avg_memory_change=f"{random.choice(['+', '-'])}{random.uniform(0.5, 2.0):.1f}%",
-                network_traffic_change=f"+{random.randint(0, 10)}%"
+                # 변화량 데이터 (0%도 포함하여 테스트)
+                avg_cpu_change=random.choice([f"{random.choice(['+', '-'])}{random.uniform(0.5, 3.0):.1f}%", "0%"]),
+                avg_memory_change=random.choice([f"{random.choice(['+', '-'])}{random.uniform(0.5, 2.0):.1f}%", "0%"]),
+                network_traffic_change=random.choice([f"+{random.randint(0, 10)}%", "0%"])
             )
         )
         return BaseResponse.success_response(

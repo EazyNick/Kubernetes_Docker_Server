@@ -35,6 +35,11 @@ class EventSummary(BaseModel):
     warning_events: int  # 경고(Warning) 유형 이벤트 수 (예: 5)
     normal_events: int  # 정상(Normal) 유형 이벤트 수 (예: 35)
     system_events: int  # 시스템 관련 이벤트 수 (예: 5, kube-system 네임스페이스 등)
+    # 변화량 데이터 (화살표 방향 표시용)
+    today_events_change: str  # 오늘 이벤트 변화량 (예: "+5%", "-2%", "0%")
+    warning_events_change: str  # 경고 이벤트 변화량 (예: "+3%", "-1%", "0%")
+    normal_events_change: str  # 정상 이벤트 변화량 (예: "+2%", "-1%", "0%")
+    system_events_change: str  # 시스템 이벤트 변화량 (예: "+1%", "-1%", "0%")
 
 
 class EventList(BaseModel):
