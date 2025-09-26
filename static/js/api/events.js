@@ -275,10 +275,12 @@ function updateSearchStats() {
   const searchFilter = document.getElementById("searchFilter");
   const searchStats = document.getElementById("searchStats");
 
+  // 검색 필터나 검색 통계 요소가 존재하지 않는 경우
   if (!searchFilter || !searchStats) return;
 
   const searchTerm = searchFilter.value.trim();
 
+  // 검색어가 있는 경우
   if (searchTerm) {
     const totalResults = filteredEvents.length;
     const totalEvents = allEvents.length;
@@ -336,6 +338,7 @@ function updateFilterInfo() {
 // 네임스페이스 필터 옵션 동적 생성
 function updateNamespaceFilter() {
   const namespaceFilter = document.getElementById("namespaceFilter");
+  // 네임스페이스 필터 요소가 존재하지 않거나 이벤트가 없는 경우
   if (!namespaceFilter || allEvents.length === 0) return;
 
   // 현재 선택된 값 저장
@@ -360,6 +363,7 @@ function updateNamespaceFilter() {
   });
 
   // 이전 선택값 복원 (유효한 경우)
+  // 이전 선택값이 유효한 네임스페이스 목록에 포함된 경우
   if (uniqueNamespaces.includes(currentValue)) {
     namespaceFilter.value = currentValue;
   } else {
@@ -373,6 +377,7 @@ function updateNamespaceFilter() {
 
 // 이벤트 페이지 데이터 로딩
 async function loadEventsData() {
+  // EventsAPI가 사용 가능한지 확인
   if (!window.EventsAPI) {
     console.error("EventsAPI not available");
     return;
@@ -380,15 +385,43 @@ async function loadEventsData() {
 
   try {
     const response = await window.EventsAPI.getEvents();
+    // 이벤트 데이터가 성공적으로 로드된 경우
     if (response && response.success) {
       allEvents = response.data.events;
       const summary = response.data.summary;
 
       // 이벤트 통계 업데이트
-      updateElement("todayEvents", summary.today_events);
-      updateElement("warningEvents", summary.warning_events);
-      updateElement("normalEvents", summary.normal_events);
-      updateElement("systemEvents", summary.system_events);
+      updateElement("todayEvents", summary.today_events); // 오늘 이벤트 카드
+      updateElement("warningEvents", summary.warning_events); // 경고 이벤트 카드
+      updateElement("normalEvents", summary.normal_events); // 정상 이벤트 카드
+      updateElement("systemEvents", summary.system_events); // 시스템 이벤트 카드
+
+      // 이벤트 변화량 업데이트 (화살표 방향 포함)
+      // updateChangeElement 함수가 사용 가능한 경우
+      if (window.updateChangeElement) {
+        window.updateChangeElement(
+          "todayEventsChange",
+          summary.today_events_change
+        ); // 오늘 이벤트 카드
+        window.updateChangeElement(
+          "warningEventsChange",
+          summary.warning_events_change
+        ); // 경고 이벤트 카드
+        window.updateChangeElement(
+          "normalEventsChange",
+          summary.normal_events_change
+        ); // 정상 이벤트 카드
+        window.updateChangeElement(
+          "systemEventsChange",
+          summary.system_events_change
+        ); // 시스템 이벤트 카드
+      } else {
+        // fallback: 기존 방식 사용
+        updateElement("todayEventsChange", summary.today_events_change); // 오늘 이벤트 카드 (fallback)
+        updateElement("warningEventsChange", summary.warning_events_change); // 경고 이벤트 카드 (fallback)
+        updateElement("normalEventsChange", summary.normal_events_change); // 정상 이벤트 카드 (fallback)
+        updateElement("systemEventsChange", summary.system_events_change); // 시스템 이벤트 카드 (fallback)
+      }
 
       // 네임스페이스 필터 옵션 업데이트
       updateNamespaceFilter();
@@ -399,6 +432,7 @@ async function loadEventsData() {
   } catch (error) {
     console.error("Error loading events data:", error);
     const tbody = document.getElementById("eventsTableBody");
+    // 테이블 본문이 존재하는 경우 오류 메시지 표시
     if (tbody) {
       tbody.innerHTML = `
         <tr>
@@ -416,24 +450,28 @@ async function loadEventsData() {
 function setupEventFilters() {
   // 타입 필터
   const typeFilter = document.getElementById("eventTypeFilter");
+  // 타입 필터 요소가 존재하는 경우
   if (typeFilter) {
     typeFilter.addEventListener("change", filterEvents);
   }
 
   // 네임스페이스 필터
   const namespaceFilter = document.getElementById("namespaceFilter");
+  // 네임스페이스 필터 요소가 존재하는 경우
   if (namespaceFilter) {
     namespaceFilter.addEventListener("change", filterEvents);
   }
 
   // 시간 필터
   const timeFilter = document.getElementById("timeFilter");
+  // 시간 필터 요소가 존재하는 경우
   if (timeFilter) {
     timeFilter.addEventListener("change", filterEvents);
   }
 
   // 검색 필터 (실시간 검색)
   const searchFilter = document.getElementById("searchFilter");
+  // 검색 필터 요소가 존재하는 경우
   if (searchFilter) {
     searchFilter.addEventListener("input", filterEvents);
   }

@@ -129,7 +129,7 @@ async function loadAlertsData() {
 
   try {
     const response = await window.AlertsAPI.getAlerts();
-    // API 응답이 성공적이고 데이터가 있는 경우
+    // 알림 데이터가 성공적으로 로드된 경우
     if (response && response.success) {
       const alerts = response.data.alerts;
       const summary = response.data.summary;
@@ -143,6 +143,30 @@ async function loadAlertsData() {
       updateElement("warningAlerts", summary.warning);
       updateElement("infoAlerts", summary.info);
       updateElement("resolvedAlerts", summary.resolved);
+
+      // 알림 변화량 업데이트 (화살표 방향 포함)
+      // updateChangeElement 함수가 사용 가능한 경우
+      if (window.updateChangeElement) {
+        window.updateChangeElement(
+          "criticalAlertsChange",
+          summary.critical_change
+        ); // Critical 알림 카드
+        window.updateChangeElement(
+          "warningAlertsChange",
+          summary.warning_change
+        ); // Warning 알림 카드
+        window.updateChangeElement("infoAlertsChange", summary.info_change); // Info 알림 카드
+        window.updateChangeElement(
+          "resolvedAlertsChange",
+          summary.resolved_change
+        ); // 해결된 알림 카드
+      } else {
+        // fallback: 기존 방식 사용
+        updateElement("criticalAlertsChange", summary.critical_change); // Critical 알림 카드 (fallback)
+        updateElement("warningAlertsChange", summary.warning_change); // Warning 알림 카드 (fallback)
+        updateElement("infoAlertsChange", summary.info_change); // Info 알림 카드 (fallback)
+        updateElement("resolvedAlertsChange", summary.resolved_change); // 해결된 알림 카드 (fallback)
+      }
 
       // 테이블 본문이 존재하는 경우
       if (tbody) {

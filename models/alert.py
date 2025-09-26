@@ -92,6 +92,11 @@ class AlertSummary(BaseModel):
     warning: int  # 경고(Warning) 심각도 알림 개수 (주의 깊게 모니터링 필요)
     info: int  # 정보(Info) 심각도 알림 개수 (참고용 정보)
     resolved: int  # 해결된(Resolved) 상태 알림 개수 (최근 24시간 내)
+    # 변화량 데이터 (화살표 방향 표시용)
+    critical_change: str  # Critical 알림 변화량 (예: "+2%", "-1%", "0%")
+    warning_change: str  # Warning 알림 변화량 (예: "+3%", "-2%", "0%")
+    info_change: str  # Info 알림 변화량 (예: "+1%", "-1%", "0%")
+    resolved_change: str  # 해결된 알림 변화량 (예: "+5%", "-2%", "0%")
 
 
 class AlertList(BaseModel):

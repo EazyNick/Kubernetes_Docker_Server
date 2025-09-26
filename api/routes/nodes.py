@@ -112,6 +112,7 @@ def get_node_stats(db: Session = Depends(get_db)):
 
         # 4. 통계 데이터 모델 생성
         node_stats = NodePageStats(
+<<<<<<< HEAD
             healthy_nodes=healthy_nodes,
             warning_nodes=warning_nodes,
             total_cores=int(total_cores),
@@ -125,6 +126,20 @@ def get_node_stats(db: Session = Depends(get_db)):
             total_memory_change="+0%",
             avg_cpu_usage_change="+0.0%",
             avg_memory_usage_change="+0.0%"
+=======
+            healthy_nodes=random.randint(9, 11),
+            warning_nodes=random.randint(0, 2),
+            total_cores=random.randint(40, 60),
+            total_memory=random.randint(160, 256),
+            avg_cpu_usage=round(random.uniform(25, 45), 1),
+            avg_memory_usage=round(random.uniform(60, 80), 1),
+            healthy_nodes_change=random.choice([f"+{random.randint(0, 3)}%", "0%"]),
+            warning_nodes_change=random.choice([f"{random.choice(['+', '-'])}{random.randint(0, 2)}%", "0%"]),
+            total_cores_change="0%",
+            total_memory_change="0%",
+            avg_cpu_usage_change=random.choice([f"{random.choice(['+', '-'])}{random.uniform(0.5, 3.0):.1f}%", "0%"]),
+            avg_memory_usage_change=random.choice([f"{random.choice(['+', '-'])}{random.uniform(0.5, 2.0):.1f}%", "0%"])
+>>>>>>> 94cc32b (데이터 카드 +,-에 따라 화살표 방향 수정)
         )
         
         return BaseResponse.success_response(

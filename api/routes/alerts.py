@@ -47,7 +47,12 @@ def get_alerts():
                 critical=len([a for a in alerts if a.severity == "Critical"]),
                 warning=len([a for a in alerts if a.severity == "Warning"]),
                 info=len([a for a in alerts if a.severity == "Info"]),
-                resolved=len([a for a in alerts if a.status == "Resolved"])
+                resolved=len([a for a in alerts if a.status == "Resolved"]),
+                # 변화량 데이터 (화살표 방향 표시용)
+                critical_change=random.choice([f"{random.choice(['+', '-'])}{random.randint(0, 3)}%", "0%"]),
+                warning_change=random.choice([f"{random.choice(['+', '-'])}{random.randint(0, 2)}%", "0%"]),
+                info_change=random.choice([f"{random.choice(['+', '-'])}{random.randint(0, 2)}%", "0%"]),
+                resolved_change=random.choice([f"{random.choice(['+', '-'])}{random.randint(0, 5)}%", "0%"])
             )
         )
         
