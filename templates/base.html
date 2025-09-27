@@ -24,17 +24,19 @@
     <link href="/static/css/style.css" rel="stylesheet" />
     <link href="/static/css/chart.css" rel="stylesheet" />
     <link href="/static/css/alerts.css" rel="stylesheet" />
+    
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
     <div class="main-container">
         <!-- Sidebar Navigation -->
         <aside class="sidebar" id="sidebar">
-            <a href="/" class="sidebar-brand">
+            <a href="/home" class="sidebar-brand">
                 <i class="fas fa-server"></i>
                 Container Monitor
             </a>
             <nav class="sidebar-nav">
-                <a href="/" class="sidebar-nav-item {% if request.url.path == '/' %}active{% endif %}">
+                <a href="/home" class="sidebar-nav-item {% if request.url.path == '/home' %}active{% endif %}">
                     <i class="fas fa-home"></i>
                     홈
                 </a>
@@ -116,5 +118,7 @@
     <script src="/static/js/charts/monitoring.js"></script>
     <!-- Custom JS -->
     <script src="/static/js/app.js"></script>
+    
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

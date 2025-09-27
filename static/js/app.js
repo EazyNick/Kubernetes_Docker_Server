@@ -64,7 +64,7 @@ function init() {
   // 현재 페이지에 따라 적절한 초기화 함수 호출
   const currentPath = window.location.pathname;
 
-  if (currentPath === "/") {
+  if (currentPath === "/home") {
     // 홈 페이지 초기화
     if (window.HomeAPI) {
       window.HomeAPI.initHome();
