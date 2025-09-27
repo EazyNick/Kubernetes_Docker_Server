@@ -15,21 +15,20 @@ window.HomeAPI = {
    * 홈 페이지 초기화 (차트 없음)
    */
   initHome() {
-    // API 로드 확인 후 데이터 로드
-    function waitForAPI() {
-      if (window.StatsAPI) {
+    console.log("🏠 홈 페이지 로드됨 - 데이터 요청 시작");
+
+    // 기존 StatsAPI 방식 사용
+    if (window.StatsAPI) {
+      window.StatsAPI.updateRealTimeData();
+
+      // 30초마다 데이터 자동 새로고침
+      setInterval(() => {
+        console.log("🔄 홈 페이지 데이터 자동 새로고침");
         window.StatsAPI.updateRealTimeData();
-
-        // 5초마다 데이터 업데이트
-        setInterval(() => {
-          window.StatsAPI.updateRealTimeData();
-        }, 5000);
-      } else {
-        setTimeout(waitForAPI, 50);
-      }
+      }, 30000);
+    } else {
+      console.error("❌ StatsAPI를 찾을 수 없습니다.");
     }
-
-    waitForAPI();
   },
 
   /**

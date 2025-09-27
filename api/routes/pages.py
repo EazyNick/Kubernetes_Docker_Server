@@ -15,6 +15,14 @@ try:
     from logs import log_manager
 except Exception as e:
     print(f"임포트 실패: {e}")
+    # log_manager가 없을 때를 위한 더미 클래스
+    class DummyLogManager:
+        class Logger:
+            def info(self, msg): print(f"INFO: {msg}")
+            def error(self, msg): print(f"ERROR: {msg}")
+            def warning(self, msg): print(f"WARNING: {msg}")
+        logger = Logger()
+    log_manager = DummyLogManager()
 
 # 템플릿 엔진 설정
 templates = Jinja2Templates(directory="templates")
@@ -23,15 +31,28 @@ templates = Jinja2Templates(directory="templates")
 router = APIRouter()
 
 @router.get("/")
-def read_root(request: Request):
-    """홈 페이지"""
+def login_page(request: Request):
+    """로그인 페이지"""
     try:
-        log_manager.logger.info("홈 페이지 접근 요청")
+        log_manager.logger.info("로그인 페이지 접근 요청")
         response = templates.TemplateResponse("index.html", {"request": request})
-        log_manager.logger.info("홈 페이지 응답 완료")
+        log_manager.logger.info("로그인 페이지 응답 완료")
         return response
     except Exception as e:
-        log_manager.logger.error(f"홈 페이지 처리 중 오류 발생: {e}")
+        log_manager.logger.error(f"로그인 페이지 처리 중 오류 발생: {e}")
+        raise
+
+@router.get("/home")
+def home_page(request: Request):
+    """홈 페이지"""
+    try:
+        log_manager.logger.info(f"🏠 홈 페이지 접근 요청 - IP: {request.client.host if request.client else 'Unknown'}")
+        log_manager.logger.info(f"🏠 홈 페이지 접근 요청 - User-Agent: {request.headers.get('user-agent', 'Unknown')}")
+        response = templates.TemplateResponse("home.html", {"request": request})
+        log_manager.logger.info("🏠 홈 페이지 응답 완료")
+        return response
+    except Exception as e:
+        log_manager.logger.error(f"🏠 홈 페이지 처리 중 오류 발생: {e}")
         raise
 
 @router.get("/dashboard")
