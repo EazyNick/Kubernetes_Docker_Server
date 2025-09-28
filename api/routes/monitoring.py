@@ -2,18 +2,23 @@
 모니터링 관련 API 라우트
 차트 데이터와 성능 메트릭을 제공
 """
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from models import (
     BaseResponse,
     NetworkTrafficData, DiskIoData, ResponseTimeData, RequestStatusData,
     NetworkTrafficResponse, DiskIoResponse, ResponseTimeResponse, RequestStatusResponse,
     ChartDataset
 )
+from api.routes.auth import get_current_user_from_token
 import random
 from datetime import datetime, timedelta
 
-# 라우터 생성
-router = APIRouter(prefix="/api/monitoring", tags=["monitoring"])
+# 라우터 생성 (모든 경로에 인증 적용)
+router = APIRouter(
+    prefix="/api/monitoring",
+    tags=["monitoring"],
+    dependencies=[Depends(get_current_user_from_token)]
+)
 
 
 @router.get("/network-traffic", response_model=NetworkTrafficResponse)

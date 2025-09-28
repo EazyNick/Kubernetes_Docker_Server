@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from db.database import get_db
+from api.routes.auth import get_current_user_from_token
 
 from models import (
     BaseResponse,
@@ -19,7 +20,11 @@ import random
 from datetime import datetime, timedelta
 
 # 라우터 생성
-router = APIRouter(prefix="/api", tags=["containers"])
+router = APIRouter(
+    prefix="/api",
+    tags=["containers"],
+    dependencies=[Depends(get_current_user_from_token)]
+)
 
 @router.get("/containers", response_model=BaseResponse)
 def get_containers(page: int = 1, per_page: int = 20, db: Session = Depends(get_db)):

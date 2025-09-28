@@ -2,18 +2,23 @@
 이벤트 관련 API 라우트
 시스템 이벤트 및 로그 정보를 제공
 """
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from models import (
     BaseResponse,
     Event,
     EventList,
     EventSummary
 )
+from api.routes.auth import get_current_user_from_token
 import random
 from datetime import datetime, timedelta
 
 # 라우터 생성
-router = APIRouter(prefix="/api", tags=["events"])
+router = APIRouter(
+    prefix="/api",
+    tags=["events"],
+    dependencies=[Depends(get_current_user_from_token)]
+)
 
 @router.get("/events", response_model=BaseResponse)
 def get_events():

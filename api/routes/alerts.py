@@ -2,7 +2,7 @@
 알림 관련 API 라우트
 시스템 알림 및 경고 정보를 제공
 """
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from models import (
     BaseResponse,
     Alert,
@@ -12,11 +12,16 @@ from models import (
     AlertRule,
     AlertRuleList
 )
+from api.routes.auth import get_current_user_from_token
 import random
 from datetime import datetime, timedelta
 
 # 라우터 생성
-router = APIRouter(prefix="/api", tags=["alerts"])
+router = APIRouter(
+    prefix="/api",
+    tags=["alerts"],
+    dependencies=[Depends(get_current_user_from_token)]
+)
 
 @router.get("/alerts", response_model=BaseResponse)
 def get_alerts():
