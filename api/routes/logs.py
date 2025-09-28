@@ -6,10 +6,15 @@ from typing import List, Optional
 import random
 from datetime import datetime, timedelta
 from models import LogEntry, LogStats, LogListResponse, LogStatsResponse, BaseResponse
+from api.routes.auth import get_current_user_from_token
 import collections
 
 
-router = APIRouter(prefix="/api", tags=["logs"])
+router = APIRouter(
+    prefix="/api", 
+    tags=["logs"],
+    dependencies=[Depends(get_current_user_from_token)]
+)
 
 # 샘플 로그 데이터 생성
 def generate_sample_logs(count: int = 20) -> List[LogEntry]:

@@ -14,11 +14,16 @@ from sqlalchemy.orm import Session
 from db.database import get_db
 from models import BaseResponse, Node, NodeList
 from models.node import ResourceUsage, MemoryInfo, DiskInfo
+from api.routes.auth import get_current_user_from_token
 import random
 from datetime import datetime, timedelta
 
 # 라우터 생성
-router = APIRouter(prefix="/api", tags=["nodes"])
+router = APIRouter(
+    prefix="/api",
+    tags=["nodes"],
+    dependencies=[Depends(get_current_user_from_token)]
+)
 
 @router.get("/nodes", response_model=BaseResponse)
 def get_nodes(db: Session = Depends(get_db)):

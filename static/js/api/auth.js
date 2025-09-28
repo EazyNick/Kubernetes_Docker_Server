@@ -27,6 +27,9 @@ async function loginUser(username, password, rememberMe = false) {
     const data = await response.json();
 
     if (response.ok) {
+      if (data.data.access_token) {
+        saveToken(data.data.access_token, rememberMe);
+      }
       return {
         success: true,
         data: data.data,
@@ -53,7 +56,7 @@ async function loginUser(username, password, rememberMe = false) {
  */
 async function logoutUser() {
   try {
-    const token = localStorage.getItem("access_token");
+    const token = getToken();
     const response = await fetch("/api/auth/logout", {
       method: "POST",
       headers: {
@@ -65,8 +68,9 @@ async function logoutUser() {
     const data = await response.json();
 
     if (response.ok) {
-      // 로컬 스토리지에서 토큰 제거
+      // 로컬 및 세션 스토리지에서 토큰 제거
       localStorage.removeItem("access_token");
+      sessionStorage.removeItem("access_token");
       localStorage.removeItem("rememberedUser");
 
       return {
@@ -94,7 +98,7 @@ async function logoutUser() {
  */
 async function getCurrentUser() {
   try {
-    const token = localStorage.getItem("access_token");
+    const token = getToken();
     const response = await fetch("/api/auth/me", {
       method: "GET",
       headers: {
