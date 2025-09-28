@@ -138,3 +138,15 @@ def events(request: Request):
     except Exception as e:
         log_manager.logger.error(f"이벤트 페이지 처리 중 오류 발생: {e}")
         raise
+
+@router.get("/admin")
+def admin(request: Request):
+    """관리자 페이지"""
+    try:
+        log_manager.logger.info("관리자 페이지 접근 요청")
+        response = templates.TemplateResponse("admin.html", {"request": request})
+        log_manager.logger.info("관리자 페이지 응답 완료")
+        return response
+    except Exception as e:
+        log_manager.logger.error(f"관리자 페이지 처리 중 오류 발생: {e}")
+        raise
