@@ -41,6 +41,11 @@ function handleResize() {
 
 // 메인 초기화 함수
 function init() {
+  // 인증 상태 확인
+  if (!checkAuthStatus()) {
+    return;
+  }
+
   initSidebar();
   handleResize();
   window.addEventListener("resize", handleResize);
@@ -121,6 +126,11 @@ function init() {
     // 모니터링 차트 초기화
     if (window.MonitoringCharts) {
       window.MonitoringCharts.initAllCharts();
+    }
+  } else if (currentPath === "/admin") {
+    // 관리자 페이지 초기화
+    if (window.AdminAPI) {
+      window.AdminAPI.initAdmin();
     }
   }
 }
