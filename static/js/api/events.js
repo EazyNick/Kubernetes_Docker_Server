@@ -7,8 +7,7 @@
 async function getEvents() {
   try {
     console.log("📅 [이벤트API] 이벤트 목록 요청 중...");
-    const response = await fetch("/api/events");
-    const data = await response.json();
+    const data = await apiGet("/api/events");
     console.log("📅 [이벤트API] 이벤트 목록 응답:", data);
     return data;
   } catch (error) {
@@ -20,8 +19,7 @@ async function getEvents() {
 // 특정 이벤트 상세 정보 조회
 async function getEvent(eventId) {
   try {
-    const response = await fetch(`/api/events/${eventId}`);
-    const data = await response.json();
+    const data = await apiGet(`/api/events/${eventId}`);
     return data;
   } catch (error) {
     console.error("Error fetching event:", error);
@@ -32,8 +30,7 @@ async function getEvent(eventId) {
 // 특정 네임스페이스의 이벤트 조회
 async function getEventsByNamespace(namespace) {
   try {
-    const response = await fetch(`/api/events/namespace/${namespace}`);
-    const data = await response.json();
+    const data = await apiGet(`/api/events/namespace/${namespace}`);
     return data;
   } catch (error) {
     console.error("Error fetching events by namespace:", error);

@@ -2,7 +2,7 @@
 통계 관련 API 라우트
 홈 페이지와 대시보드의 통계 데이터를 제공
 """
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from models import (
     BaseResponse,
     OverviewStats,
@@ -11,6 +11,7 @@ from models import (
     NodeStats,
     ResourceStats
 )
+from api.routes.auth import get_current_user_from_token
 import random
 import os
 import sys
@@ -33,7 +34,11 @@ except Exception as e:
     log_manager = DummyLogManager()
 
 # 라우터 생성
-router = APIRouter(prefix="/api/stats", tags=["stats"])
+router = APIRouter(
+    prefix="/api/stats", 
+    tags=["stats"],
+    dependencies=[Depends(get_current_user_from_token)]
+)
 
 @router.get("/overview", response_model=BaseResponse)
 def get_overview_stats():

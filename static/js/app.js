@@ -42,7 +42,8 @@ function handleResize() {
 // 메인 초기화 함수
 function init() {
   // 인증 상태 확인
-  if (!checkAuthStatus()) {
+  if (!isLoggedIn()) {
+    redirectToLogin();
     return;
   }
 

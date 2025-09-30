@@ -7,8 +7,7 @@
 async function getAlerts() {
   try {
     console.log("🚨 [알림API] 알림 목록 요청 중...");
-    const response = await fetch("/api/alerts");
-    const data = await response.json();
+    const data = await apiGet("/api/alerts");
     console.log("🚨 [알림API] 알림 목록 응답:", data);
     return data;
   } catch (error) {
@@ -20,8 +19,7 @@ async function getAlerts() {
 // 특정 알림 기본 정보 조회
 async function getAlert(alertId) {
   try {
-    const response = await fetch(`/api/alerts/${alertId}`);
-    const data = await response.json();
+    const data = await apiGet(`/api/alerts/${alertId}`);
     return data;
   } catch (error) {
     console.error("Error fetching alert:", error);
@@ -33,15 +31,7 @@ async function getAlert(alertId) {
 async function getAlertDetail(alertId) {
   try {
     console.log("🔍 [API] 상세정보 요청 URL:", `/api/alerts/${alertId}/detail`);
-    const response = await fetch(`/api/alerts/${alertId}/detail`);
-    console.log("🔍 [API] 응답 상태:", response.status, response.statusText);
-
-    // HTTP 응답이 성공적이지 않은 경우 (4xx, 5xx 에러)
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-
-    const data = await response.json();
+    const data = await apiGet(`/api/alerts/${alertId}/detail`);
     console.log("🔍 [API] 응답 데이터:", data);
     return data;
   } catch (error) {
@@ -54,13 +44,7 @@ async function getAlertDetail(alertId) {
 // 알림 해결 처리
 async function resolveAlert(alertId) {
   try {
-    const response = await fetch(`/api/alerts/${alertId}/resolve`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const data = await response.json();
+    const data = await apiPut(`/api/alerts/${alertId}/resolve`);
     return data;
   } catch (error) {
     console.error("Error resolving alert:", error);
@@ -71,8 +55,7 @@ async function resolveAlert(alertId) {
 // 알림 규칙 목록 조회
 async function getAlertRules() {
   try {
-    const response = await fetch("/api/alert-rules");
-    const data = await response.json();
+    const data = await apiGet("/api/alert-rules");
     return data;
   } catch (error) {
     console.error("Error fetching alert rules:", error);
@@ -84,13 +67,7 @@ async function getAlertRules() {
 async function deleteAlertRuleAPI(ruleId) {
   try {
     console.log("🗑️ [알림규칙API] 알림 규칙 삭제 요청:", ruleId);
-    const response = await fetch(`/api/alert-rules/${ruleId}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const data = await response.json();
+    const data = await apiDelete(`/api/alert-rules/${ruleId}`);
     console.log("🗑️ [알림규칙API] 삭제 응답:", data);
     return data;
   } catch (error) {
@@ -103,14 +80,7 @@ async function deleteAlertRuleAPI(ruleId) {
 async function updateAlertRuleAPI(ruleId, ruleData) {
   try {
     console.log("✏️ [알림규칙API] 알림 규칙 수정 요청:", ruleId, ruleData);
-    const response = await fetch(`/api/alert-rules/${ruleId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(ruleData),
-    });
-    const data = await response.json();
+    const data = await apiPut(`/api/alert-rules/${ruleId}`, ruleData);
     console.log("✏️ [알림규칙API] 수정 응답:", data);
     return data;
   } catch (error) {

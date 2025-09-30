@@ -19,23 +19,7 @@ window.MonitoringAPI = {
         new Date().toLocaleTimeString("ko-KR")
       );
 
-      const response = await fetch("/api/monitoring/network-traffic");
-
-      console.log(
-        "🌐 [네트워크 트래픽 API] HTTP 응답 상태:",
-        response.status,
-        response.statusText
-      );
-      console.log(
-        "🌐 [네트워크 트래픽 API] 응답 헤더:",
-        Object.fromEntries(response.headers.entries())
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const result = await response.json();
+      const result = await apiGet("/api/monitoring/network-traffic");
       console.log("🌐 [네트워크 트래픽 API] JSON 응답 데이터:", result);
       console.log("🌐 [네트워크 트래픽 API] 응답 구조 분석:");
       console.log("  - success:", result.success);
@@ -95,19 +79,7 @@ window.MonitoringAPI = {
         new Date().toLocaleTimeString("ko-KR")
       );
 
-      const response = await fetch("/api/monitoring/disk-io");
-
-      console.log(
-        "💾 [디스크 I/O API] HTTP 응답 상태:",
-        response.status,
-        response.statusText
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const result = await response.json();
+      const result = await apiGet("/api/monitoring/disk-io");
       console.log("💾 [디스크 I/O API] JSON 응답 데이터:", result);
 
       if (result.success) {
@@ -151,19 +123,7 @@ window.MonitoringAPI = {
         new Date().toLocaleTimeString("ko-KR")
       );
 
-      const response = await fetch("/api/monitoring/response-time");
-
-      console.log(
-        "⏱️ [응답 시간 API] HTTP 응답 상태:",
-        response.status,
-        response.statusText
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const result = await response.json();
+      const result = await apiGet("/api/monitoring/response-time");
       console.log("⏱️ [응답 시간 API] JSON 응답 데이터:", result);
 
       if (result.success) {
@@ -205,19 +165,7 @@ window.MonitoringAPI = {
         new Date().toLocaleTimeString("ko-KR")
       );
 
-      const response = await fetch("/api/monitoring/request-status");
-
-      console.log(
-        "📊 [요청 상태 API] HTTP 응답 상태:",
-        response.status,
-        response.statusText
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const result = await response.json();
+      const result = await apiGet("/api/monitoring/request-status");
       console.log("📊 [요청 상태 API] JSON 응답 데이터:", result);
 
       if (result.success) {

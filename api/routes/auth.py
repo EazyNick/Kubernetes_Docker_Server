@@ -107,7 +107,7 @@ async def login(request: LoginRequest, db: Session = Depends(get_db)):
         session_token = secrets.token_hex(32)
 
         # 2. 만료 시간 계산
-        expires_at = datetime.utcnow() + timedelta(minutes=5) # 1시간 후
+        expires_at = datetime.utcnow() + timedelta(hours=4) # 4시간 후
         if (request.remember_me):
             expires_at = datetime.utcnow() + timedelta(days=7) # 7일 후
 
@@ -129,7 +129,7 @@ async def login(request: LoginRequest, db: Session = Depends(get_db)):
                 access_token=session_token,
                 user_id=str(user.id),
                 username=user.username,
-                expires_in=expires_at - datetime.utcnow()
+                expires_in=int((expires_at - datetime.utcnow()).total_seconds())
             ).dict(),
             message="로그인에 성공했습니다."
         )
