@@ -14,13 +14,7 @@ async function getLogs(params = {}) {
     if (params.time_range) queryParams.append("time_range", params.time_range);
 
     const url = `${LOGS_API_BASE}/logs?${queryParams.toString()}`;
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
+    const data = await apiGet(url);
     console.log("📝 [로그API] 로그 목록 응답:", data);
     return data;
   } catch (error) {
@@ -34,13 +28,7 @@ async function getLogStats(timeRange = "24h") {
   try {
     console.log(`📊 [로그API] 로그 통계 요청 중... (시간 범위: ${timeRange})`);
     const url = `${LOGS_API_BASE}/logs/stats?time_range=${timeRange}`;
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
+    const data = await apiGet(url);
     console.log("📊 [로그API] 로그 통계 응답:", data);
     return data;
   } catch (error) {
@@ -53,13 +41,7 @@ async function getLogStats(timeRange = "24h") {
 async function getLog(logId) {
   try {
     const url = `${LOGS_API_BASE}/logs/${logId}`;
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return await response.json();
+    return await apiGet(url);
   } catch (error) {
     console.error("Error fetching log:", error);
     throw error;
@@ -173,18 +155,7 @@ function filterLogs(level, source, timeRange) {
 async function clearAllLogs() {
   try {
     console.log("🗑️ [로그API] 모든 로그 삭제 요청 중...");
-    const response = await fetch(`${LOGS_API_BASE}/logs`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
+    const data = await apiDelete(`${LOGS_API_BASE}/logs`);
     console.log("🗑️ [로그API] 로그 삭제 응답:", data);
     return data;
   } catch (error) {
@@ -557,7 +528,77 @@ window.LogsAPI = {
   initializeFilterEvents,
 };
 
+// 로그 통계 로드 함수
+async function loadLogStats() {
+  const statsContainer = document.getElementById("logStatsContainer");
+
+  try {
+    const data = await apiGet("/api/logs/stats?time_range=24h");
+
+    if (data.success && data.data) {
+      const stats = data.data;
+
+      statsContainer.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span>전체 로그</span>
+          <span class="fw-bold">${stats.total_logs.toLocaleString()}</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="text-success">INFO</span>
+          <span class="fw-bold">${stats.info_count.toLocaleString()}</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="text-warning">WARN</span>
+          <span class="fw-bold">${stats.warn_count.toLocaleString()}</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="text-danger">ERROR</span>
+          <span class="fw-bold">${stats.error_count.toLocaleString()}</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="text-info">DEBUG</span>
+          <span class="fw-bold">${stats.debug_count.toLocaleString()}</span>
+        </div>
+      `;
+    }
+  } catch (error) {
+    console.error("Error loading log stats:", error);
+    statsContainer.innerHTML =
+      '<p class="text-muted">통계를 불러올 수 없습니다.</p>';
+  }
+}
+
+// 컨테이너 목록 로드 함수
+async function loadContainerOptions() {
+  const containerSelect = document.getElementById("containerFilter");
+
+  try {
+    const data = await apiGet("/api/containers");
+
+    if (data.success && data.data && data.data.containers) {
+      const containers = data.data.containers;
+
+      // 기존 옵션 제거 (첫 번째 "모든 컨테이너" 옵션 제외)
+      while (containerSelect.children.length > 1) {
+        containerSelect.removeChild(containerSelect.lastChild);
+      }
+
+      // 컨테이너 옵션 추가
+      containers.forEach((container) => {
+        const option = document.createElement("option");
+        option.value = container.id;
+        option.textContent = `${container.name} (${container.status})`;
+        containerSelect.appendChild(option);
+      });
+    }
+  } catch (error) {
+    console.error("Error loading container options:", error);
+  }
+}
+
 // 전역 함수로 노출
 window.confirmAndClearLogs = confirmAndClearLogs;
 window.exportLogsToCSV = exportLogsToCSV;
 window.clearFilters = clearFilters;
+window.loadLogStats = loadLogStats;
+window.loadContainerOptions = loadContainerOptions;

@@ -20,10 +20,9 @@ async function getContainers(page = 1, perPage = 20) {
     console.log(
       `🐳 [컨테이너API] 컨테이너 목록 요청 중... (페이지: ${page}, 크기: ${perPage})`
     );
-    const response = await fetch(
+    const data = await apiGet(
       `/api/containers?page=${page}&per_page=${perPage}`
     );
-    const data = await response.json();
     console.log("🐳 [컨테이너API] 컨테이너 목록 응답:", data);
     return data;
   } catch (error) {
@@ -35,8 +34,7 @@ async function getContainers(page = 1, perPage = 20) {
 // 특정 컨테이너 상세 정보 조회
 async function getContainer(containerId) {
   try {
-    const response = await fetch(`/api/containers/${containerId}`);
-    const data = await response.json();
+    const data = await apiGet(`/api/containers/${containerId}`);
     return data;
   } catch (error) {
     console.error("Error fetching container:", error);

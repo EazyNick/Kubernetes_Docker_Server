@@ -7,8 +7,7 @@
 async function getOverviewStats() {
   try {
     console.log("📊 [통계API] 홈 페이지 개요 통계 요청 중...");
-    const response = await fetch("/api/stats/overview");
-    const data = await response.json();
+    const data = await apiGet("/api/stats/overview");
     console.log("📊 [통계API] 개요 통계 응답:", data);
     return data;
   } catch (error) {
@@ -21,8 +20,7 @@ async function getOverviewStats() {
 async function getDashboardStats() {
   try {
     console.log("📊 [통계API] 대시보드 통계 요청 중...");
-    const response = await fetch("/api/stats/dashboard");
-    const data = await response.json();
+    const data = await apiGet("/api/stats/dashboard");
     console.log("📊 [통계API] 대시보드 통계 응답:", data);
     return data;
   } catch (error) {
