@@ -197,8 +197,8 @@ async function checkUserPermissions() {
       if (adminMenuItem) {
         if (user.role === "admin") {
           console.log("관리자 권한 확인됨 - 메뉴 표시");
-          // 관리자인 경우 메뉴 표시
-          adminMenuItem.style.display = "block";
+          // 관리자인 경우 메뉴 표시 (flex로 설정하여 gap 속성 유지)
+          adminMenuItem.style.display = "flex";
           adminMenuItem.parentElement.style.display = "block";
         } else {
           console.log("관리자 권한 없음 - 메뉴 숨김");
