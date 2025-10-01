@@ -68,7 +68,7 @@
                     <i class="fas fa-calendar-alt"></i>
                     이벤트
                 </a>
-                <a href="/admin" class="sidebar-nav-item {% if request.url.path == '/admin' %}active{% endif %}">
+                <a href="#" onclick="navigateToAdmin()" class="sidebar-nav-item {% if request.url.path == '/admin' %}active{% endif %}">
                     <i class="fas fa-user-cog"></i>
                     관리자
                 </a>
@@ -124,6 +124,9 @@
     <script src="/static/js/charts/monitoring.js"></script>
     <!-- Custom JS -->
     <script src="/static/js/app.js"></script>
+    
+    <!-- 관리자 페이지 스크립트 -->
+    <script src="/static/js/api/admin.js"></script>
     
     {% block extra_js %}{% endblock %}
 </body>

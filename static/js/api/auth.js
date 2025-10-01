@@ -174,3 +174,77 @@ function redirectToLogin() {
 function redirectToHome() {
   window.location.href = "/home";
 }
+
+/**
+ * 사용자 권한 확인 및 관리자 메뉴 제어
+ */
+async function checkUserPermissions() {
+  try {
+    console.log("사용자 권한 확인 시작");
+    const userResult = await getCurrentUser();
+    console.log("사용자 정보 조회 결과:", userResult);
+
+    if (userResult.success) {
+      const user = userResult.data;
+      console.log("사용자 정보:", user);
+
+      // 관리자 메뉴 요소 찾기
+      const adminMenuItem = document.querySelector(
+        'a[onclick="navigateToAdmin()"]'
+      );
+      console.log("관리자 메뉴 요소:", adminMenuItem);
+
+      if (adminMenuItem) {
+        if (user.role === "admin") {
+          console.log("관리자 권한 확인됨 - 메뉴 표시");
+          // 관리자인 경우 메뉴 표시
+          adminMenuItem.style.display = "block";
+          adminMenuItem.parentElement.style.display = "block";
+        } else {
+          console.log("관리자 권한 없음 - 메뉴 숨김");
+          // 관리자가 아닌 경우 메뉴 숨기기
+          adminMenuItem.style.display = "none";
+          adminMenuItem.parentElement.style.display = "none";
+        }
+      } else {
+        console.log("관리자 메뉴 요소를 찾을 수 없음");
+      }
+
+      // 사용자 정보를 전역 변수에 저장 (다른 스크립트에서 사용 가능)
+      window.currentUser = user;
+      console.log("전역 사용자 정보 설정 완료:", window.currentUser);
+
+      return user;
+    } else {
+      console.log("사용자 정보 조회 실패:", userResult.message);
+      // 사용자 정보를 가져올 수 없는 경우 관리자 메뉴 숨기기
+      const adminMenuItem = document.querySelector(
+        'a[onclick="navigateToAdmin()"]'
+      );
+      if (adminMenuItem) {
+        adminMenuItem.style.display = "none";
+        adminMenuItem.parentElement.style.display = "none";
+      }
+      return null;
+    }
+  } catch (error) {
+    console.error("사용자 권한 확인 중 오류:", error);
+    // 오류 발생 시 관리자 메뉴 숨기기
+    const adminMenuItem = document.querySelector(
+      'a[onclick="navigateToAdmin()"]'
+    );
+    if (adminMenuItem) {
+      adminMenuItem.style.display = "none";
+      adminMenuItem.parentElement.style.display = "none";
+    }
+    return null;
+  }
+}
+
+/**
+ * 관리자 권한 확인
+ * @returns {boolean} 관리자 권한 여부
+ */
+function isAdmin() {
+  return window.currentUser && window.currentUser.role === "admin";
+}

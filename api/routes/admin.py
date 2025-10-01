@@ -2,10 +2,12 @@
 관리자 관련 API 라우트
 사용자 관리, 권한 관리 등의 관리자 기능을 담당
 """
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 from typing import List, Optional
+from sqlalchemy.orm import Session
+from argon2 import PasswordHasher
 import os
 import sys
 import uuid
@@ -15,24 +17,14 @@ current_file = os.path.abspath(__file__)
 project_root = os.path.abspath(os.path.join(current_file, "..", ".."))
 sys.path.append(project_root)
 
-try:
-    from logs.logger import LogManager
-    from models.base_response import BaseResponse
-    from models.admin import (
-        UserCreate, UserUpdate, UserDelete, User, UserList, 
-        UserResponse, AdminStats
-    )
-    log_manager = LogManager()
-except Exception as e:
-    print(f"임포트 실패: {e}")
-    # log_manager가 없을 때를 위한 더미 클래스
-    class DummyLogManager:
-        class Logger:
-            def info(self, msg): print(f"INFO: {msg}")
-            def error(self, msg): print(f"ERROR: {msg}")
-            def warning(self, msg): print(f"WARNING: {msg}")
-        logger = Logger()
-    log_manager = DummyLogManager()
+from logs import log_manager
+from models.base_response import BaseResponse
+from models.admin import (
+    UserCreate, UserUpdate, UserDelete, User, UserList, 
+    UserResponse, AdminStats
+)
+from db.database import get_db
+from services.admin_service import AdminDatabaseService
 
 # 라우터 생성
 router = APIRouter(prefix="/api/admin", tags=["admin"])
@@ -40,46 +32,50 @@ router = APIRouter(prefix="/api/admin", tags=["admin"])
 # 보안 스키마
 security = HTTPBearer()
 
-# 사용자 데이터베이스 (실제 환경에서는 데이터베이스 사용)
-users_db = {
-    "root": {
-        "user_id": "root_001",
-        "username": "root",
-        "password": "1234",
-        "email": "root@test.com",
-        "full_name": "관리자",
-        "role": "admin",
-        "is_active": True,
-        "created_at": datetime.now(),
-        "last_login": None
-    }
-}
-
-def verify_admin_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """관리자 권한 확인"""
-    if credentials.credentials != "demo_token_12345":
+async def verify_admin_token(credentials: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)):
+    """관리자 권한 확인 - 실제 데이터베이스 사용"""
+    from api.routes.auth import get_current_user_from_token
+    
+    try:
+        # 기존 인증 함수 사용
+        current_user = await get_current_user_from_token(credentials, db)
+        
+        # 관리자 권한 확인
+        if current_user.role != "admin":
+            raise HTTPException(
+                status_code=403,
+                detail="관리자 권한이 필요합니다."
+            )
+        
+        return current_user
+    except HTTPException:
+        raise
+    except Exception as e:
+        log_manager.logger.error(f"관리자 권한 확인 중 오류: {e}")
         raise HTTPException(
-            status_code=401,
-            detail="관리자 권한이 필요합니다."
+            status_code=500,
+            detail="권한 확인 중 오류가 발생했습니다."
         )
-    return credentials
 
 @router.get("/stats", response_model=BaseResponse)
-async def get_admin_stats(credentials: HTTPAuthorizationCredentials = Depends(verify_admin_token)):
+async def get_admin_stats(
+    current_user: dict = Depends(verify_admin_token),
+    db: Session = Depends(get_db)
+):
     """관리자 통계 조회"""
     try:
         log_manager.logger.info("관리자 통계 조회 요청")
         
-        total_users = len(users_db)
-        active_users = len([u for u in users_db.values() if u["is_active"]])
-        admin_users = len([u for u in users_db.values() if u["role"] == "admin"])
+        # 실제 데이터베이스에서 통계 조회
+        admin_service = AdminDatabaseService(db)
+        stats_data = admin_service.get_dashboard_stats()
         
         stats = AdminStats(
-            total_users=total_users,
-            active_users=active_users,
-            admin_users=admin_users,
-            recent_logins=active_users,  # 간단한 구현
-            new_users_today=0  # 간단한 구현
+            total_users=stats_data.get("total_users", 0),
+            active_users=stats_data.get("active_users", 0),
+            admin_users=stats_data.get("admin_users", 0),
+            recent_logins=stats_data.get("recent_logins", 0),
+            new_users_today=stats_data.get("new_users_today", 0)
         )
         
         return BaseResponse.success_response(
@@ -98,36 +94,51 @@ async def get_admin_stats(credentials: HTTPAuthorizationCredentials = Depends(ve
 async def get_users(
     page: int = 1,
     per_page: int = 10,
-    credentials: HTTPAuthorizationCredentials = Depends(verify_admin_token)
+    search: str = None,
+    current_user: dict = Depends(verify_admin_token),
+    db: Session = Depends(get_db)
 ):
     """사용자 목록 조회"""
     try:
-        log_manager.logger.info(f"사용자 목록 조회 요청 - 페이지: {page}, 페이지당: {per_page}")
+        log_manager.logger.info(f"사용자 목록 조회 요청 - 페이지: {page}, 페이지당: {per_page}, 검색: {search}")
         
-        # 페이지네이션 계산
-        start_idx = (page - 1) * per_page
-        end_idx = start_idx + per_page
+        # 실제 데이터베이스에서 사용자 목록 조회
+        admin_service = AdminDatabaseService(db)
+        users_data = admin_service.get_users_list(page, per_page, search)
         
-        # 사용자 목록 변환
+        # UserResponse 객체로 변환
         user_list = []
-        for user_data in list(users_db.values())[start_idx:end_idx]:
+        for user_data in users_data["users"]:
+            # 날짜 필드 처리
+            created_at = user_data["created_at"]
+            if isinstance(created_at, str):
+                created_at_str = created_at
+            else:
+                created_at_str = created_at.isoformat() if created_at else ""
+            
+            last_login = user_data["last_login"]
+            if isinstance(last_login, str):
+                last_login_str = last_login
+            else:
+                last_login_str = last_login.isoformat() if last_login else None
+            
             user_response = UserResponse(
-                user_id=user_data["user_id"],
+                user_id=str(user_data["user_id"]),
                 username=user_data["username"],
                 email=user_data["email"],
                 full_name=user_data["full_name"],
                 role=user_data["role"],
                 is_active=user_data["is_active"],
-                created_at=user_data["created_at"].isoformat(),
-                last_login=user_data["last_login"].isoformat() if user_data["last_login"] else None
+                created_at=created_at_str,
+                last_login=last_login_str
             )
             user_list.append(user_response)
         
         user_list_response = UserList(
             users=user_list,
-            total=len(users_db),
-            page=page,
-            per_page=per_page
+            total=users_data["total"],
+            page=users_data["page"],
+            per_page=users_data["per_page"]
         )
         
         return BaseResponse.success_response(
@@ -145,39 +156,39 @@ async def get_users(
 @router.post("/users", response_model=BaseResponse)
 async def create_user(
     user_data: UserCreate,
-    credentials: HTTPAuthorizationCredentials = Depends(verify_admin_token)
+    request: Request,
+    current_user: dict = Depends(verify_admin_token),
+    db: Session = Depends(get_db)
 ):
     """사용자 생성"""
     try:
         log_manager.logger.info(f"사용자 생성 요청: {user_data.username}")
         
-        # 사용자명 중복 확인
-        if user_data.username in users_db:
+        # 비밀번호 해시화
+        ph = PasswordHasher()
+        password_hash = ph.hash(user_data.password)
+        
+        # 실제 데이터베이스에 사용자 생성
+        admin_service = AdminDatabaseService(db)
+        success = admin_service.create_user(
+            username=user_data.username,
+            password_hash=password_hash,
+            email=user_data.email,
+            role=user_data.role
+        )
+        
+        if not success:
             raise HTTPException(
                 status_code=400,
                 detail="이미 존재하는 사용자명입니다."
             )
         
-        # 새 사용자 생성
-        user_id = str(uuid.uuid4())
-        new_user = {
-            "user_id": user_id,
-            "username": user_data.username,
-            "password": user_data.password,  # 실제 환경에서는 해시화 필요
-            "email": user_data.email,
-            "full_name": user_data.full_name,
-            "role": user_data.role,
-            "is_active": True,
-            "created_at": datetime.now(),
-            "last_login": None
-        }
-        
-        users_db[user_data.username] = new_user
+        # 로그 시스템에서 관리자 작업 로그 처리
         
         log_manager.logger.info(f"사용자 생성 완료: {user_data.username}")
         
         return BaseResponse.success_response(
-            data={"user_id": user_id},
+            data={"username": user_data.username},
             message="사용자가 성공적으로 생성되었습니다."
         )
         
@@ -194,43 +205,37 @@ async def create_user(
 async def update_user(
     user_id: str,
     user_data: UserUpdate,
-    credentials: HTTPAuthorizationCredentials = Depends(verify_admin_token)
+    request: Request,
+    current_user: dict = Depends(verify_admin_token),
+    db: Session = Depends(get_db)
 ):
     """사용자 정보 수정"""
     try:
         log_manager.logger.info(f"사용자 정보 수정 요청: {user_id}")
         
-        # 사용자 찾기
-        user = None
-        for username, user_info in users_db.items():
-            if user_info["user_id"] == user_id:
-                user = user_info
-                break
+        # 실제 데이터베이스에서 사용자 수정
+        admin_service = AdminDatabaseService(db)
         
-        if not user:
+        # 수정할 데이터 준비
+        update_data = {}
+        if user_data.username is not None:
+            update_data["username"] = user_data.username
+        if user_data.email is not None:
+            update_data["email"] = user_data.email
+        if user_data.role is not None:
+            update_data["role"] = user_data.role
+        if user_data.is_active is not None:
+            update_data["status"] = "active" if user_data.is_active else "inactive"
+        
+        success = admin_service.update_user(int(user_id), **update_data)
+        
+        if not success:
             raise HTTPException(
                 status_code=404,
                 detail="사용자를 찾을 수 없습니다."
             )
         
-        # 정보 업데이트
-        if user_data.username is not None:
-            # 사용자명 변경 시 중복 확인
-            if user_data.username != user["username"] and user_data.username in users_db:
-                raise HTTPException(
-                    status_code=400,
-                    detail="이미 존재하는 사용자명입니다."
-                )
-            user["username"] = user_data.username
-        
-        if user_data.email is not None:
-            user["email"] = user_data.email
-        if user_data.full_name is not None:
-            user["full_name"] = user_data.full_name
-        if user_data.role is not None:
-            user["role"] = user_data.role
-        if user_data.is_active is not None:
-            user["is_active"] = user_data.is_active
+        # 로그 시스템에서 관리자 작업 로그 처리
         
         log_manager.logger.info(f"사용자 정보 수정 완료: {user_id}")
         
@@ -250,36 +255,25 @@ async def update_user(
 @router.delete("/users/{user_id}", response_model=BaseResponse)
 async def delete_user(
     user_id: str,
-    credentials: HTTPAuthorizationCredentials = Depends(verify_admin_token)
+    request: Request,
+    current_user: dict = Depends(verify_admin_token),
+    db: Session = Depends(get_db)
 ):
     """사용자 삭제"""
     try:
         log_manager.logger.info(f"사용자 삭제 요청: {user_id}")
         
-        # 사용자 찾기
-        user_to_delete = None
-        username_to_delete = None
-        for username, user_info in users_db.items():
-            if user_info["user_id"] == user_id:
-                user_to_delete = user_info
-                username_to_delete = username
-                break
+        # 실제 데이터베이스에서 사용자 삭제
+        admin_service = AdminDatabaseService(db)
+        success = admin_service.delete_user(int(user_id))
         
-        if not user_to_delete:
+        if not success:
             raise HTTPException(
                 status_code=404,
-                detail="사용자를 찾을 수 없습니다."
+                detail="사용자를 찾을 수 없거나 삭제할 수 없습니다."
             )
         
-        # root 사용자는 삭제 불가
-        if user_to_delete["role"] == "admin" and user_to_delete["username"] == "root":
-            raise HTTPException(
-                status_code=400,
-                detail="root 관리자는 삭제할 수 없습니다."
-            )
-        
-        # 사용자 삭제
-        del users_db[username_to_delete]
+        # 로그 시스템에서 관리자 작업 로그 처리
         
         log_manager.logger.info(f"사용자 삭제 완료: {user_id}")
         

@@ -13,7 +13,6 @@ class UserCreate(BaseModel):
     username: str
     password: str
     email: str
-    full_name: str
     role: str = "user"  # user, admin
 
 
@@ -22,7 +21,6 @@ class UserUpdate(BaseModel):
     user_id: str
     username: Optional[str] = None
     email: Optional[str] = None
-    full_name: Optional[str] = None
     role: Optional[str] = None
     is_active: Optional[bool] = None
 
@@ -37,19 +35,11 @@ class User(BaseModel):
     user_id: str
     username: str
     email: str
-    full_name: str
+    full_name: str  # username을 full_name으로 사용
     role: str
     is_active: bool
     created_at: datetime
     last_login: Optional[datetime] = None
-
-
-class UserList(BaseModel):
-    """사용자 목록 응답 모델"""
-    users: List[User]
-    total: int
-    page: int
-    per_page: int
 
 
 class UserResponse(BaseModel):
@@ -62,6 +52,14 @@ class UserResponse(BaseModel):
     is_active: bool
     created_at: str
     last_login: Optional[str] = None
+
+
+class UserList(BaseModel):
+    """사용자 목록 응답 모델"""
+    users: List[UserResponse]
+    total: int
+    page: int
+    per_page: int
 
 
 class AdminStats(BaseModel):

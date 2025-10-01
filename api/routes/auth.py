@@ -62,7 +62,7 @@ async def get_current_user_from_token(credentials: HTTPAuthorizationCredentials 
     # 3. 사용자 정보 조회
     user = db.execute(text(
         """
-        SELECT id, username, email
+        SELECT id, username, email, role
         FROM users
         WHERE id = :user_id
         """), {'user_id': session.user_id}).first()
@@ -168,10 +168,11 @@ async def logout(credentials: HTTPAuthorizationCredentials = Depends(security), 
 @router.get("/me")
 async def get_current_user(current_user: dict = Depends(get_current_user_from_token)):
     """현재 사용자 정보 조회"""
-    user_info = UserInfoResponse(
-        user_id=str(current_user.id),
-        username=current_user.username,
-        email=current_user.email,
-        full_name=current_user.username
-    )
-    return BaseResponse.success_response(data=user_info.dict())
+    user_info = {
+        "user_id": str(current_user.id),
+        "username": current_user.username,
+        "email": current_user.email,
+        "full_name": current_user.username,
+        "role": current_user.role
+    }
+    return BaseResponse.success_response(data=user_info)
