@@ -1,8 +1,40 @@
-/* 관리자 페이지 스타일 */
+/* 검색 박스 스타일 */
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
 
-.admin-container {
-  max-width: 1200px;
-  margin: 0 auto;
+.search-box input {
+  padding-right: 2.5rem;
+}
+
+.search-box i {
+  position: absolute;
+  right: 0.75rem;
+  color: var(--gray-400);
+  pointer-events: none;
+}
+
+/* 헤더 액션 스타일 */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--gray-900);
 }
 
 /* 관리자 통계 그리드 */
