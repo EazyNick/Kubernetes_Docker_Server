@@ -153,6 +153,40 @@ async def get_users(
             detail="사용자 목록 조회 중 오류가 발생했습니다."
         )
 
+@router.get("/users/{user_id}", response_model=BaseResponse)
+async def get_user(
+    user_id: str,
+    current_user: dict = Depends(verify_admin_token),
+    db: Session = Depends(get_db)
+):
+    """개별 사용자 조회"""
+    try:
+        log_manager.logger.info(f"사용자 조회 요청: {user_id}")
+        
+        # 실제 데이터베이스에서 사용자 조회
+        admin_service = AdminDatabaseService(db)
+        user_data = admin_service.get_user_by_id(int(user_id))
+        
+        if not user_data:
+            raise HTTPException(
+                status_code=404,
+                detail="사용자를 찾을 수 없습니다."
+            )
+        
+        return BaseResponse.success_response(
+            data=user_data,
+            message="사용자 정보를 성공적으로 조회했습니다."
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        log_manager.logger.error(f"사용자 조회 중 오류 발생: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="사용자 조회 중 오류가 발생했습니다."
+        )
+
 @router.post("/users", response_model=BaseResponse)
 async def create_user(
     user_data: UserCreate,
@@ -174,7 +208,8 @@ async def create_user(
             username=user_data.username,
             password_hash=password_hash,
             email=user_data.email,
-            role=user_data.role
+            role=user_data.role,
+            status="active" if user_data.is_active else "inactive"
         )
         
         if not success:

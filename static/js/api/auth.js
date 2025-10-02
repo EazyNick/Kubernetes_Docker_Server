@@ -54,7 +54,7 @@ async function loginUser(username, password, rememberMe = false) {
  * 로그아웃 API 호출
  * @returns {Promise<Object>} 로그아웃 결과
  */
-async function logoutUser() {
+async function logoutUserAPI() {
   try {
     const token = getToken();
     const response = await fetch("/api/auth/logout", {
@@ -197,14 +197,12 @@ async function checkUserPermissions() {
       if (adminMenuItem) {
         if (user.role === "admin") {
           console.log("관리자 권한 확인됨 - 메뉴 표시");
-          // 관리자인 경우 메뉴 표시 (flex로 설정하여 gap 속성 유지)
+          // 관리자인 경우 메뉴 표시
           adminMenuItem.style.display = "flex";
-          adminMenuItem.parentElement.style.display = "block";
         } else {
           console.log("관리자 권한 없음 - 메뉴 숨김");
           // 관리자가 아닌 경우 메뉴 숨기기
           adminMenuItem.style.display = "none";
-          adminMenuItem.parentElement.style.display = "none";
         }
       } else {
         console.log("관리자 메뉴 요소를 찾을 수 없음");
@@ -213,6 +211,21 @@ async function checkUserPermissions() {
       // 사용자 정보를 전역 변수에 저장 (다른 스크립트에서 사용 가능)
       window.currentUser = user;
       console.log("전역 사용자 정보 설정 완료:", window.currentUser);
+
+      // 사용자 이름 표시 업데이트
+      const userDisplayName = document.getElementById("userDisplayName");
+      if (userDisplayName) {
+        userDisplayName.textContent = user.username;
+      }
+
+      // 사용자 메뉴 표시
+      const userMenu = document.querySelector(".user-menu");
+      if (userMenu) {
+        userMenu.style.display = "flex";
+      }
+
+      // 사용자 상태 업데이트 타이머 시작
+      startUserStatusTimer();
 
       return user;
     } else {
@@ -223,8 +236,14 @@ async function checkUserPermissions() {
       );
       if (adminMenuItem) {
         adminMenuItem.style.display = "none";
-        adminMenuItem.parentElement.style.display = "none";
       }
+
+      // 사용자 메뉴 숨기기
+      const userMenu = document.querySelector(".user-menu");
+      if (userMenu) {
+        userMenu.style.display = "none";
+      }
+
       return null;
     }
   } catch (error) {
@@ -235,8 +254,14 @@ async function checkUserPermissions() {
     );
     if (adminMenuItem) {
       adminMenuItem.style.display = "none";
-      adminMenuItem.parentElement.style.display = "none";
     }
+
+    // 사용자 메뉴 숨기기
+    const userMenu = document.querySelector(".user-menu");
+    if (userMenu) {
+      userMenu.style.display = "none";
+    }
+
     return null;
   }
 }
@@ -247,4 +272,80 @@ async function checkUserPermissions() {
  */
 function isAdmin() {
   return window.currentUser && window.currentUser.role === "admin";
+}
+
+/**
+ * 사용자 상태 업데이트 (1분 간격)
+ */
+async function updateUserStatus() {
+  try {
+    const token = getToken();
+    if (!token) {
+      return; // 토큰이 없으면 업데이트하지 않음
+    }
+
+    const response = await fetch("/api/auth/update-status", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      // 토큰이 만료되었거나 유효하지 않은 경우
+      if (response.status === 401) {
+        console.log("토큰 만료, 로그아웃 처리");
+        localStorage.removeItem("access_token");
+        sessionStorage.removeItem("access_token");
+        localStorage.removeItem("rememberedUser");
+        window.location.href = "/";
+      }
+    }
+  } catch (error) {
+    console.error("사용자 상태 업데이트 오류:", error);
+  }
+}
+
+/**
+ * 사용자 상태 업데이트 타이머 시작
+ */
+function startUserStatusTimer() {
+  // 로그인된 상태에서만 타이머 시작
+  if (isLoggedIn()) {
+    // 즉시 한 번 실행
+    updateUserStatus();
+
+    // 1분(60000ms) 간격으로 반복 실행
+    setInterval(updateUserStatus, 60000);
+  }
+}
+
+/**
+ * 로그아웃 처리 (UI에서 호출)
+ */
+async function logoutUser() {
+  try {
+    const result = await logoutUserAPI();
+
+    if (result.success) {
+      // 로그아웃 성공 시 로그인 페이지로 리다이렉트
+      alert("로그아웃되었습니다.");
+      window.location.href = "/";
+    } else {
+      // 로그아웃 실패 시에도 토큰 제거하고 리다이렉트
+      console.warn("로그아웃 API 실패, 로컬 토큰 제거:", result.message);
+      localStorage.removeItem("access_token");
+      sessionStorage.removeItem("access_token");
+      localStorage.removeItem("rememberedUser");
+      window.location.href = "/";
+    }
+  } catch (error) {
+    console.error("로그아웃 처리 중 오류:", error);
+    // 오류 발생 시에도 토큰 제거하고 리다이렉트
+    localStorage.removeItem("access_token");
+    sessionStorage.removeItem("access_token");
+    localStorage.removeItem("rememberedUser");
+    window.location.href = "/";
+  }
 }

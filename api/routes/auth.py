@@ -84,6 +84,16 @@ async def login(request: LoginRequest, db: Session = Depends(get_db)):
             WHERE username = :username
             """), {'username': request.username}).first()
         if not user:
+            # 존재하지 않는 사용자 로그인 시도 기록
+            db.execute(text(
+                """
+                INSERT INTO user_login_logs (user_id, ip_address, login_success, failure_reason, created_at)
+                VALUES (NULL, :ip_address, FALSE, '존재하지 않는 사용자', NOW())
+                """), {
+                    'ip_address': request.client.host if hasattr(request, 'client') else None
+                })
+            db.commit()
+            
             raise HTTPException(
                 status_code=401,
                 detail="사용자명 또는 비밀번호가 올바르지 않습니다."
@@ -95,6 +105,18 @@ async def login(request: LoginRequest, db: Session = Depends(get_db)):
             ph.verify(user.password_hash, request.password)
         except VerifyMismatchError:
             log_manager.logger.warning(f"로그인 실패: {request.username} (잘못된 비밀번호)")
+            
+            # 로그인 실패 기록을 user_login_logs 테이블에 저장
+            db.execute(text(
+                """
+                INSERT INTO user_login_logs (user_id, ip_address, login_success, failure_reason, created_at)
+                VALUES (:user_id, :ip_address, FALSE, '잘못된 비밀번호', NOW())
+                """), {
+                    'user_id': user.id,
+                    'ip_address': request.client.host if hasattr(request, 'client') else None
+                })
+            db.commit()
+            
             raise HTTPException(
                 status_code=401,
                 detail="사용자명 또는 비밀번호가 올바르지 않습니다."
@@ -121,6 +143,23 @@ async def login(request: LoginRequest, db: Session = Depends(get_db)):
                 'user_id': user.id,
                 'expires_at': expires_at
             })
+
+        # 4. 로그인 기록을 user_login_logs 테이블에 저장
+        db.execute(text(
+            """
+            INSERT INTO user_login_logs (user_id, ip_address, login_success, created_at)
+            VALUES (:user_id, :ip_address, TRUE, NOW())
+            """), {
+                'user_id': user.id,
+                'ip_address': request.client.host if hasattr(request, 'client') else None
+            })
+
+        # 5. users 테이블의 last_login 필드 업데이트
+        db.execute(text(
+            """
+            UPDATE users SET last_login = NOW() WHERE id = :user_id
+            """), {'user_id': user.id})
+
         db.commit()
 
         # 4. 생성된 토큰 반환
@@ -148,22 +187,71 @@ async def logout(credentials: HTTPAuthorizationCredentials = Depends(security), 
     """사용자 로그아웃"""
     token = credentials.credentials
 
+    # 로그아웃 전에 사용자 정보 조회
+    session = db.execute(text(
+        """
+        SELECT user_id FROM sessions WHERE session_token = :token
+        """), {'token': token}).first()
+
     # 세션 테이블에서 토큰 삭제
     result = db.execute(text(
         """
         DELETE FROM sessions WHERE session_token = :token
         """), {'token': token})
-    db.commit()
 
-    if result.rowcount == 0:
+    if result.rowcount > 0 and session:
+        # 로그아웃 성공 기록
+        db.execute(text(
+            """
+            INSERT INTO user_login_logs (user_id, ip_address, login_success, failure_reason, created_at)
+            VALUES (:user_id, NULL, TRUE, '로그아웃', NOW())
+            """), {'user_id': session.user_id})
+        log_manager.logger.info(f"로그아웃 성공: 사용자 ID {session.user_id}")
+    else:
         log_manager.logger.warning("로그아웃 시도: 유효하지 않은 토큰 또는 이미 만료된 토큰")
 
-    log_manager.logger.info("로그아웃 성공")
+    db.commit()
 
     return BaseResponse.success_response(
         message="로그아웃되었습니다."
     )
 
+
+@router.post("/update-status")
+async def update_user_status(credentials: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)):
+    """사용자 상태 업데이트 (1분 간격으로 호출)"""
+    token = credentials.credentials
+
+    try:
+        # 세션에서 사용자 정보 조회
+        session = db.execute(text(
+            """
+            SELECT user_id FROM sessions WHERE session_token = :token
+            """), {'token': token}).first()
+
+        if not session:
+            raise HTTPException(status_code=401, detail="유효하지 않은 토큰입니다.")
+
+        # 사용자의 last_login 시간 업데이트 (활성 상태 유지)
+        db.execute(text(
+            """
+            UPDATE users SET last_login = NOW() WHERE id = :user_id
+            """), {'user_id': session.user_id})
+
+        db.commit()
+
+        return BaseResponse.success_response(
+            message="사용자 상태가 업데이트되었습니다."
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        log_manager.logger.error(f"사용자 상태 업데이트 중 오류 발생: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="사용자 상태 업데이트 중 오류가 발생했습니다."
+        )
 
 @router.get("/me")
 async def get_current_user(current_user: dict = Depends(get_current_user_from_token)):

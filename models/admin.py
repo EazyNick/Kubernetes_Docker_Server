@@ -13,12 +13,12 @@ class UserCreate(BaseModel):
     username: str
     password: str
     email: str
-    role: str = "user"  # user, admin
+    role: str = "user"  # user, admin, guest
+    is_active: bool = True  # 활성 상태
 
 
 class UserUpdate(BaseModel):
     """사용자 정보 수정 요청 모델"""
-    user_id: str
     username: Optional[str] = None
     email: Optional[str] = None
     role: Optional[str] = None

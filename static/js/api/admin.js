@@ -292,6 +292,12 @@ function setupEventListeners() {
   if (saveUserBtn) {
     saveUserBtn.addEventListener("click", saveUser);
   }
+
+  // 사용자 삭제 확인 버튼
+  const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+  if (confirmDeleteBtn) {
+    confirmDeleteBtn.addEventListener("click", confirmDeleteUser);
+  }
 }
 
 /**
@@ -342,6 +348,9 @@ async function editUser(userId) {
           passwordField.style.display = "none";
         }
 
+        // 비밀번호 필드 필수 해제
+        document.getElementById("password").required = false;
+
         // 모달 표시
         const modal = new bootstrap.Modal(document.getElementById("userModal"));
         modal.show();
@@ -359,12 +368,34 @@ async function editUser(userId) {
  * 사용자 삭제
  */
 async function deleteUser(userId) {
-  if (!confirm("정말로 이 사용자를 삭제하시겠습니까?")) {
+  // 삭제 확인 모달 표시
+  const deleteModal = new bootstrap.Modal(
+    document.getElementById("deleteModal")
+  );
+  document.getElementById("deleteUserId").value = userId;
+  deleteModal.show();
+}
+
+/**
+ * 사용자 삭제 확인 실행
+ */
+async function confirmDeleteUser() {
+  const userId = document.getElementById("deleteUserId").value;
+
+  if (!userId) {
+    alert("삭제할 사용자 ID가 없습니다.");
     return;
   }
 
   try {
     const token = getToken();
+
+    // 삭제 버튼 비활성화 (중복 클릭 방지)
+    const deleteBtn = document.getElementById("confirmDeleteBtn");
+    const originalText = deleteBtn.innerHTML;
+    deleteBtn.disabled = true;
+    deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 삭제 중...';
+
     const response = await fetch(`/api/admin/users/${userId}`, {
       method: "DELETE",
       headers: {
@@ -373,16 +404,34 @@ async function deleteUser(userId) {
       },
     });
 
+    // 버튼 상태 복원
+    deleteBtn.disabled = false;
+    deleteBtn.innerHTML = originalText;
+
     if (response.ok) {
-      alert("사용자가 성공적으로 삭제되었습니다.");
-      loadUsers(); // 목록 새로고침
+      // 삭제 모달 닫기
+      const deleteModal = bootstrap.Modal.getInstance(
+        document.getElementById("deleteModal")
+      );
+      deleteModal.hide();
+
+      // 성공 메시지 표시
+      showToast("사용자가 성공적으로 삭제되었습니다.", "success");
+
+      // 목록과 통계 모두 새로고침
+      await Promise.all([loadUsers(), loadAdminStats()]);
     } else {
       const data = await response.json();
-      alert("삭제 실패: " + (data.message || "알 수 없는 오류"));
+      showToast("삭제 실패: " + (data.message || "알 수 없는 오류"), "error");
     }
   } catch (error) {
     console.error("사용자 삭제 오류:", error);
-    alert("사용자 삭제 중 오류가 발생했습니다.");
+    showToast("사용자 삭제 중 오류가 발생했습니다.", "error");
+
+    // 버튼 상태 복원
+    const deleteBtn = document.getElementById("confirmDeleteBtn");
+    deleteBtn.disabled = false;
+    deleteBtn.innerHTML = "삭제";
   }
 }
 
@@ -399,6 +448,15 @@ function showAddUserModal() {
   const passwordField = document.getElementById("password").parentElement;
   passwordField.style.display = "block";
 
+  // 비밀번호 필드 필수로 설정
+  document.getElementById("password").required = true;
+
+  // 활성 상태 체크박스 기본값 설정
+  document.getElementById("isActive").checked = true;
+
+  // 역할 기본값 설정
+  document.getElementById("role").value = "user";
+
   // 모달 표시
   const modal = new bootstrap.Modal(document.getElementById("userModal"));
   modal.show();
@@ -411,16 +469,42 @@ async function saveUser() {
   const form = document.getElementById("userForm");
   const formData = new FormData(form);
 
-  const userData = {
-    username: formData.get("username"),
-    password: formData.get("password"),
-    email: formData.get("email"),
-    role: formData.get("role"),
-    is_active: formData.get("isActive") === "on",
-  };
+  // 입력 검증
+  const username = formData.get("username");
+  const password = formData.get("password");
+  const email = formData.get("email");
+  const role = formData.get("role");
+  const isActive = formData.get("isActive") === "on";
+
+  // 필수 필드 검증
+  if (!username || !email) {
+    alert("사용자명과 이메일은 필수 입력 항목입니다.");
+    return;
+  }
 
   const userId = document.getElementById("userId").value;
   const isEdit = userId !== "";
+
+  // 새 사용자 추가 시 비밀번호 필수
+  if (!isEdit && !password) {
+    alert("새 사용자 추가 시 비밀번호는 필수 입력 항목입니다.");
+    return;
+  }
+
+  // 이메일 형식 검증
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    alert("올바른 이메일 형식을 입력해주세요.");
+    return;
+  }
+
+  const userData = {
+    username: username,
+    password: password,
+    email: email,
+    role: role,
+    is_active: isActive,
+  };
 
   try {
     const token = getToken();
@@ -438,8 +522,13 @@ async function saveUser() {
 
     if (response.ok) {
       const data = await response.json();
-      alert(
-        isEdit ? "사용자 정보가 수정되었습니다." : "사용자가 추가되었습니다."
+
+      // 성공 메시지 표시
+      showToast(
+        isEdit
+          ? "사용자 정보가 수정되었습니다."
+          : "사용자가 성공적으로 추가되었습니다.",
+        "success"
       );
 
       // 모달 닫기
@@ -448,63 +537,120 @@ async function saveUser() {
       );
       modal.hide();
 
-      // 목록 새로고침
-      loadUsers();
+      // 목록과 통계 새로고침
+      await Promise.all([loadUsers(), loadAdminStats()]);
     } else {
-      const data = await response.json();
-      alert("저장 실패: " + (data.message || "알 수 없는 오류"));
+      const errorData = await response.json();
+      showToast(
+        "저장 실패: " + (errorData.detail || "알 수 없는 오류"),
+        "error"
+      );
     }
   } catch (error) {
     console.error("사용자 저장 오류:", error);
-    alert("사용자 저장 중 오류가 발생했습니다.");
+    showToast("사용자 저장 중 오류가 발생했습니다.", "error");
   }
 }
 
 /**
- * 사용자 편집 모달 표시
+ * Toast 메시지 표시
  */
-async function editUser(userId) {
-  try {
-    const token = getToken();
-    const response = await fetch(`/api/admin/users/${userId}`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+function showToast(message, type = "info") {
+  const toastElement = document.getElementById("adminToast");
+  const toastBody = document.getElementById("toastMessage");
 
-    if (response.ok) {
-      const data = await response.json();
-      if (data.success) {
-        const user = data.data;
+  if (toastElement && toastBody) {
+    // 메시지 설정
+    toastBody.textContent = message;
 
-        // 모달에 데이터 채우기
-        document.getElementById("userModalLabel").textContent = "사용자 수정";
-        document.getElementById("userId").value = user.user_id;
-        document.getElementById("username").value = user.username;
-        document.getElementById("email").value = user.email;
-        document.getElementById("role").value = user.role;
-        document.getElementById("isActive").checked = user.is_active;
-
-        // 비밀번호 필드 숨기기 (수정 시에는 비밀번호 변경 불가)
-        const passwordField = document.getElementById("password").parentElement;
-        if (passwordField) {
-          passwordField.style.display = "none";
-        }
-
-        // 모달 표시
-        const modal = new bootstrap.Modal(document.getElementById("userModal"));
-        modal.show();
-      }
-    } else {
-      alert("사용자 정보를 가져올 수 없습니다.");
+    // 타입에 따른 아이콘 설정
+    const toastHeader = toastElement.querySelector(".toast-header i");
+    if (toastHeader) {
+      toastHeader.className = `fas me-2 text-${
+        type === "success" ? "success" : type === "error" ? "danger" : "primary"
+      }`;
+      toastHeader.className +=
+        type === "success"
+          ? " fa-check-circle"
+          : type === "error"
+          ? " fa-exclamation-circle"
+          : " fa-info-circle";
     }
-  } catch (error) {
-    console.error("사용자 편집 오류:", error);
-    alert("사용자 편집 중 오류가 발생했습니다.");
+
+    // Toast 표시
+    const toast = new bootstrap.Toast(toastElement);
+    toast.show();
+  } else {
+    // Toast 요소가 없으면 기본 alert 사용
+    alert(message);
   }
 }
+
+/**
+ * 모달 포커스 관리 (전역 이벤트 리스너)
+ */
+document.addEventListener("DOMContentLoaded", function () {
+  // 사용자 모달 포커스 관리
+  const userModal = document.getElementById("userModal");
+  if (userModal) {
+    userModal.addEventListener("shown.bs.modal", function () {
+      const firstInput = document.getElementById("username");
+      if (firstInput) {
+        firstInput.focus();
+      }
+    });
+
+    // 모달이 닫히기 전에 포커스 제거
+    userModal.addEventListener("hide.bs.modal", function () {
+      const activeElement = document.activeElement;
+      if (activeElement && userModal.contains(activeElement)) {
+        activeElement.blur();
+      }
+    });
+
+    // 포커스 트랩 (Tab 키로 모달 밖으로 나가는 것 방지)
+    userModal.addEventListener("keydown", function (e) {
+      if (e.key === "Tab") {
+        const focusableElements = userModal.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstElement) {
+            lastElement.focus();
+            e.preventDefault();
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            firstElement.focus();
+            e.preventDefault();
+          }
+        }
+      }
+    });
+  }
+
+  // 삭제 모달 포커스 관리
+  const deleteModal = document.getElementById("deleteModal");
+  if (deleteModal) {
+    deleteModal.addEventListener("shown.bs.modal", function () {
+      const confirmBtn = document.getElementById("confirmDeleteBtn");
+      if (confirmBtn) {
+        confirmBtn.focus();
+      }
+    });
+
+    // 모달이 닫히기 전에 포커스 제거
+    deleteModal.addEventListener("hide.bs.modal", function () {
+      const activeElement = document.activeElement;
+      if (activeElement && deleteModal.contains(activeElement)) {
+        activeElement.blur();
+      }
+    });
+  }
+});
 
 /**
  * 페이지 로드 시 사용자 권한 확인
@@ -515,13 +661,17 @@ document.addEventListener("DOMContentLoaded", async function () {
     // 사용자 권한 확인 및 메뉴 제어
     await checkUserPermissions();
   } else {
-    // 로그인하지 않은 경우 관리자 메뉴 숨기기
+    // 로그인하지 않은 경우 관리자 메뉴와 사용자 메뉴 숨기기
     const adminMenuItem = document.querySelector(
       'a[onclick="navigateToAdmin()"]'
     );
     if (adminMenuItem) {
       adminMenuItem.style.display = "none";
-      adminMenuItem.parentElement.style.display = "none";
+    }
+
+    const userMenu = document.querySelector(".user-menu");
+    if (userMenu) {
+      userMenu.style.display = "none";
     }
   }
 

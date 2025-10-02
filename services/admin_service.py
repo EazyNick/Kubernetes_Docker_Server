@@ -15,10 +15,29 @@ class AdminDatabaseService:
         self.db = db
     
     def get_dashboard_stats(self) -> Dict[str, Any]:
-        """관리자 대시보드 통계 조회"""
+        """관리자 대시보드 통계 조회 - VIEW 사용"""
         try:
-            # 직접 쿼리로 통계 조회
-            return self._get_fallback_stats()
+            # VIEW에서 통계 조회
+            stats_query = """
+                SELECT 
+                    COUNT(*) as total_users,
+                    COUNT(CASE WHEN status = 'active' THEN 1 END) as active_users,
+                    COUNT(CASE WHEN role = 'admin' THEN 1 END) as admin_users,
+                    COUNT(CASE WHEN recent_login_flag = 1 THEN 1 END) as recent_logins,
+                    COUNT(CASE WHEN DATE(created_at) = CURDATE() THEN 1 END) as new_users_today
+                FROM admin_user_view
+            """
+            
+            result = self.db.execute(text(stats_query)).first()
+            
+            return {
+                "total_users": result.total_users,
+                "active_users": result.active_users,
+                "admin_users": result.admin_users,
+                "recent_logins": result.recent_logins,
+                "new_users_today": result.new_users_today,
+                "active_sessions": 0  # 세션 테이블이 있으면 계산 가능
+            }
                 
         except Exception as e:
             print(f"대시보드 통계 조회 오류: {e}")
@@ -50,7 +69,7 @@ class AdminDatabaseService:
             }
     
     def get_users_list(self, page: int = 1, per_page: int = 10, search: str = None) -> Dict[str, Any]:
-        """사용자 목록 조회 (페이지네이션)"""
+        """VIEW를 사용한 사용자 목록 조회 (페이지네이션)"""
         try:
             offset = (page - 1) * per_page
             
@@ -62,12 +81,9 @@ class AdminDatabaseService:
                 where_clause = "WHERE username LIKE :search OR email LIKE :search"
                 params["search"] = f"%{search}%"
             
-            # 사용자 목록 조회
+            # VIEW에서 사용자 목록 조회
             users_query = f"""
-                SELECT 
-                    id, username, email, username as full_name, role, status,
-                    created_at, updated_at, last_login
-                FROM users 
+                SELECT * FROM admin_user_view
                 {where_clause}
                 ORDER BY created_at DESC
                 LIMIT :limit OFFSET :offset
@@ -76,7 +92,7 @@ class AdminDatabaseService:
             users = self.db.execute(text(users_query), params).fetchall()
             
             # 전체 사용자 수 조회
-            count_query = f"SELECT COUNT(*) as count FROM users {where_clause}"
+            count_query = f"SELECT COUNT(*) as count FROM admin_user_view {where_clause}"
             count_params = {"search": f"%{search}%" if search else None}
             if search:
                 count_params = {"search": f"%{search}%"}
@@ -89,14 +105,19 @@ class AdminDatabaseService:
             user_list = []
             for user in users:
                 user_list.append({
-                    "user_id": str(user.id),
+                    "user_id": str(user.user_id),
                     "username": user.username,
                     "email": user.email,
-                    "full_name": user.full_name or user.username,
+                    "full_name": user.username,  # username을 full_name으로 사용
                     "role": user.role,
                     "is_active": user.status == "active",
                     "created_at": user.created_at.isoformat() if user.created_at else None,
-                    "last_login": user.last_login.isoformat() if user.last_login else None
+                    "last_login": user.last_login.isoformat() if user.last_login else None,
+                    "total_logins": user.total_logins,
+                    "successful_logins": user.successful_logins,
+                    "failed_logins": user.failed_logins,
+                    "last_login_attempt": user.last_login_attempt.isoformat() if user.last_login_attempt else None,
+                    "recent_login_flag": user.recent_login_flag
                 })
             
             return {
@@ -117,7 +138,40 @@ class AdminDatabaseService:
                 "total_pages": 0
             }
     
-    def create_user(self, username: str, password_hash: str, email: str, role: str = "user") -> bool:
+    def get_user_by_id(self, user_id: int) -> Optional[Dict[str, Any]]:
+        """VIEW를 사용한 개별 사용자 조회"""
+        try:
+            user_query = """
+                SELECT * FROM admin_user_view
+                WHERE user_id = :user_id
+            """
+            
+            result = self.db.execute(text(user_query), {"user_id": user_id}).first()
+            
+            if not result:
+                return None
+            
+            return {
+                "user_id": str(result.user_id),
+                "username": result.username,
+                "email": result.email,
+                "full_name": result.username,
+                "role": result.role,
+                "is_active": result.status == "active",
+                "created_at": result.created_at.isoformat() if result.created_at else None,
+                "last_login": result.last_login.isoformat() if result.last_login else None,
+                "total_logins": result.total_logins,
+                "successful_logins": result.successful_logins,
+                "failed_logins": result.failed_logins,
+                "last_login_attempt": result.last_login_attempt.isoformat() if result.last_login_attempt else None,
+                "recent_login_flag": result.recent_login_flag
+            }
+            
+        except Exception as e:
+            print(f"사용자 조회 오류: {e}")
+            return None
+    
+    def create_user(self, username: str, password_hash: str, email: str, role: str = "user", status: str = "active") -> bool:
         """새 사용자 생성"""
         try:
             # 사용자명 중복 확인
@@ -131,13 +185,27 @@ class AdminDatabaseService:
             # 새 사용자 생성
             self.db.execute(text("""
                 INSERT INTO users (username, password_hash, email, role, status, created_at, updated_at)
-                VALUES (:username, :password_hash, :email, :role, 'active', NOW(), NOW())
+                VALUES (:username, :password_hash, :email, :role, :status, NOW(), NOW())
             """), {
                 "username": username,
                 "password_hash": password_hash,
                 "email": email,
-                "role": role
+                "role": role,
+                "status": status
             })
+            
+            self.db.commit()
+            
+            # 새로 생성된 사용자 ID 가져오기
+            user_id = self.db.execute(text("""
+                SELECT id FROM users WHERE username = :username ORDER BY id DESC LIMIT 1
+            """), {"username": username}).first().id
+            
+            # 새 사용자 생성 시 로그인 기록도 생성 (관리자가 생성한 사용자)
+            self.db.execute(text("""
+                INSERT INTO user_login_logs (user_id, ip_address, login_success, failure_reason, created_at)
+                VALUES (:user_id, NULL, TRUE, '관리자에 의해 생성됨', NOW())
+            """), {"user_id": user_id})
             
             self.db.commit()
             return True
