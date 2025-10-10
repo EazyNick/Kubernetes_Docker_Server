@@ -1,3 +1,4 @@
+
 """
 노드 관련 API 라우트
 클러스터 노드 정보 및 관리 기능을 제공
@@ -247,7 +248,7 @@ def get_node_metrics(node_name: str, period: str = "1h", db: Session = Depends(g
                 SELECT generate_series(
                     NOW() - interval \'{period}\',
                     NOW(),
-                    interval \'{interval}\'
+                    interval \'{interval}\
                 ) as timestamp
             )
             SELECT 
