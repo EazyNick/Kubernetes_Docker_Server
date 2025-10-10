@@ -6,3 +6,4 @@ PyMySQL==1.1.2
 python-dotenv==1.1.1
 SQLAlchemy==2.0.43
 colorlog==6.9.0
+argon2-cffi==25.1.0

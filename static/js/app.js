@@ -41,6 +41,12 @@ function handleResize() {
 
 // 메인 초기화 함수
 function init() {
+  // 인증 상태 확인
+  if (!isLoggedIn()) {
+    redirectToLogin();
+    return;
+  }
+
   initSidebar();
   handleResize();
   window.addEventListener("resize", handleResize);
@@ -64,7 +70,7 @@ function init() {
   // 현재 페이지에 따라 적절한 초기화 함수 호출
   const currentPath = window.location.pathname;
 
-  if (currentPath === "/") {
+  if (currentPath === "/home") {
     // 홈 페이지 초기화
     if (window.HomeAPI) {
       window.HomeAPI.initHome();
@@ -121,6 +127,11 @@ function init() {
     // 모니터링 차트 초기화
     if (window.MonitoringCharts) {
       window.MonitoringCharts.initAllCharts();
+    }
+  } else if (currentPath === "/admin") {
+    // 관리자 페이지 초기화
+    if (window.AdminAPI) {
+      window.AdminAPI.initAdmin();
     }
   }
 }

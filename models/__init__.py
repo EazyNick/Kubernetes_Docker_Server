@@ -7,11 +7,15 @@ from .node import Node, NodeList
 from .alert import Alert, AlertDetail, AlertList, AlertSummary, AlertRule, AlertRuleList
 from .event import Event, EventList, EventSummary
 from .log import LogEntry, LogStats, LogResponse, LogListResponse, LogStatsResponse
+from .auth import LoginRequest, LoginResponse, LogoutResponse, UserInfoResponse, AuthError
 from .monitoring import (
     ChartDataset, LineChartData, DoughnutChartData,
     NetworkTrafficData, DiskIoData, ResponseTimeData, RequestStatusData,
     MonitoringMetrics, MonitoringResponse,
     NetworkTrafficResponse, DiskIoResponse, ResponseTimeResponse, RequestStatusResponse
+)
+from .admin import (
+    UserCreate, UserUpdate, UserDelete, User, UserList, UserResponse, AdminStats
 )
 
 __all__ = [
@@ -43,6 +47,11 @@ __all__ = [
     'LogResponse',
     'LogListResponse',
     'LogStatsResponse',
+    'LoginRequest',
+    'LoginResponse',
+    'LogoutResponse',
+    'UserInfoResponse',
+    'AuthError',
     'ChartDataset',
     'LineChartData',
     'DoughnutChartData',
@@ -55,5 +64,12 @@ __all__ = [
     'NetworkTrafficResponse',
     'DiskIoResponse',
     'ResponseTimeResponse',
-    'RequestStatusResponse'
+    'RequestStatusResponse',
+    'UserCreate',
+    'UserUpdate',
+    'UserDelete',
+    'User',
+    'UserList',
+    'UserResponse',
+    'AdminStats'
 ]

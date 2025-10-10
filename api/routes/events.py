@@ -2,18 +2,23 @@
 이벤트 관련 API 라우트
 시스템 이벤트 및 로그 정보를 제공
 """
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from models import (
     BaseResponse,
     Event,
     EventList,
     EventSummary
 )
+from api.routes.auth import get_current_user_from_token
 import random
 from datetime import datetime, timedelta
 
 # 라우터 생성
-router = APIRouter(prefix="/api", tags=["events"])
+router = APIRouter(
+    prefix="/api",
+    tags=["events"],
+    dependencies=[Depends(get_current_user_from_token)]
+)
 
 @router.get("/events", response_model=BaseResponse)
 def get_events():
@@ -42,7 +47,12 @@ def get_events():
                 today_events=len(events),
                 warning_events=len([e for e in events if e.type == "Warning"]),
                 normal_events=len([e for e in events if e.type == "Normal"]),
-                system_events=len([e for e in events if e.namespace == "kube-system"])
+                system_events=len([e for e in events if e.namespace == "kube-system"]),
+                # 변화량 데이터 (화살표 방향 표시용)
+                today_events_change=random.choice([f"{random.choice(['+', '-'])}{random.randint(0, 8)}%", "0%"]),
+                warning_events_change=random.choice([f"{random.choice(['+', '-'])}{random.randint(0, 3)}%", "0%"]),
+                normal_events_change=random.choice([f"{random.choice(['+', '-'])}{random.randint(0, 5)}%", "0%"]),
+                system_events_change=random.choice([f"{random.choice(['+', '-'])}{random.randint(0, 2)}%", "0%"])
             )
         )
         
@@ -106,7 +116,12 @@ def get_events_by_namespace(namespace: str):
                 today_events=len(events),
                 warning_events=len([e for e in events if e.type == "Warning"]),
                 normal_events=len([e for e in events if e.type == "Normal"]),
-                system_events=len([e for e in events if e.namespace == "kube-system"])
+                system_events=len([e for e in events if e.namespace == "kube-system"]),
+                # 변화량 데이터 (화살표 방향 표시용)
+                today_events_change=random.choice([f"{random.choice(['+', '-'])}{random.randint(0, 8)}%", "0%"]),
+                warning_events_change=random.choice([f"{random.choice(['+', '-'])}{random.randint(0, 3)}%", "0%"]),
+                normal_events_change=random.choice([f"{random.choice(['+', '-'])}{random.randint(0, 5)}%", "0%"]),
+                system_events_change=random.choice([f"{random.choice(['+', '-'])}{random.randint(0, 2)}%", "0%"])
             )
         )
         

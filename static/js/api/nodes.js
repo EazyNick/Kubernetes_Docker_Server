@@ -46,8 +46,7 @@ function getNodeStatusInfo(status) {
 async function getNodes() {
   try {
     console.log("🖥️ [노드API] 노드 목록 요청 중...");
-    const response = await fetch("/api/nodes");
-    const data = await response.json();
+    const data = await apiGet("/api/nodes");
     console.log("🖥️ [노드API] 노드 목록 응답:", data);
     return data;
   } catch (error) {
@@ -59,8 +58,7 @@ async function getNodes() {
 // 특정 노드 상세 정보 조회
 async function getNode(nodeName) {
   try {
-    const response = await fetch(`/api/nodes/${nodeName}`);
-    const data = await response.json();
+    const data = await apiGet(`/api/nodes/${nodeName}`);
     return data;
   } catch (error) {
     console.error("Error fetching node:", error);
@@ -70,6 +68,7 @@ async function getNode(nodeName) {
 
 // 노드 페이지 데이터 로딩
 async function loadNodesData() {
+  // NodesAPI가 사용 가능한지 확인
   if (!window.NodesAPI) {
     console.error("NodesAPI not available");
     return;
@@ -78,13 +77,16 @@ async function loadNodesData() {
   try {
     const response = await window.NodesAPI.getNodes();
 
+    // 노드 데이터가 성공적으로 로드된 경우
     if (response && response.success) {
       const nodes = response.data.nodes;
       const tbody = document.getElementById("nodesTableBody");
 
+      // 테이블 본문이 존재하는 경우
       if (tbody) {
         tbody.innerHTML = "";
 
+        // 노드가 없는 경우 빈 상태 메시지 표시
         if (nodes.length === 0) {
           tbody.innerHTML = `
             <tr>
@@ -121,25 +123,53 @@ async function loadNodesData() {
 
         // 노드 페이지 통계를 서버에서 가져오기
         try {
-          const statsResponse = await fetch("/api/nodes/stats");
-          if (statsResponse.ok) {
-            const statsData = await statsResponse.json();
-            if (statsData.success) {
-              const stats = statsData.data;
+          const statsData = await apiGet("/api/nodes/stats");
+          // 노드 통계 데이터가 성공적으로 로드된 경우
+          if (statsData.success) {
+            const stats = statsData.data;
 
-              // 서버에서 받은 데이터로 업데이트
-              if (window.updateElement) {
-                window.updateElement("healthyNodes", stats.healthy_nodes);
-                window.updateElement("warningNodes", stats.warning_nodes);
-                window.updateElement("totalCores", stats.total_cores);
-                window.updateElement("totalMemory", stats.total_memory + "GB");
-                window.updateElement("avgCpuUsage", stats.avg_cpu_usage + "%");
-                window.updateElement(
-                  "avgMemoryUsage",
-                  stats.avg_memory_usage + "%"
+            // 서버에서 받은 데이터로 업데이트
+            // updateElement 함수가 사용 가능한 경우
+            if (window.updateElement) {
+              window.updateElement("healthyNodes", stats.healthy_nodes); // 정상 노드 카드
+              window.updateElement("warningNodes", stats.warning_nodes); // 주의 노드 카드
+              window.updateElement("totalCores", stats.total_cores); // 총 CPU 코어 카드
+              window.updateElement("totalMemory", stats.total_memory + "GB"); // 총 메모리 카드
+              window.updateElement("avgCpuUsage", stats.avg_cpu_usage + "%"); // 평균 CPU 사용률 카드
+              window.updateElement(
+                "avgMemoryUsage",
+                stats.avg_memory_usage + "%"
+              ); // 평균 메모리 사용률 카드
+
+              // 서버에서 받은 변화량으로 업데이트 (화살표 방향 포함)
+              // updateChangeElement 함수가 사용 가능한 경우
+              if (window.updateChangeElement) {
+                window.updateChangeElement(
+                  "healthyNodesChange",
+                  stats.healthy_nodes_change
                 );
-
-                // 서버에서 받은 변화량으로 업데이트
+                window.updateChangeElement(
+                  "warningNodesChange",
+                  stats.warning_nodes_change
+                );
+                window.updateChangeElement(
+                  "totalCoresChange",
+                  stats.total_cores_change
+                );
+                window.updateChangeElement(
+                  "totalMemoryChange",
+                  stats.total_memory_change
+                );
+                window.updateChangeElement(
+                  "avgCpuUsageChange",
+                  stats.avg_cpu_usage_change
+                );
+                window.updateChangeElement(
+                  "avgMemoryUsageChange",
+                  stats.avg_memory_usage_change
+                );
+              } else {
+                // fallback: 기존 방식 사용
                 window.updateElement(
                   "healthyNodesChange",
                   stats.healthy_nodes_change
@@ -164,37 +194,41 @@ async function loadNodesData() {
                   "avgMemoryUsageChange",
                   stats.avg_memory_usage_change
                 );
-              } else {
-                console.error("updateElement function not available");
               }
-
-              // 서버 데이터 사용 시 로컬 계산 생략하지만 테이블은 계속 업데이트
+            } else {
+              console.error("updateElement function not available");
             }
+
+            // 서버 데이터 사용 시 로컬 계산 생략하지만 테이블은 계속 업데이트
           }
         } catch (error) {
           console.error("Error fetching node stats:", error);
         }
 
         // 서버 데이터 실패 시 로컬 계산 (fallback)
+        // updateElement 함수가 사용 가능한 경우
         if (window.updateElement) {
-          window.updateElement("healthyNodes", healthyNodes);
-          window.updateElement("warningNodes", warningNodes);
-          window.updateElement("totalCores", totalCores);
-          window.updateElement("totalMemory", totalMemory + "GB");
+          window.updateElement("healthyNodes", healthyNodes); // 정상 노드 카드 (fallback)
+          window.updateElement("warningNodes", warningNodes); // 주의 노드 카드 (fallback)
+          window.updateElement("totalCores", totalCores); // 총 CPU 코어 카드 (fallback)
+          window.updateElement("totalMemory", totalMemory + "GB"); // 총 메모리 카드 (fallback)
         }
 
         // 대시보드 API에서 전체 시스템 평균값 가져오기
+        // StatsAPI가 사용 가능한 경우
         if (window.StatsAPI) {
           try {
             const dashboardResponse = await window.StatsAPI.getDashboardStats();
+            // 대시보드 통계 데이터가 성공적으로 로드된 경우
             if (dashboardResponse && dashboardResponse.success) {
               const resources = dashboardResponse.data.resources;
+              // updateElement 함수가 사용 가능한 경우
               if (window.updateElement) {
-                window.updateElement("avgCpuUsage", resources.avg_cpu + "%");
+                window.updateElement("avgCpuUsage", resources.avg_cpu + "%"); // 평균 CPU 사용률 카드
                 window.updateElement(
                   "avgMemoryUsage",
                   resources.avg_memory + "%"
-                );
+                ); // 평균 메모리 사용률 카드
               }
             }
           } catch (error) {
@@ -209,12 +243,13 @@ async function loadNodesData() {
             const avgMemoryUsage =
               nodes.reduce((sum, node) => sum + node.memory.usage, 0) /
               nodes.length;
+            // updateElement 함수가 사용 가능한 경우
             if (window.updateElement) {
-              window.updateElement("avgCpuUsage", avgCpuUsage.toFixed(1) + "%");
+              window.updateElement("avgCpuUsage", avgCpuUsage.toFixed(1) + "%"); // 평균 CPU 사용률 카드 (fallback)
               window.updateElement(
                 "avgMemoryUsage",
                 avgMemoryUsage.toFixed(1) + "%"
-              );
+              ); // 평균 메모리 사용률 카드 (fallback)
             }
           }
         } else {
@@ -224,12 +259,13 @@ async function loadNodesData() {
           const avgMemoryUsage =
             nodes.reduce((sum, node) => sum + node.memory.usage, 0) /
             nodes.length;
+          // updateElement 함수가 사용 가능한 경우
           if (window.updateElement) {
-            window.updateElement("avgCpuUsage", avgCpuUsage.toFixed(1) + "%");
+            window.updateElement("avgCpuUsage", avgCpuUsage.toFixed(1) + "%"); // 평균 CPU 사용률 카드 (fallback)
             window.updateElement(
               "avgMemoryUsage",
               avgMemoryUsage.toFixed(1) + "%"
-            );
+            ); // 평균 메모리 사용률 카드 (fallback)
           }
         }
 

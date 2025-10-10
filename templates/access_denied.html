@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>접근 거부 - Kubernetes Docker Server</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/login.css">
+    <link rel="icon" type="image/png" href="/static/img/favicon.png">
+    <style>
+        .access-denied-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .access-denied-card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .access-denied-icon {
+            font-size: 80px;
+            color: #e74c3c;
+            margin-bottom: 20px;
+        }
+        
+        .access-denied-title {
+            font-size: 28px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .access-denied-message {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .error-code {
+            background: #ecf0f1;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            color: #95a5a6;
+            margin-bottom: 30px;
+            display: inline-block;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #7f8c8d;
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 480px) {
+            .access-denied-card {
+                padding: 30px 20px;
+            }
+            
+            .access-denied-title {
+                font-size: 24px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="access-denied-container">
+        <div class="access-denied-card">
+            <div class="access-denied-icon">🚫</div>
+            <h1 class="access-denied-title">접근이 거부되었습니다</h1>
+            <p class="access-denied-message">
+                {% if error_message %}
+                    {{ error_message }}
+                {% else %}
+                    이 페이지에 접근할 권한이 없습니다.
+                {% endif %}
+            </p>
+            {% if error_code %}
+            <div class="error-code">오류 코드: {{ error_code }}</div>
+            {% endif %}
+            
+            <div class="action-buttons">
+                <a href="/home" class="btn btn-primary">홈으로 돌아가기</a>
+                <a href="/" class="btn btn-secondary">로그인 페이지</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 5초 후 자동으로 홈 페이지로 리다이렉트
+        setTimeout(function() {
+            window.location.href = '/home';
+        }, 5000);
+        
+        // ESC 키로 홈 페이지로 이동
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                window.location.href = '/home';
+            }
+        });
+    </script>
+</body>
+</html>

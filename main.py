@@ -3,7 +3,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
 # API 라우터들 import
-from api.routes import pages, stats, containers, nodes, alerts, events, logs, monitoring
+from api.routes import pages, stats, containers, nodes, alerts, events, logs, monitoring, auth, admin
 
 # uvicorn main:app --reload --port 8000
 
@@ -25,6 +25,7 @@ async def favicon():
 app.include_router(pages.router)
 
 # API 라우터들 등록
+app.include_router(auth.router)       # /api/auth/*
 app.include_router(stats.router)      # /api/stats/*
 app.include_router(containers.router) # /api/containers/*
 app.include_router(nodes.router)      # /api/nodes/*
@@ -32,3 +33,4 @@ app.include_router(alerts.router)     # /api/alerts/*
 app.include_router(events.router)     # /api/events/*
 app.include_router(logs.router)       # /api/logs/*
 app.include_router(monitoring.router) # /api/monitoring/*
+app.include_router(admin.router)      # /api/admin/*
