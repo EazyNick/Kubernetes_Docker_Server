@@ -6,6 +6,7 @@ from fastapi import APIRouter
 from models import (
     BaseResponse,
     Alert,
+    AlertDetail,
     AlertList,
     AlertSummary,
     AlertRule,
@@ -63,7 +64,7 @@ def get_alerts():
 
 @router.get("/alerts/{alert_id}", response_model=BaseResponse)
 def get_alert(alert_id: str):
-    """특정 알림 상세 정보 조회"""
+    """특정 알림 기본 정보 조회"""
     try:
         # 실제 구현에서는 데이터베이스에서 특정 알림 정보를 가져옴
         alert = Alert(
@@ -89,6 +90,96 @@ def get_alert(alert_id: str):
             details=str(e)
         )
 
+@router.get("/alerts/{alert_id}/detail", response_model=BaseResponse)
+def get_alert_detail(alert_id: str):
+    """특정 알림 상세 정보 조회 (상세보기용)"""
+    try:
+        # 실제 구현에서는 데이터베이스에서 특정 알림 상세 정보를 가져옴
+        # 현재는 임의의 상세 데이터를 생성하여 반환
+        
+        alert_types = ["High Memory Usage", "High CPU Usage", "Container Restart Loop", "Disk Space Low", "High Network Traffic"]
+        severities = ["Critical", "Warning", "Info"]
+        statuses = ["Active", "Resolved"]
+        sources = ["kubelet", "deployment-controller", "service-controller", "node-exporter", "prometheus"]
+        
+        alert_type = random.choice(alert_types)
+        severity = random.choice(severities)
+        status = random.choice(statuses)
+        target = f"k8s-{random.choice(['master', 'worker'])}-{random.randint(1, 3)}"
+        created_time = datetime.now() - timedelta(minutes=random.randint(1, 1440))
+        updated_time = created_time + timedelta(minutes=random.randint(1, 30))
+        
+        # 해결된 경우 해결 시간 설정
+        resolved_at = None
+        if status == "Resolved":
+            resolved_at = (updated_time + timedelta(minutes=random.randint(1, 60))).isoformat() + "Z"
+        
+        # 라벨 생성
+        labels = {
+            "namespace": random.choice(["default", "kube-system", "monitoring", "production"]),
+            "pod": f"{random.choice(['nginx', 'api', 'web', 'db'])}-{random.randint(100, 999)}",
+            "node": target,
+            "cluster": "production",
+            "environment": random.choice(["prod", "staging", "dev"])
+        }
+        
+        # 영향받는 서비스 목록
+        affected_services = random.sample(
+            ["nginx", "api-gateway", "user-service", "payment-service", "notification-service", "auth-service"],
+            random.randint(1, 3)
+        )
+        
+        # 태그 목록
+        tags = random.sample(
+            ["production", "urgent", "infrastructure", "memory", "cpu", "network", "storage", "worker-node"],
+            random.randint(2, 4)
+        )
+        
+        # 메트릭 값과 임계값 생성
+        metric_values = {
+            "High Memory Usage": ("92.5%", "90%"),
+            "High CPU Usage": ("87.3%", "85%"),
+            "Container Restart Loop": ("8회", "5회"),
+            "Disk Space Low": ("8.2GB", "10GB"),
+            "High Network Traffic": ("150ms", "100ms")
+        }
+        
+        metric_value, threshold = metric_values.get(alert_type, ("N/A", "N/A"))
+        
+        alert_detail = AlertDetail(
+            id=alert_id,
+            alert_type=alert_type,
+            target=target,
+            message=f"{alert_type} detected on {target} for more than {random.randint(5, 30)} minutes",
+            description=f"The {target} node has been experiencing {alert_type.lower()} consistently for the past {random.randint(10, 60)} minutes. This is likely due to increased load or resource constraints in the cluster.",
+            severity=severity,
+            status=status,
+            created_at=created_time.isoformat() + "Z",
+            updated_at=updated_time.isoformat() + "Z",
+            resolved_at=resolved_at,
+            duration=f"{random.randint(5, 60)}분",
+            source=random.choice(sources),
+            labels=labels,
+            metric_value=metric_value,
+            threshold=threshold,
+            resolution_notes=f"Monitoring {alert_type.lower()} trends. Consider scaling up resources or optimizing configuration." if status == "Active" else "Issue has been resolved by scaling up node resources.",
+            affected_services=affected_services,
+            escalation_level=random.randint(1, 5),
+            assigned_to=random.choice(["admin", "devops-team", "on-call-engineer", "platform-team"]),
+            tags=tags
+        )
+        
+        return BaseResponse.success_response(
+            data={"alert": alert_detail.dict()},
+            message="Alert detail retrieved successfully"
+        )
+    except Exception as e:
+        return BaseResponse.error_response(
+            message="Failed to retrieve alert detail",
+            error_code="DATABASE_ERROR",
+            details=str(e)
+        )
+
 @router.put("/alerts/{alert_id}/resolve", response_model=BaseResponse)
 def resolve_alert(alert_id: str):
     """알림 해결 처리"""
@@ -110,10 +201,10 @@ def get_alert_rules():
     """알림 규칙 목록 조회"""
     try:
         # TODO: 백엔드 개발자 구현 필요
-        # 1. 데이터베이스에서 알림 규칙 목록 조회 (alert_rules 테이블)
-        # 2. 데이터베이스에서 규칙 상태 관리 (alert_rules 테이블)
-        # 3. 데이터베이스에서 규칙별 임계값 조회 (alert_rules 테이블)
-        # 4. 데이터베이스에서 규칙별 대상 노드/컨테이너 조회 (alert_rules 테이블)
+        # 1. 데이터베이스에서 알림 규칙 목록 조회
+        # 2. 데이터베이스에서 규칙 상태 관리 
+        # 3. 데이터베이스에서 규칙별 임계값 조회 
+        # 4. 데이터베이스에서 규칙별 대상 노드/컨테이너 조회 
         
         # 현재는 랜덤 데이터로 시뮬레이션
         rules = []
@@ -152,6 +243,86 @@ def get_alert_rules():
     except Exception as e:
         return BaseResponse.error_response(
             message="Failed to retrieve alert rules",
+            error_code="DATABASE_ERROR",
+            details=str(e)
+        )
+
+@router.put("/alert-rules/{rule_id}", response_model=BaseResponse)
+def update_alert_rule(rule_id: str, rule_data: dict):
+    """알림 규칙 수정"""
+    try:
+        # TODO: 백엔드 개발자 구현 필요
+        # 1. 데이터베이스에서 해당 규칙 존재 여부 확인
+        # 2. 규칙이 존재하는 경우 업데이트 처리
+        # 3. 업데이트 성공/실패 여부 반환
+        
+        # 규칙 ID가 유효한 형식인지 확인 (RULE-XXX 형식)
+        if not rule_id.startswith("RULE-") or len(rule_id) < 8:
+            return BaseResponse.error_response(
+                message="Invalid rule ID format",
+                error_code="INVALID_RULE_ID",
+                details="Rule ID must be in format 'RULE-XXX'"
+            )
+        
+        # 필수 필드 검증
+        required_fields = ["name", "target", "condition", "severity", "status"]
+        for field in required_fields:
+            if field not in rule_data or not rule_data[field]:
+                return BaseResponse.error_response(
+                    message=f"Missing required field: {field}",
+                    error_code="MISSING_FIELD",
+                    details=f"The field '{field}' is required"
+                )
+        
+        # 무조건 성공 처리
+        updated_rule = {
+            "id": rule_id,
+            "name": rule_data["name"],
+            "target": rule_data["target"],
+            "condition": rule_data["condition"],
+            "severity": rule_data["severity"],
+            "status": rule_data["status"],
+            "created_at": (datetime.now() - timedelta(days=random.randint(1, 30))).isoformat() + "Z"
+        }
+        return BaseResponse.success_response(
+            data={"rule": updated_rule, "updated": True},
+            message="Alert rule updated successfully"
+        )
+            
+    except Exception as e:
+        return BaseResponse.error_response(
+            message="Failed to update alert rule",
+            error_code="DATABASE_ERROR",
+            details=str(e)
+        )
+
+@router.delete("/alert-rules/{rule_id}", response_model=BaseResponse)
+def delete_alert_rule(rule_id: str):
+    """알림 규칙 삭제"""
+    try:
+        # TODO: 백엔드 개발자 구현 필요
+        # 1. 데이터베이스에서 해당 규칙 존재 여부 확인
+        # 2. 규칙이 존재하는 경우 삭제 처리
+        # 3. 관련된 알림 이력도 함께 삭제
+        # 4. 삭제 성공/실패 여부 반환
+        
+        # 규칙 ID가 유효한 형식인지 확인 (RULE-XXX 형식)
+        if not rule_id.startswith("RULE-") or len(rule_id) < 8:
+            return BaseResponse.error_response(
+                message="Invalid rule ID format",
+                error_code="INVALID_RULE_ID",
+                details="Rule ID must be in format 'RULE-XXX'"
+            )
+        
+        # 무조건 성공 처리
+        return BaseResponse.success_response(
+            data={"rule_id": rule_id, "deleted": True},
+            message="Alert rule deleted successfully"
+        )
+            
+    except Exception as e:
+        return BaseResponse.error_response(
+            message="Failed to delete alert rule",
             error_code="DATABASE_ERROR",
             details=str(e)
         )

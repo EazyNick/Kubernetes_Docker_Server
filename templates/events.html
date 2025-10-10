@@ -81,35 +81,35 @@
             <div class="dashboard-card-body">
                 <div class="row">
                     <div class="col-md-3">
-                        <select class="form-select form-select-sm">
-                            <option>모든 타입</option>
-                            <option>Pod Events</option>
-                            <option>Node Events</option>
-                            <option>Deployment Events</option>
-                            <option>Service Events</option>
+                        <select class="form-select form-select-sm" id="eventTypeFilter">
+                            <option value="">모든 타입</option>
+                            <option value="Normal">Normal</option>
+                            <option value="Warning">Warning</option>
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <select class="form-select form-select-sm">
-                            <option>모든 네임스페이스</option>
-                            <option>default</option>
-                            <option>kube-system</option>
-                            <option>monitoring</option>
-                            <option>ingress-nginx</option>
+                        <select class="form-select form-select-sm" id="namespaceFilter">
+                            <option value="">모든 네임스페이스</option>
+                            <option value="default">default</option>
+                            <option value="kube-system">kube-system</option>
+                            <option value="monitoring">monitoring</option>
+                            <option value="ingress-nginx">ingress-nginx</option>
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <select class="form-select form-select-sm">
-                            <option>최근 1시간</option>
-                            <option>최근 6시간</option>
-                            <option>최근 24시간</option>
-                            <option>최근 7일</option>
+                        <select class="form-select form-select-sm" id="timeFilter">
+                            <option value="1h">최근 1시간</option>
+                            <option value="6h">최근 6시간</option>
+                            <option value="24h">최근 24시간</option>
+                            <option value="7d">최근 7일</option>
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <input type="search" class="form-control form-control-sm" placeholder="이벤트 검색...">
+                        <input type="search" class="form-control form-control-sm" id="searchFilter" placeholder="이벤트 검색...">
                     </div>
                 </div>
+                <!-- 검색 통계 표시 영역 -->
+                <div id="searchStats" style="display: none; margin-top: 1rem;"></div>
             </div>
         </div>
     </div>
@@ -131,13 +131,13 @@
                     <table id="eventsTable" class="table table-hover" style="table-layout: fixed; width: 100%;">
                         <thead>
                             <tr>
-                                <th class="sortable" data-column="time" style="width: 10%;">
+                                <th class="sortable" data-column="time" style="width: 12%;">
                                     시간 <i class="fas fa-sort sort-icon"></i>
                                 </th>
-                                <th class="sortable" data-column="type" style="width: 8%;">
+                                <th class="sortable" data-column="type" style="width: 10%;">
                                     타입 <i class="fas fa-sort sort-icon"></i>
                                 </th>
-                                <th class="sortable" data-column="object" style="width: 15%;">
+                                <th class="sortable" data-column="object" style="width: 18%;">
                                     오브젝트 <i class="fas fa-sort sort-icon"></i>
                                 </th>
                                 <th class="sortable" data-column="namespace" style="width: 12%; white-space: nowrap;">
@@ -146,10 +146,10 @@
                                 <th class="sortable" data-column="reason" style="width: 12%;">
                                     이유 <i class="fas fa-sort sort-icon"></i>
                                 </th>
-                                <th class="sortable" data-column="message" style="width: 30%;">
+                                <th class="sortable" data-column="message" style="width: 28%;">
                                     메시지 <i class="fas fa-sort sort-icon"></i>
                                 </th>
-                                <th class="sortable" data-column="source" style="width: 13%;">
+                                <th class="sortable" data-column="source" style="width: 8%;">
                                     소스 <i class="fas fa-sort sort-icon"></i>
                                 </th>
                             </tr>
@@ -204,14 +204,8 @@
     </div>
 </div>
 
-<!-- 테이블 스타일 CSS -->
-<style>
-#eventsTable td:nth-child(4) {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-</style>
+<!-- 이벤트 페이지 전용 CSS -->
+<link rel="stylesheet" href="/static/css/events.css">
 
 <!-- 정렬 기능 JavaScript -->
 <script>

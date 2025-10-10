@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 # API 라우터들 import
 from api.routes import pages, stats, containers, nodes, alerts, events, logs, monitoring
@@ -14,6 +15,11 @@ app = FastAPI(
 
 # Static 파일 서빙 설정
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# 파비콘 설정
+@app.get("/favicon.ico")
+async def favicon():
+    return FileResponse("static/img/favicon.png")
 
 # HTML 페이지 라우터 등록
 app.include_router(pages.router)
