@@ -3,45 +3,58 @@
 클러스터 노드 정보 및 관리 기능을 제공
 """
 from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from sqlalchemy import text
+from db.database import get_db
+from api.routes.auth import get_current_user_from_token
+
 from models import (
     BaseResponse,
     Node,
     NodeList,
-    NodePageStats
+    NodePageStats,
+    Pagination
 )
-from sqlalchemy import text
-from sqlalchemy.orm import Session
-from db.database import get_db
-from models import BaseResponse, Node, NodeList
 from models.node import ResourceUsage, MemoryInfo, DiskInfo
 import random
 from datetime import datetime, timedelta
 
 # 라우터 생성
-
-router = APIRouter(prefix="/api", tags=["nodes"])
-
+router = APIRouter(
+    prefix="/api",
+    tags=["nodes"],
+    dependencies=[Depends(get_current_user_from_token)]
+)
 
 @router.get("/nodes", response_model=BaseResponse)
-def get_nodes(db: Session = Depends(get_db)):
-    """노드 목록 조회"""
+def get_nodes(page: int = 1, per_page: int = 20, db: Session = Depends(get_db)):
+    """노드 목록 조회 (페이징 지원)"""
     try:
-        rows = db.execute(text(
-            """ 
-            SELECT n.id, n.node_name,n.ip,n.role,n.status,n.total_cores,
-                n.total_memory,n.total_disk,n.created_at,n.updated_at,m.cpu_usage,
-                m.memory_usage, m.disk_usage, m.containers, m.collected_at
+        # 1. offset 계산
+        offset = (page - 1) * per_page
+
+        # 2. 데이터베이스에서 노드 목록 조회
+        query = text("""
+            SELECT n.id, n.node_name, n.ip, n.role, n.status, n.total_cores,
+                   n.total_memory, n.total_disk, n.created_at, n.updated_at,
+                   m.cpu_usage, m.memory_usage, m.disk_usage, m.containers, m.collected_at
             FROM nodes n
-            LEFT JOIN metrics m 
-            ON n.id = m.node_id
+            LEFT JOIN metrics m ON n.id = m.node_id
             AND m.collected_at = (
                 SELECT MAX(m2.collected_at)
                 FROM metrics m2
                 WHERE m2.node_id = n.id
-                )
-            LIMIT 50
-            """)).fetchall()
+            )
+            ORDER BY n.created_at DESC
+            LIMIT :limit OFFSET :offset
+        """)
+        rows = db.execute(query, {"limit": per_page, "offset": offset}).fetchall()
 
+        # 3. 전체 노드 수 조회
+        total_query = text("SELECT COUNT(*) FROM nodes")
+        total_nodes = db.execute(total_query).scalar()
+
+        # 4. Pydantic 모델로 변환
         nodes = []
         for row in rows:
             nodes.append(Node(
@@ -66,8 +79,19 @@ def get_nodes(db: Session = Depends(get_db)):
                 last_heartbeat=(row.collected_at.isoformat() + "Z") if row.collected_at else row.updated_at.isoformat() + "Z"
             ))
 
+        # 5. 페이징 정보 포함해서 응답
+        node_list = NodeList(
+            nodes=nodes,
+            pagination=Pagination(
+                page=page,
+                per_page=per_page,
+                total=total_nodes,
+                total_pages=(total_nodes + per_page - 1) // per_page
+            )
+        )
+
         return BaseResponse.success_response(
-            data=NodeList(nodes=nodes).dict(),
+            data=node_list.dict(),
             message="Nodes retrieved successfully"
         )
 
@@ -79,7 +103,7 @@ def get_nodes(db: Session = Depends(get_db)):
         )
 
 @router.get("/nodes/stats", response_model=BaseResponse)
-def get_node_stats():
+def get_node_stats(db: Session = Depends(get_db)):
     """노드 페이지 통계"""
     try:
         # 1. 노드 상태별 집계
@@ -98,7 +122,7 @@ def get_node_stats():
         total_memory = resource_row.total_memory or 0
 
         # 3. 평균 리소스 사용률 계산
-        avg_usage_query = text("""
+        avg_usage_query = text('''
             SELECT AVG(m.cpu_usage) as avg_cpu, AVG(m.memory_usage) as avg_mem
             FROM metrics m
             WHERE m.collected_at IN (
@@ -106,7 +130,7 @@ def get_node_stats():
                 FROM metrics m2
                 GROUP BY m2.node_id
             )
-        """)
+        ''')
         avg_usage_row = db.execute(avg_usage_query).fetchone()
 
         avg_cpu_usage = avg_usage_row.avg_cpu or 0.0
@@ -114,7 +138,6 @@ def get_node_stats():
 
         # 4. 통계 데이터 모델 생성
         node_stats = NodePageStats(
-
             healthy_nodes=healthy_nodes,
             warning_nodes=warning_nodes,
             total_cores=int(total_cores),
@@ -141,13 +164,11 @@ def get_node_stats():
             details=str(e)
         )
 
-
 @router.get("/nodes/{node_name}", response_model=BaseResponse)
-def get_node(node_name: str):
+def get_node(node_name: str, db: Session = Depends(get_db)):
     """특정 노드 상세 정보 조회"""
     try:
-
-        query = text("""
+        query = text('''
             SELECT n.id, n.node_name, n.ip, n.role, n.status, n.total_cores,
                    n.total_memory, n.total_disk, n.created_at, n.updated_at,
                    m.cpu_usage, m.memory_usage, m.disk_usage, m.containers, m.collected_at
@@ -159,7 +180,7 @@ def get_node(node_name: str):
                 WHERE m2.node_id = n.id
             )
             WHERE n.node_name = :node_name
-        """)
+        ''')
         row = db.execute(query, {"node_name": node_name}).fetchone()
 
         if not row:
@@ -188,7 +209,6 @@ def get_node(node_name: str):
             containers=row.containers if row.containers else 0,
             uptime="N/A",  # 추후 구현
             last_heartbeat=(row.collected_at.isoformat() + "Z") if row.collected_at else row.updated_at.isoformat() + "Z"
-
         )
         
         return BaseResponse.success_response(
@@ -198,6 +218,74 @@ def get_node(node_name: str):
     except Exception as e:
         return BaseResponse.error_response(
             message="Failed to retrieve node",
+            error_code="DATABASE_ERROR",
+            details=str(e)
+        )
+
+@router.get("/nodes/{node_name}/metrics", response_model=BaseResponse)
+def get_node_metrics(node_name: str, period: str = "1h", db: Session = Depends(get_db)):
+    """특정 노드의 시계열 메트릭 조회"""
+    try:
+        # 1. 노드 ID 조회
+        node_id_query = text("SELECT id FROM nodes WHERE node_name = :node_name")
+        node_id_row = db.execute(node_id_query, {"node_name": node_name}).fetchone()
+        
+        if not node_id_row:
+            return BaseResponse.error_response(
+                message=f"Node {node_name} not found",
+                error_code="NOT_FOUND"
+            )
+        node_id = node_id_row.id
+
+        # 2. 기간에 따른 시간 간격 설정
+        time_intervals = {"1h": "1 minute", "6h": "5 minute", "12h": "10 minute", "24h": "20 minute"}
+        interval = time_intervals.get(period, "1 minute")
+
+        # 3. 시계열 데이터 조회 쿼리
+        metrics_query = text(f'''
+            WITH time_series AS (
+                SELECT generate_series(
+                    NOW() - interval \'{period}\',
+                    NOW(),
+                    interval \'{interval}\'
+                ) as timestamp
+            )
+            SELECT 
+                ts.timestamp,
+                (SELECT m.cpu_usage 
+                 FROM metrics m 
+                 WHERE m.node_id = :node_id AND m.collected_at <= ts.timestamp 
+                 ORDER BY m.collected_at DESC 
+                 LIMIT 1) as cpu_usage,
+                (SELECT m.memory_usage 
+                 FROM metrics m 
+                 WHERE m.node_id = :node_id AND m.collected_at <= ts.timestamp 
+                 ORDER BY m.collected_at DESC 
+                 LIMIT 1) as memory_usage
+            FROM time_series ts
+            ORDER BY ts.timestamp
+        ''')
+        
+        rows = db.execute(metrics_query, {"node_id": node_id}).fetchall()
+
+        # 4. 결과 포맷팅
+        timestamps = [row.timestamp.isoformat() + "Z" for row in rows]
+        cpu_data = [round(row.cpu_usage, 1) if row.cpu_usage is not None else 0 for row in rows]
+        memory_data = [round(row.memory_usage, 1) if row.memory_usage is not None else 0 for row in rows]
+
+        metrics_data = {
+            "timestamps": timestamps,
+            "cpu_usage": cpu_data,
+            "memory_usage": memory_data
+        }
+        
+        return BaseResponse.success_response(
+            data=metrics_data,
+            message="Node metrics retrieved successfully"
+        )
+    except Exception as e:
+        return BaseResponse.error_response(
+            message="Failed to retrieve node metrics",
             error_code="DATABASE_ERROR",
             details=str(e)
         )
