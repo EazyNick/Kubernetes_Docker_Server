@@ -14,9 +14,8 @@ from .monitoring import (
     MonitoringMetrics, MonitoringResponse,
     NetworkTrafficResponse, DiskIoResponse, ResponseTimeResponse, RequestStatusResponse
 )
-from .admin import (
-    UserCreate, UserUpdate, UserDelete, User, UserList, UserResponse, AdminStats
-)
+from .admin import AdminStats
+from .user import User, UserCreate, UserUpdate, UserPublic as UserResponse, UserListPublic as UserList
 
 __all__ = [
     'BaseResponse',
@@ -67,7 +66,6 @@ __all__ = [
     'RequestStatusResponse',
     'UserCreate',
     'UserUpdate',
-    'UserDelete',
     'User',
     'UserList',
     'UserResponse',
