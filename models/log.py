@@ -47,3 +47,16 @@ class LogListResponse(LogResponse):
 class LogStatsResponse(LogResponse):
     """로그 통계 조회 응답 모델"""
     data: LogStats  # 로그 통계 정보 (레벨별 개수, 시간 범위 등)
+
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
+from db.database import Base
+
+class LogDB(Base):
+    __tablename__ = "logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    container_id = Column(Integer, ForeignKey("containers.id"))
+    level = Column(String(50), nullable=False)
+    message = Column(Text, nullable=False)
+    event_time = Column(DateTime, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)

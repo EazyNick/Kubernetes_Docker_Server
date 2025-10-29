@@ -207,44 +207,24 @@ def resolve_alert(alert_id: str):
         )
 
 @router.get("/alert-rules", response_model=BaseResponse)
-def get_alert_rules():
+def get_alert_rules(db: Session = Depends(get_db)):
     """알림 규칙 목록 조회"""
     try:
-        # TODO: 백엔드 개발자 구현 필요
-        # 1. 데이터베이스에서 알림 규칙 목록 조회
-        # 2. 데이터베이스에서 규칙 상태 관리 
-        # 3. 데이터베이스에서 규칙별 임계값 조회 
-        # 4. 데이터베이스에서 규칙별 대상 노드/컨테이너 조회 
+        # 데이터베이스에서 모든 알림 규칙을 조회
+        rules_db = db.query(AlertRuleDB).order_by(AlertRuleDB.id.desc()).all()
         
-        # 현재는 랜덤 데이터로 시뮬레이션
-        rules = []
-        rule_names = [
-            "High CPU Usage", "High Memory Usage", "Container Restart Loop", 
-            "Disk Space Warning", "Network Latency", "Pod CrashLoopBackOff",
-            "Node Not Ready", "Service Unavailable", "High Disk I/O"
-        ]
-        targets = ["모든 노드", "모든 컨테이너", "Kubernetes 클러스터", "특정 네임스페이스"]
-        conditions = [
-            "CPU > 85% for 5min", "Memory > 90% for 3min", "Restart count > 3 in 10min",
-            "Disk usage > 80%", "Latency > 100ms", "Pod restart > 5 in 5min",
-            "Node status != Ready", "Service endpoints = 0", "Disk I/O > 100MB/s"
-        ]
-        severities = ["Critical", "Warning", "Info"]
-        statuses = ["Active", "Inactive", "Testing"]
+        # SQLAlchemy 모델 객체를 Pydantic 모델 객체로 변환
+        rules_pydantic = [AlertRule(
+            id=f"RULE-{rule.id:03d}",
+            name=rule.name,
+            target=rule.target,
+            condition=rule.condition,
+            severity=rule.severity,
+            status=rule.status,
+            created_at=rule.created_at.isoformat() + "Z"
+        ) for rule in rules_db]
         
-        for i in range(8):
-            rule_name = random.choice(rule_names)
-            rules.append(AlertRule(
-                id=f"RULE-{i+1:03d}",
-                name=rule_name,
-                target=random.choice(targets),
-                condition=random.choice(conditions),
-                severity=random.choice(severities),
-                status=random.choice(statuses),
-                created_at=(datetime.now() - timedelta(days=random.randint(1, 30))).isoformat() + "Z"
-            ))
-        
-        rule_list = AlertRuleList(rules=rules)
+        rule_list = AlertRuleList(rules=rules_pydantic)
         
         return BaseResponse.success_response(
             data=rule_list.dict(),
@@ -258,48 +238,55 @@ def get_alert_rules():
         )
 
 @router.put("/alert-rules/{rule_id}", response_model=BaseResponse)
-def update_alert_rule(rule_id: str, rule_data: dict):
+def update_alert_rule(rule_id: str, rule_update: AlertRuleUpdate, db: Session = Depends(get_db)):
     """알림 규칙 수정"""
     try:
-        # TODO: 백엔드 개발자 구현 필요
-        # 1. 데이터베이스에서 해당 규칙 존재 여부 확인
-        # 2. 규칙이 존재하는 경우 업데이트 처리
-        # 3. 업데이트 성공/실패 여부 반환
-        
-        # 규칙 ID가 유효한 형식인지 확인 (RULE-XXX 형식)
-        if not rule_id.startswith("RULE-") or len(rule_id) < 8:
+        # "RULE-001" 형식의 ID에서 숫자 부분만 추출
+        try:
+            rule_numeric_id = int(rule_id.split('-')[1])
+        except (IndexError, ValueError):
             return BaseResponse.error_response(
                 message="Invalid rule ID format",
                 error_code="INVALID_RULE_ID",
                 details="Rule ID must be in format 'RULE-XXX'"
             )
+
+        # 데이터베이스에서 해당 규칙 조회
+        rule_db = db.query(AlertRuleDB).filter(AlertRuleDB.id == rule_numeric_id).first()
+
+        if not rule_db:
+            return BaseResponse.error_response(
+                message="Alert rule not found",
+                error_code="NOT_FOUND",
+                details=f"Rule with id {rule_id} not found"
+            )
+
+        # 받은 데이터로 규칙 업데이트
+        update_data = rule_update.dict()
+        for key, value in update_data.items():
+            setattr(rule_db, key, value)
         
-        # 필수 필드 검증
-        required_fields = ["name", "target", "condition", "severity", "status"]
-        for field in required_fields:
-            if field not in rule_data or not rule_data[field]:
-                return BaseResponse.error_response(
-                    message=f"Missing required field: {field}",
-                    error_code="MISSING_FIELD",
-                    details=f"The field '{field}' is required"
-                )
-        
-        # 무조건 성공 처리
-        updated_rule = {
-            "id": rule_id,
-            "name": rule_data["name"],
-            "target": rule_data["target"],
-            "condition": rule_data["condition"],
-            "severity": rule_data["severity"],
-            "status": rule_data["status"],
-            "created_at": (datetime.now() - timedelta(days=random.randint(1, 30))).isoformat() + "Z"
-        }
+        db.commit()
+        db.refresh(rule_db)
+
+        # Pydantic 모델로 변환하여 반환
+        updated_rule_pydantic = AlertRule(
+            id=f"RULE-{rule_db.id:03d}",
+            name=rule_db.name,
+            target=rule_db.target,
+            condition=rule_db.condition,
+            severity=rule_db.severity,
+            status=rule_db.status,
+            created_at=rule_db.created_at.isoformat() + "Z"
+        )
+
         return BaseResponse.success_response(
-            data={"rule": updated_rule, "updated": True},
+            data={"rule": updated_rule_pydantic.dict(), "updated": True},
             message="Alert rule updated successfully"
         )
             
     except Exception as e:
+        db.rollback()
         return BaseResponse.error_response(
             message="Failed to update alert rule",
             error_code="DATABASE_ERROR",
@@ -307,30 +294,40 @@ def update_alert_rule(rule_id: str, rule_data: dict):
         )
 
 @router.delete("/alert-rules/{rule_id}", response_model=BaseResponse)
-def delete_alert_rule(rule_id: str):
+def delete_alert_rule(rule_id: str, db: Session = Depends(get_db)):
     """알림 규칙 삭제"""
     try:
-        # TODO: 백엔드 개발자 구현 필요
-        # 1. 데이터베이스에서 해당 규칙 존재 여부 확인
-        # 2. 규칙이 존재하는 경우 삭제 처리
-        # 3. 관련된 알림 이력도 함께 삭제
-        # 4. 삭제 성공/실패 여부 반환
-        
-        # 규칙 ID가 유효한 형식인지 확인 (RULE-XXX 형식)
-        if not rule_id.startswith("RULE-") or len(rule_id) < 8:
+        # "RULE-001" 형식의 ID에서 숫자 부분만 추출
+        try:
+            rule_numeric_id = int(rule_id.split('-')[1])
+        except (IndexError, ValueError):
             return BaseResponse.error_response(
                 message="Invalid rule ID format",
                 error_code="INVALID_RULE_ID",
                 details="Rule ID must be in format 'RULE-XXX'"
             )
-        
-        # 무조건 성공 처리
+
+        # 데이터베이스에서 해당 규칙 조회
+        rule_db = db.query(AlertRuleDB).filter(AlertRuleDB.id == rule_numeric_id).first()
+
+        if not rule_db:
+            return BaseResponse.error_response(
+                message="Alert rule not found",
+                error_code="NOT_FOUND",
+                details=f"Rule with id {rule_id} not found"
+            )
+
+        # 규칙 삭제
+        db.delete(rule_db)
+        db.commit()
+
         return BaseResponse.success_response(
             data={"rule_id": rule_id, "deleted": True},
             message="Alert rule deleted successfully"
         )
             
     except Exception as e:
+        db.rollback()
         return BaseResponse.error_response(
             message="Failed to delete alert rule",
             error_code="DATABASE_ERROR",
