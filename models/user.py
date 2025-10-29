@@ -6,7 +6,7 @@ from sqlalchemy import Column, Integer, String, DateTime, Enum
 from db.database import Base  # 수정: db.database에서 Base 임포트
 from datetime import datetime
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 class User(BaseModel):
     id: int
@@ -52,7 +52,7 @@ class UserPublic(BaseModel):
     updated_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class UserUpdate(BaseModel):
     username: Optional[str] = None

@@ -4,7 +4,7 @@ from .overview import OverviewStats, NodePageStats
 from .dashboard import DashboardStats, ContainerStats, NodeStats, ResourceStats
 from .container import Container, ContainerList, Pagination, MemoryInfo, NetworkInfo
 from .node import Node, NodeList
-from .alert import Alert, AlertDetail, AlertList, AlertSummary, AlertRule, AlertRuleList
+from .alert import Alert, AlertDetail, AlertList, AlertSummary, AlertRule, AlertRuleList, AlertRuleUpdate
 from .event import Event, EventList, EventSummary
 from .log import LogEntry, LogStats, LogResponse, LogListResponse, LogStatsResponse
 from .auth import LoginRequest, LoginResponse, LogoutResponse, UserInfoResponse, AuthError
@@ -38,6 +38,7 @@ __all__ = [
     'AlertSummary',
     'AlertRule',
     'AlertRuleList',
+    'AlertRuleUpdate',
     'Event',
     'EventList',
     'EventSummary',

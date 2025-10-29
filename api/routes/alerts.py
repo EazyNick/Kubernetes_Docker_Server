@@ -3,6 +3,8 @@
 시스템 알림 및 경고 정보를 제공
 """
 from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from db.database import get_db
 from models import (
     BaseResponse,
     Alert,
@@ -10,7 +12,8 @@ from models import (
     AlertList,
     AlertSummary,
     AlertRule,
-    AlertRuleList
+    AlertRuleList,
+    AlertRuleUpdate
 )
 from api.routes.auth import get_current_user_from_token
 import random
