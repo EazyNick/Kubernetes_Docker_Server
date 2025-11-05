@@ -26,10 +26,8 @@ Kubernetes 클러스터와 Docker 컨테이너를 실시간으로 모니터링�
 
 ### 📊 설계서 및 문서
 
-- **유즈케이스**: [`docs/reports/usecase/`](docs/reports/usecase/) - 시스템 유즈케이스 정의서
-- **WBS**: [`docs/reports/wbs/`](docs/reports/wbs/) - 프로젝트 작업 분해 구조
-- **기술 문서**: [`docs/reports/technical/`](docs/reports/technical/) - 한이음 ICT 멘토링 보고서 및 설계서
-- **참고자료**: [`docs/reports/references/`](docs/reports/references/) - Kubernetes, Docker, 모니터링 등 참고 자료
+- **결과보고서**: [결과보고서](docs/25HC179_결과보고서.pdf)
+- **제작설계서**: [제작설계서](docs/25HC179_제작설계서.pptx)
 
 ## 🛠 기술 스택
 
