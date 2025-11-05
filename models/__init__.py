@@ -4,7 +4,7 @@ from .overview import OverviewStats, NodePageStats
 from .dashboard import DashboardStats, ContainerStats, NodeStats, ResourceStats
 from .container import Container, ContainerList, Pagination, MemoryInfo, NetworkInfo
 from .node import Node, NodeList
-from .alert import Alert, AlertDetail, AlertList, AlertSummary, AlertRule, AlertRuleList
+from .alert import Alert, AlertDetail, AlertList, AlertSummary, AlertRule, AlertRuleList, AlertRuleUpdate
 from .event import Event, EventList, EventSummary
 from .log import LogEntry, LogStats, LogResponse, LogListResponse, LogStatsResponse
 from .auth import LoginRequest, LoginResponse, LogoutResponse, UserInfoResponse, AuthError
@@ -14,9 +14,8 @@ from .monitoring import (
     MonitoringMetrics, MonitoringResponse,
     NetworkTrafficResponse, DiskIoResponse, ResponseTimeResponse, RequestStatusResponse
 )
-from .admin import (
-    UserCreate, UserUpdate, UserDelete, User, UserList, UserResponse, AdminStats
-)
+from .admin import AdminStats
+from .user import User, UserCreate, UserUpdate, UserPublic as UserResponse, UserListPublic as UserList
 
 __all__ = [
     'BaseResponse',
@@ -39,6 +38,7 @@ __all__ = [
     'AlertSummary',
     'AlertRule',
     'AlertRuleList',
+    'AlertRuleUpdate',
     'Event',
     'EventList',
     'EventSummary',
@@ -67,7 +67,6 @@ __all__ = [
     'RequestStatusResponse',
     'UserCreate',
     'UserUpdate',
-    'UserDelete',
     'User',
     'UserList',
     'UserResponse',

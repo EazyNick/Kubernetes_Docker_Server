@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
 import os
 from dotenv import load_dotenv
 
@@ -19,6 +20,13 @@ DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB
 # 엔진 & 세션 생성
 engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+Base = declarative_base()
+
+# 모델 임포트 (Base에 등록)
+from models.alert import AlertRuleDB
+from models.log import LogDB
+from models.user import UserDB
 
 # FastAPI에서 의존성 주입용
 def get_db():

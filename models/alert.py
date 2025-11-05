@@ -3,6 +3,9 @@
 """
 from typing import List, Optional
 from pydantic import BaseModel
+from sqlalchemy import Column, Integer, String, DateTime
+from db.database import Base
+import datetime
 
 
 class Alert(BaseModel):
@@ -174,3 +177,24 @@ class AlertRuleList(BaseModel):
                 ]
             }
         }
+
+
+class AlertRuleDB(Base):
+    __tablename__ = "alert_rules"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), nullable=False)
+    target = Column(String(255), nullable=False)
+    condition = Column(String(255), nullable=False)
+    severity = Column(String(50), nullable=False)
+    status = Column(String(50), nullable=False)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+
+class AlertRuleUpdate(BaseModel):
+    """알림 규칙 수정을 위한 모델"""
+    name: str
+    target: str
+    condition: str
+    severity: str
+    status: str
